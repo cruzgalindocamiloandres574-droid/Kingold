@@ -27,7 +27,7 @@ async function saveSubscription(subscription:Stripe.Subscription, userId?:string
 }
 
 export async function POST(request:Request) {
-  const secret = process.env.STRIPE_SECRET_KEY;
+  const secret = process.env.STRIPE_SECRET_KEY || process.env.stripe_secret_client;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret || !webhookSecret || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({error:"Webhook no configurado."},{status:503});
