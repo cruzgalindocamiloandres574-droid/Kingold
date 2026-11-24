@@ -182,7 +182,12 @@ export default function Home() {
   }, [selected]);
 
   const genres = useMemo(
-    () => ["Todo", ...Array.from(new Set(catalogFilms.map((film) => film.genre))).sort()],
+    () => ["Todo", ...Array.from(new Set([
+      "Acción", "Aventura", "Animación", "Ciencia ficción", "Comedia", "Crimen",
+      "Documental", "Drama", "Familia", "Fantasía", "Historia", "Terror",
+      "Misterio", "Música", "Romance", "Suspense", "Bélica", "Western",
+      ...catalogFilms.flatMap((film) => film.genre.split(",").map((value) => value.trim()).filter(Boolean)),
+    ])).sort((a, b) => a.localeCompare(b, "es"))],
     [catalogFilms],
   );
 
