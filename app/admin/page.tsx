@@ -1,0 +1,3 @@
+import {createClient} from "@/lib/supabase/server";
+import {redirect} from "next/navigation";
+export default async function Admin(){const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login");const {data:profile}=await supabase.from("profiles").select("role").eq("id",user.id).single();if(profile?.role!=="admin")redirect("/");return <main className="section"><a href="/">NOIR VAULT</a><h1>Administración</h1><p>Acceso de administrador confirmado.</p><p>La gestión de catálogo y usuarios requiere completar las políticas y formularios de administración.</p></main>}
