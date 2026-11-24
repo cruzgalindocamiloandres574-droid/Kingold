@@ -6,10 +6,12 @@ export const maxDuration = 60;
 
 const PAGE_SIZE = 20;
 
-function adminClient() {
+function catalogClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server credentials are not configured");
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error("Supabase public credentials are not configured");
+  // Read-only public catalogue requests are protected by the published-movies RLS policy.
+  // Privileged catalogue imports continue to use server-only credentials in their own route.
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest) {
     const year = request.nextUrl.searchParams.get("year");
     const language = request.nextUrl.searchParams.get("language");
     const audio = request.nextUrl.searchParams.get("audio");
-    const db = adminClient();
+    const db = catalogClient();
     let query = db.from("movies")
       .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish", { count: "exact" })
       .eq("published", true)
