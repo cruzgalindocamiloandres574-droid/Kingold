@@ -106,7 +106,7 @@ export default function Home() {
       </section>
 
       <section id="planes" className="membership">
-        <div className="eyebrow">NOIR VAULT MEMBERSHIP</div><h2>El siguiente capítulo<br />es <i>tuyo.</i></h2><p>Tu cuenta, tus descubrimientos y una experiencia cinematográfica en evolución.</p><a className="primaryBtn" href="/login">CREAR MI CUENTA <span>↗</span></a><small>Las funciones de suscripción se activarán cuando se complete la configuración de pagos y derechos de distribución.</small>
+        <div className="eyebrow">NOIR VAULT MEMBERSHIP</div><h2>El siguiente capítulo<br />es <i>tuyo.</i></h2><p>Tu cuenta, tus descubrimientos y una experiencia cinematográfica en evolución.</p><a className="primaryBtn" href="/registro">CREAR MI CUENTA <span>↗</span></a><small>Las funciones de suscripción se activarán cuando se complete la configuración de pagos y derechos de distribución.</small>
       </section>
       <footer><a className="brand footerBrand" href="#"><span>NOIR</span> VAULT</a><span>© 2026 NOIR VAULT. HECHO PARA LOS QUE AMAN EL CINE.</span><a href="/cuenta">MI CUENTA ↗</a></footer>
 
