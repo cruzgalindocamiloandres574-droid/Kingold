@@ -170,3 +170,24 @@ button{color:inherit}
  .playerOverlay{padding:6px}.playerDialog{max-height:96vh}.playerHeader{padding:9px 11px}.playerInfo{padding:17px}.playerInfo h2{font-size:28px}.playerInfo>p{font-size:10px}.attributionBlock{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Shared styling for account, registration, plans and admin screens */
+.section{min-height:100vh;padding:56px max(6vw,22px);background:radial-gradient(ellipse at 55% 0%,#3b2d1b38,transparent 48%),#090a09;color:var(--ink)}
+.section> a,.section>Link{color:var(--gold2);font-size:10px;letter-spacing:1.5px}
+.section h1,.section h2{font-family:'Playfair Display',serif;font-weight:500;letter-spacing:-1px;color:#f1eadf}
+.section h1{font-size:clamp(38px,6vw,58px);margin:28px 0 12px}
+.section h2{font-size:clamp(27px,4vw,38px)}
+.section p{color:#aaa;font-size:12px;line-height:1.8}
+.section small{color:var(--gold2);letter-spacing:2px}
+.section input:not([type=checkbox]),.section select,.section textarea{width:100%;min-height:44px;padding:11px 13px;background:#131613;color:#f3efe7;border:1px solid #454135;border-radius:2px;outline:none}
+.section input:focus,.section select:focus,.section textarea:focus{border-color:var(--gold)}
+.section input::placeholder,.section textarea::placeholder{color:#777}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:12px 17px;background:var(--gold);color:#10110f;border:1px solid var(--gold);font-size:9px;font-weight:800;letter-spacing:1.2px;cursor:pointer}
+.btn:hover{background:var(--gold2);border-color:var(--gold2)}
+.btn:disabled{opacity:.55;cursor:wait}
+.section a:not(.btn){color:var(--gold2)}
+.section a:not(.btn):hover{text-decoration:underline;text-underline-offset:3px}
+.section label{color:#bbb;font-size:11px}
+.section textarea{resize:vertical}
+.section .note{color:#938c7d;font-size:10px}
+@media(max-width:600px){.section{padding:34px 18px}.section>section{padding:18px!important}}
