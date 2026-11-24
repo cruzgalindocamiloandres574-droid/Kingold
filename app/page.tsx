@@ -18,7 +18,7 @@ const initialFilms: Film[] = [
   {
     id: "big-buck-bunny", name: "BIG BUCK BUNNY", genre: "Animación", year: 2008, duration: "10 min 35 s",
     synopsis: "Un conejo gigante y tranquilo decide enfrentarse a tres roedores que alteran la paz del bosque.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Big_Buck_Bunny_4K.webm/1280px--Big_Buck_Bunny_4K.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Big_Buck_Bunny_4K.webm/1280px--Big_Buck_Bunny_4K.webm.jpg",
     videoUrl: transcoded("c/c0", "Big_Buck_Bunny_4K.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("c/c0", "Big_Buck_Bunny_4K.webm", "360p.mp4"),
     creator: "Blender Foundation", license: "CC BY 3.0",
@@ -48,7 +48,7 @@ const initialFilms: Film[] = [
   {
     id: "elephants-dream", name: "ELEPHANTS DREAM", genre: "Ciencia ficción", year: 2006, duration: "10 min 58 s",
     synopsis: "Dos viajeros exploran una máquina gigantesca y misteriosa que parece tener vida propia.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Elephants_Dream_%282006%29.webm/1280px--Elephants_Dream_%282006%29.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Elephants_Dream_%282006%29.webm/1280px--Elephants_Dream_%282006%29.webm.jpg",
     videoUrl: transcoded("a/a2", "Elephants_Dream_%282006%29.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("a/a2", "Elephants_Dream_%282006%29.webm", "360p.mp4"),
     creator: "Orange Open Movie Team / Blender Foundation", license: "CC BY 2.5",
@@ -58,7 +58,7 @@ const initialFilms: Film[] = [
   {
     id: "cosmos-laundromat", name: "COSMOS LAUNDROMAT", genre: "Ciencia ficción", year: 2015, duration: "12 min 11 s",
     synopsis: "En una isla desolada, una oveja conoce a un vendedor extravagante que le ofrece una oportunidad imposible.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm/1280px--Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm/1280px--Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm.jpg",
     videoUrl: transcoded("3/36", "Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("3/36", "Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm", "360p.mp4"),
     creator: "Blender Foundation", license: "CC BY-SA 3.0",
@@ -68,7 +68,7 @@ const initialFilms: Film[] = [
   {
     id: "spring", name: "SPRING", genre: "Fantasía", year: 2019, duration: "7 min 44 s",
     synopsis: "Una pastora y su perro se enfrentan a antiguos espíritus para mantener el ciclo de la vida.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Spring_-_Blender_Open_Movie.webm/1280px--Spring_-_Blender_Open_Movie.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Spring_-_Blender_Open_Movie.webm/1280px--Spring_-_Blender_Open_Movie.webm.jpg",
     videoUrl: transcoded("a/a5", "Spring_-_Blender_Open_Movie.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("a/a5", "Spring_-_Blender_Open_Movie.webm", "360p.mp4"),
     creator: "Blender Animation Studio", license: "CC BY 4.0",
@@ -78,7 +78,7 @@ const initialFilms: Film[] = [
   {
     id: "sprite-fright", name: "SPRITE FRIGHT", genre: "Aventura", year: 2021, duration: "10 min 30 s",
     synopsis: "Un grupo de adolescentes descubre criaturas del bosque que esconden una fuerza inesperada.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm/1280px--Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm/1280px--Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm.jpg",
     videoUrl: transcoded("7/74", "Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("7/74", "Sprite_Fright_-_Open_Movie_by_Blender_Studio.webm", "360p.mp4"),
     creator: "Blender Studio", license: "CC BY 4.0",
@@ -88,7 +88,7 @@ const initialFilms: Film[] = [
   {
     id: "coffee-run", name: "COFFEE RUN", genre: "Animación", year: 2020, duration: "3 min 05 s",
     synopsis: "Un recorrido veloz y colorido acompaña a una joven a través de recuerdos y emociones.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Coffee_Run_-_Blender_Open_Movie-full_movie.webm/1280px--Coffee_Run_-_Blender_Open_Movie-full_movie.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Coffee_Run_-_Blender_Open_Movie-full_movie.webm/1280px--Coffee_Run_-_Blender_Open_Movie-full_movie.webm.jpg",
     videoUrl: transcoded("3/3f", "Coffee_Run_-_Blender_Open_Movie-full_movie.webm", "720p.vp9.webm"),
     fallbackVideoUrl: transcoded("3/3f", "Coffee_Run_-_Blender_Open_Movie-full_movie.webm", "360p.mp4"),
     creator: "Blender Foundation", license: "CC BY 4.0", credit: "Blender Foundation",
@@ -97,7 +97,7 @@ const initialFilms: Film[] = [
   {
     id: "glass-half", name: "GLASS HALF", genre: "Comedia", year: 2015, duration: "3 min 13 s",
     synopsis: "Una comedia animada sobre el arte, las opiniones y las discusiones que nunca terminan.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Glass_Half_-_Blender_Open_Movie-full_movie.webm/1280px--Glass_Half_-_Blender_Open_Movie-full_movie.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Glass_Half_-_Blender_Open_Movie-full_movie.webm/1280px--Glass_Half_-_Blender_Open_Movie-full_movie.webm.jpg",
     videoUrl: commons + "/0/02/Glass_Half_-_Blender_Open_Movie-full_movie.webm",
     creator: "Blender Foundation", license: "CC BY 4.0", credit: "Blender Foundation",
     sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Glass_Half_-_Blender_Open_Movie-full_movie.webm", status: "available",
@@ -105,7 +105,7 @@ const initialFilms: Film[] = [
   {
     id: "caminandes", name: "CAMINANDES: GRAN DILLAMA", genre: "Animación", year: 2013, duration: "2 min 26 s",
     synopsis: "Koro, una llama obstinada, intenta conseguir una baya en la Patagonia.",
-    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm/1280px--Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm.jpg",
+    posterUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm/1280px--Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm.jpg",
     videoUrl: commons + "/7/7c/Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm",
     creator: "Blender Institute", license: "CC BY-SA 3.0", credit: "(CC) caminandes.com",
     sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm", status: "available",
