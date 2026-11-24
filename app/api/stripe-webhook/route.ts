@@ -11,7 +11,7 @@ function getAdminClient() {
   return createSupabaseClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
 }
 
-async function saveSubscription(stripe:Stripe, subscription:Stripe.Subscription, userId?:string, customerId?:string) {
+async function saveSubscription(subscription:Stripe.Subscription, userId?:string, customerId?:string) {
   const ownerId = userId || subscription.metadata?.user_id;
   if (!ownerId) throw new Error("La suscripción no contiene user_id.");
   const supabase = getAdminClient();
@@ -50,13 +50,13 @@ export async function POST(request:Request) {
       if (session.mode === "subscription" && session.subscription) {
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        await saveSubscription(stripe,subscription,session.client_reference_id || session.metadata?.user_id || undefined,
+        await saveSubscription(subscription,session.client_reference_id || session.metadata?.user_id || undefined,
           typeof session.customer === "string" ? session.customer : session.customer?.id);
       }
     } else if (event.type === "customer.subscription.created" ||
                event.type === "customer.subscription.updated" ||
                event.type === "customer.subscription.deleted") {
-      await saveSubscription(stripe,event.data.object as Stripe.Subscription);
+      await saveSubscription(event.data.object as Stripe.Subscription);
     }
     return NextResponse.json({received:true});
   } catch (error) {
