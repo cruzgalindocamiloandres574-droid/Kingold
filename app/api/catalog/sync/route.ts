@@ -13,7 +13,7 @@ type WikidataFilm = {
   film: Binding;
   filmLabel: Binding;
   filmDescription?: Binding;
-  date?: Binding;
+  releaseDate?: Binding;
   genres?: Binding;
   image?: Binding;
 };
