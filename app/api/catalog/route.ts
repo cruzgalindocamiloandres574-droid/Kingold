@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const audio = request.nextUrl.searchParams.get("audio");
     const db = catalogClient();
     let query = db.from("movies")
-      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish", { count: "exact" })
+      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish,catalog_source", { count: "exact" })
       .eq("published", true)
       .order("popularity", { ascending: false, nullsFirst: false })
       .order("release_year", { ascending: false })
