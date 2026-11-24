@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
+
 
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
@@ -145,38 +145,34 @@ export default function Home() {
   const [selected, setSelected] = useState<Film | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [catalogTotal, setCatalogTotal] = useState(11);
+  const [catalogTotalPages, setCatalogTotalPages] = useState(1);
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return;
-    const supabase = createBrowserClient(url, key);
     let active = true;
-
-    void (async () => {
-      try {
-        const { data, error } = await supabase.from("movies")
-          .select("id,title,synopsis,genre,release_year,duration,poster_url,art,video_url,fallback_video_url,creator,license,credit,status")
-          .eq("published", true)
-          .order("created_at", { ascending: true });
-        if (!active || error || !data?.length) return;
-        const databaseFilms: Film[] = data.map((movie) => ({
-          id: movie.id, name: movie.title, genre: movie.genre || "Cine",
-          year: movie.release_year || 0, duration: movie.duration || "—",
-          synopsis: movie.synopsis || "", posterUrl: movie.poster_url || "",
-          videoUrl: movie.video_url || undefined, fallbackVideoUrl: movie.fallback_video_url || undefined,
-          creator: movie.creator || "Autoría por confirmar", license: movie.license || "Licencia por confirmar",
-          credit: movie.credit || "", sourcePageUrl: undefined,
+    const params = new URLSearchParams({ page: String(catalogPage) });
+    if (query.trim()) params.set("q", query.trim());
+    if (genre !== "Todo") params.set("genre", genre);
+    void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
+      .then((response) => { if (!response.ok) throw new Error("catalog"); return response.json(); })
+      .then((result) => {
+        if (!active) return;
+        const databaseFilms: Film[] = (result.results || []).map((movie: Record<string, unknown>) => ({
+          id: String(movie.id), name: String(movie.title || "Sin título"), genre: String(movie.genre || "Cine"),
+          year: Number(movie.release_year || 0), duration: movie.runtime_minutes ? String(movie.runtime_minutes) + " min" : String(movie.duration || "—"),
+          synopsis: String(movie.synopsis || ""), posterUrl: String(movie.poster_url || ""),
+          videoUrl: movie.video_url ? String(movie.video_url) : undefined,
+          fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
+          creator: String(movie.creator || "Autoría por confirmar"), license: String(movie.license || "Licencia por confirmar"),
+          credit: String(movie.credit || ""), sourcePageUrl: undefined,
           status: movie.status === "available" && movie.video_url ? "available" : "soon",
         }));
-        setCatalogFilms(databaseFilms);
-      } catch {
-        // The local catalogue remains available if Supabase is temporarily unreachable.
-      }
-    })();
-
+        setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
+      })
+      .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo") setCatalogFilms(initialFilms); });
     return () => { active = false; };
-  }, []);
+  }, [catalogPage, genre, query]);
 
   useEffect(() => {
     if (!selected) return;
@@ -190,16 +186,11 @@ export default function Home() {
     [catalogFilms],
   );
 
-  const visibleFilms = useMemo(() => {
-    const search = query.trim().toLocaleLowerCase("es");
-    return catalogFilms.filter((film) => {
-      const matchesGenre = genre === "Todo" || film.genre === genre;
-      const matchesText = !search || (film.name + " " + film.synopsis + " " + film.genre).toLocaleLowerCase("es").includes(search);
-      return matchesGenre && matchesText;
-    });
-  }, [catalogFilms, genre, query]);
+  const visibleFilms = catalogFilms;
 
   const availableCount = catalogFilms.filter((film) => film.status === "available" && film.videoUrl).length;
+  function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
+  function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
 
   function openFilm(film: Film) {
@@ -255,17 +246,17 @@ export default function Home() {
         <div className="contentWrap">
           <div className="sectionIntro">
             <div><div className="sectionOverline">LA CARTELERA</div><h2>Encuentra tu próxima <em>historia.</em></h2><p>Películas y cortometrajes seleccionados para descubrir algo diferente.</p></div>
-            <div className="catalogCounter"><strong>{String(catalogFilms.length).padStart(2, "0")}</strong><span>TÍTULOS<br />EN CATÁLOGO</span></div>
+            <div className="catalogCounter"><strong>{catalogTotal.toLocaleString("es-CO")}</strong><span>TÍTULOS<br />EN CATÁLOGO</span></div>
           </div>
 
           <div className="catalogToolbar">
             <label className="catalogSearch">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar película, género o historia..." aria-label="Buscar en la cartelera" />
-              {query && <button type="button" aria-label="Limpiar búsqueda" onClick={() => setQuery("")}>×</button>}
+              <input value={query} onChange={(event) => changeCatalogSearch(event.target.value)} placeholder="Buscar película, género o historia..." aria-label="Buscar en la cartelera" />
+              {query && <button type="button" aria-label="Limpiar búsqueda" onClick={() => changeCatalogSearch("")}>×</button>}
             </label>
             <div className="genreChips" aria-label="Filtrar por género">
-              {genres.map((item) => <button key={item} className={genre === item ? "active" : ""} onClick={() => setGenre(item)}>{item}</button>)}
+              {genres.map((item) => <button key={item} className={genre === item ? "active" : ""} onClick={() => changeCatalogFilter(item)}>{item}</button>)}
             </div>
           </div>
 
@@ -285,6 +276,7 @@ export default function Home() {
               </button>
             ))}
           </div>
+          {catalogTotalPages > 1 && <div className="catalogPagination"><button disabled={catalogPage <= 1} onClick={() => setCatalogPage((p) => Math.max(1,p-1))}>← ANTERIORES</button><span>PÁGINA {catalogPage} DE {catalogTotalPages}</span><button disabled={catalogPage >= catalogTotalPages} onClick={() => setCatalogPage((p) => Math.min(catalogTotalPages,p+1))}>SIGUIENTES →</button></div>}
           {visibleFilms.length === 0 && <div className="noResults"><strong>No encontramos esa película.</strong><span>Prueba con otro título o género.</span></div>}
           <p className="catalogFootnote">La selección reproducible incluye obras publicadas bajo licencias Creative Commons. Cada ficha muestra su autoría y licencia. Los títulos sin fuente completa autorizada permanecen deshabilitados.</p>
         </div>
