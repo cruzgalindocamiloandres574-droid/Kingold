@@ -10,7 +10,7 @@ const titles = [
     year: 2008,
     duration: "10 min",
     desc: "Un conejo gigante y tranquilo decide enfrentarse a tres roedores que molestan a los habitantes del bosque.",
-    videoId: "MGGaqmZZV_Q",
+    videoId: "YE7VzlLtp-4",
     creator: "Blender Foundation",
     license: "Creative Commons Atribución 3.0",
     credit: "© copyright 2008, Blender Foundation / www.bigbuckbunny.org",
@@ -150,6 +150,7 @@ export default function Home() {
               <p>{chosen.year} · {chosen.genre} · {chosen.duration}</p>
               <p>{chosen.desc}</p>
               <small className="credits">{chosen.creator} · {chosen.license}. {chosen.credit}. <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">Ver licencia</a>.</small>
+              <a className="btn playerFallback" href={"https://www.youtube.com/watch?v=" + chosen.videoId} target="_blank" rel="noreferrer">¿NO CARGA? ABRIR PELÍCULA EN YOUTUBE ↗</a>
             </div>
           </article>
         </div>
