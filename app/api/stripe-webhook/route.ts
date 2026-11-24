@@ -57,6 +57,15 @@ export async function POST(request:Request) {
                event.type === "customer.subscription.updated" ||
                event.type === "customer.subscription.deleted") {
       await saveSubscription(event.data.object as Stripe.Subscription);
+    } else if (event.type === "invoice.paid" || event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subscriptionId = typeof invoice.subscription === "string"
+        ? invoice.subscription
+        : invoice.subscription?.id;
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        await saveSubscription(subscription);
+      }
     }
     return NextResponse.json({received:true});
   } catch (error) {
