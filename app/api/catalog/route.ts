@@ -20,9 +20,10 @@ export async function GET(request: NextRequest) {
     const genre = request.nextUrl.searchParams.get("genre");
     const year = request.nextUrl.searchParams.get("year");
     const language = request.nextUrl.searchParams.get("language");
+    const audio = request.nextUrl.searchParams.get("audio");
     const db = adminClient();
     let query = db.from("movies")
-      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date", { count: "exact" })
+      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish", { count: "exact" })
       .eq("published", true)
       .order("popularity", { ascending: false, nullsFirst: false })
       .order("release_year", { ascending: false })
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
+    if (audio === "latin") query = query.eq("has_latin_spanish", true);
+    if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO"]);
     const { data, count, error } = await query;
     if (error) throw error;
     return NextResponse.json({ results: data || [], total: count || 0, page, pageSize: PAGE_SIZE, totalPages: Math.ceil((count || 0) / PAGE_SIZE) });
