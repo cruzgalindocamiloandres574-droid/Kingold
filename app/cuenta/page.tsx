@@ -1,5 +1,6 @@
 import {createClient} from "@/lib/supabase/server";
 import {redirect} from "next/navigation";
+import Link from "next/link";
 
 const labels:Record<string,string> = {
   active:"Activa",
@@ -22,7 +23,7 @@ export default async function Account() {
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
 
   return <main className="section">
-    <a href="/">NOIR VAULT</a>
+    <Link href="/">NOIR VAULT</Link>
     <h1>Mi cuenta</h1>
     <p>Sesión iniciada como {user.email}</p>
     {profile?.role === "admin" && <p><a className="btn" href="/admin">ABRIR ADMINISTRACIÓN</a></p>}
