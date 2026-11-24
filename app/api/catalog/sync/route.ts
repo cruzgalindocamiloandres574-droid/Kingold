@@ -4,78 +4,150 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const TMDB = "https://api.themoviedb.org/3";
-const PAGE_BATCH = 15;
+const WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql";
+const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
+const BATCH_SIZE = 40;
 
-type TmdbMovie = {
-  id: number; title?: string; overview?: string; genre_ids?: number[];
-  release_date?: string; poster_path?: string | null; backdrop_path?: string | null;
-  original_language?: string; vote_average?: number; popularity?: number;
-  runtime?: number;
+type Binding = { value: string; "xml:lang"?: string };
+type WikidataFilm = {
+  film: Binding;
+  filmLabel: Binding;
+  filmDescription?: Binding;
+  date?: Binding;
+  genres?: Binding;
+  image?: Binding;
 };
+
+function safeText(value?: string) {
+  return (value || "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+}
+
+function commonsFileTitle(imageUrl: string) {
+  const marker = "/Special:FilePath/";
+  const index = imageUrl.indexOf(marker);
+  if (index < 0) return null;
+  try { return "File:" + decodeURIComponent(imageUrl.slice(index + marker.length)); }
+  catch { return null; }
+}
+
+function reusableLicense(label: string) {
+  const normalized = label.toLowerCase();
+  return /\b(cc0|public domain|dominio público|cc by(?:-sa)? 1\.[0-9]|cc by(?:-sa)? 2\.[0-9]|cc by(?:-sa)? 3\.[0-9]|cc by(?:-sa)? 4\.[0-9])\b/.test(normalized);
+}
+
+async function fetchCommonsImages(titles: string[]) {
+  const result = new Map<string, { url: string; license: string; credit: string }>();
+  if (!titles.length) return result;
+  const params = new URLSearchParams({
+    action: "query", format: "json", formatversion: "2", prop: "imageinfo",
+    iiprop: "url|extmetadata", iiurlwidth: "500", titles: titles.join("|"),
+  });
+  const response = await fetch(COMMONS_API + "?" + params.toString(), {
+    headers: { "User-Agent": "NOIRVAULT/7.0 (catalog metadata; contact via site)" },
+    cache: "no-store",
+  });
+  if (!response.ok) return result;
+  const json = await response.json();
+  for (const page of json.query?.pages || []) {
+    const info = page.imageinfo?.[0];
+    if (!info?.thumburl) continue;
+    const meta = info.extmetadata || {};
+    const license = safeText(meta.LicenseShortName?.value || "");
+    if (!reusableLicense(license)) continue;
+    const artist = safeText(meta.Artist?.value || "");
+    const credit = safeText(meta.Credit?.value || artist || page.title || "");
+    result.set(page.title, { url: info.thumburl, license, credit });
+  }
+  return result;
+}
 
 export async function POST(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
-  const auth = request.headers.get("authorization");
-  if (!secret || auth !== `Bearer ${secret}`) {
+  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  const token = process.env.TMDB_API_READ_ACCESS_TOKEN;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!token || !url || !serviceKey) {
-    return NextResponse.json({ error: "Faltan TMDB_API_READ_ACCESS_TOKEN o credenciales privadas de Supabase" }, { status: 503 });
+  if (!url || !serviceKey) {
+    return NextResponse.json({ error: "Faltan las credenciales privadas de Supabase" }, { status: 503 });
   }
 
   try {
     const requestedPage = Number(new URL(request.url).searchParams.get("page") || 1);
-    const start = Math.max(1, Math.min(500, requestedPage));
-    const db = createClient(url, serviceKey, { auth: { persistSession: false } });
-    const headers = { Authorization: `Bearer ${token}`, accept: "application/json" };
-    const genreResponse = await fetch(`${TMDB}/genre/movie/list?language=es-ES`, { headers, cache: "no-store" });
-    if (!genreResponse.ok) throw new Error(`TMDB genres: ${genreResponse.status}`);
-    const genreJson = await genreResponse.json();
-    const genres = new Map<number, string>((genreJson.genres || []).map((g: {id:number;name:string}) => [g.id, g.name]));
-    let imported = 0;
-    let lastPage = start - 1;
-    let totalPages = 0;
-
-    for (let page = start; page < start + PAGE_BATCH && page <= 500; page++) {
-      const response = await fetch(`${TMDB}/discover/movie?include_adult=false&include_video=false&language=es-ES&page=${page}&region=CO&sort_by=popularity.desc`, { headers, cache: "no-store" });
-      if (!response.ok) throw new Error(`TMDB page ${page}: ${response.status}`);
-      const json = await response.json();
-      totalPages = Math.min(500, json.total_pages || 0);
-      const rows = (json.results as TmdbMovie[] || []).map((movie) => ({
-        tmdb_id: movie.id,
-        title: movie.title || "Sin título",
-        synopsis: movie.overview || null,
-        genre: (movie.genre_ids || []).map((id) => genres.get(id)).filter(Boolean).join(", ") || "Sin clasificar",
-        release_year: movie.release_date ? Number(movie.release_date.slice(0,4)) || null : null,
-        release_date: movie.release_date || null,
-        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
-        backdrop_url: movie.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : null,
-        original_language: movie.original_language || null,
-        vote_average: Number.isFinite(movie.vote_average) ? movie.vote_average : null,
-        popularity: Number.isFinite(movie.popularity) ? movie.popularity : null,
-        runtime_minutes: movie.runtime || null,
-        creator: "The Movie Database",
-        license: "Metadata e imágenes sujetos a términos TMDB; no incluye derechos de exhibición",
-        credit: "Metadata e imágenes: TMDB",
-        catalog_source: "tmdb",
+    const page = Math.max(1, Math.min(10000, Number.isFinite(requestedPage) ? requestedPage : 1));
+    const offset = (page - 1) * BATCH_SIZE;
+    const sparql = `
+      SELECT ?film ?filmLabel ?filmDescription
+        (SAMPLE(?date) AS ?releaseDate)
+        (GROUP_CONCAT(DISTINCT STR(?genreLabel); separator=", ") AS ?genres)
+        (SAMPLE(?image) AS ?image)
+      WHERE {
+        ?film wdt:P31/wdt:P279* wd:Q11424.
+        OPTIONAL { ?film wdt:P577 ?date. }
+        OPTIONAL { ?film wdt:P18 ?image. }
+        OPTIONAL {
+          ?film wdt:P136 ?genre.
+          ?genre rdfs:label ?genreLabel.
+          FILTER(LANG(?genreLabel) = "es" || LANG(?genreLabel) = "en")
+        }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "es,en". }
+      }
+      GROUP BY ?film ?filmLabel ?filmDescription
+      ORDER BY ?film
+      LIMIT ${BATCH_SIZE} OFFSET ${offset}
+    `;
+    const response = await fetch(WIKIDATA_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/sparql-results+json",
+        "User-Agent": "NOIRVAULT/7.0 (open movie metadata importer)",
+      },
+      body: new URLSearchParams({ query: sparql }),
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`Wikidata query failed: ${response.status}`);
+    const json = await response.json();
+    const bindings = (json.results?.bindings || []) as WikidataFilm[];
+    const fileTitles = bindings.map((item) => item.image?.value ? commonsFileTitle(item.image.value) : null).filter((value): value is string => Boolean(value));
+    const images = await fetchCommonsImages(fileTitles);
+    const rows = bindings.map((item) => {
+      const qid = item.film.value.split("/").pop() || "";
+      const fileTitle = item.image?.value ? commonsFileTitle(item.image.value) : null;
+      const image = fileTitle ? images.get(fileTitle) : undefined;
+      const releaseDate = item.releaseDate?.value?.slice(0, 10) || null;
+      const releaseYear = releaseDate ? Number(releaseDate.slice(0, 4)) || null : null;
+      return {
+        wikidata_id: qid,
+        title: safeText(item.filmLabel.value) || "Película sin título",
+        synopsis: safeText(item.filmDescription?.value) || null,
+        genre: safeText(item.genres?.value) || "Cine",
+        release_year: releaseYear,
+        release_date: releaseDate,
+        poster_url: image?.url || null,
+        creator: "Wikidata contributors",
+        license: image ? `Datos: CC0; imagen: ${image.license}` : "Datos estructurados: CC0",
+        credit: image ? `Datos: Wikidata (${qid}); imagen: ${image.credit} — Wikimedia Commons` : `Datos: Wikidata (${qid})`,
+        catalog_source: "wikidata",
         published: true,
         status: "soon",
-      }));
-      if (rows.length) {
-        const { error } = await db.from("movies").upsert(rows, { onConflict: "tmdb_id", ignoreDuplicates: false });
-        if (error) throw error;
-        imported += rows.length;
-      }
-      lastPage = page;
-      if (page >= totalPages || !rows.length) break;
+      };
+    });
+    const db = createClient(url, serviceKey, { auth: { persistSession: false } });
+    if (rows.length) {
+      const { error } = await db.from("movies").upsert(rows, { onConflict: "wikidata_id", ignoreDuplicates: false });
+      if (error) throw error;
     }
-    return NextResponse.json({ imported, firstPage: start, lastPage, totalPages, nextPage: lastPage < totalPages ? lastPage + 1 : null });
+    return NextResponse.json({
+      source: "Wikidata + imágenes de Wikimedia Commons con licencias reutilizables",
+      imported: rows.length,
+      page,
+      nextPage: rows.length === BATCH_SIZE ? page + 1 : null,
+      postersWithVerifiedLicense: rows.filter((row) => row.poster_url).length,
+      playback: "No se asignan vídeos: los derechos de exhibición deben verificarse por separado.",
+    });
   } catch (error) {
-    console.error("TMDB catalog sync failed", error);
-    return NextResponse.json({ error: "Falló la sincronización del catálogo" }, { status: 502 });
+    console.error("Open catalog sync failed", error);
+    return NextResponse.json({ error: "Falló la importación desde fuentes abiertas" }, { status: 502 });
   }
 }
