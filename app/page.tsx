@@ -116,6 +116,17 @@ const initialFilms: Film[] = [
     sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm", status: "available",
   },
   {
+    id: "pasion-oriental", name: "PASIÓN ORIENTAL", genre: "Cine latinoamericano", year: 2017, duration: "12 min 38 s",
+    synopsis: "Cortometraje argentino presentado en festivales de Mar del Plata y Valencia. Audio original en español rioplatense; no es un doblaje.",
+    posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Pasi%C3%B3n_Oriental.webm/960px--Pasi%C3%B3n_Oriental.webm.jpg",
+    videoUrl: "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/da/Pasi%C3%B3n_Oriental.webm/Pasi%C3%B3n_Oriental.webm.360p.mp4",
+    fallbackVideoUrl: "https://upload.wikimedia.org/wikipedia/commons/d/da/Pasi%C3%B3n_Oriental.webm",
+    creator: "Santi Korovsky", license: "CC BY 3.0",
+    credit: "Santi Korovsky · Cambios de formato para reproducción web; audio original en español rioplatense.",
+    sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Pasión_Oriental.webm", status: "available",
+    audioLanguages: ["es-AR"], hasLatinSpanish: true,
+  },
+  {
     id: "agent-327", name: "AGENT 327", genre: "Comedia", year: 2017, duration: "En preparación",
     synopsis: "Un agente secreto se infiltra en una barbería en una misión que se sale de control.",
     posterUrl: "", creator: "Blender Foundation", license: "Pendiente de verificar fuente completa",
@@ -301,7 +312,7 @@ export default function Home() {
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
                   {film.status === "available" ? <span className="posterPlay"><span>▶</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
-                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.duration}</small></span>
+                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.duration}</small></span>
               </button>
@@ -361,11 +372,11 @@ export default function Home() {
               <div className="playerLanguageControls">
                 <label>PISTA DE AUDIO
                   <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
-                    <option value="0">Audio de la fuente (idioma por verificar)</option>
+                    <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : "Audio de la fuente (idioma por verificar)"}</option>
                     {(selected.audioTracks || []).map((track, index) => <option key={track.url} value={String(index + 1)}>{track.label} · {track.language.toUpperCase()}</option>)}
                   </select>
                 </label>
-                <div className="playerLanguageNote">{selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
+                <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
                 {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
               </div>
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
