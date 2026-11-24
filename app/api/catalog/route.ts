@@ -5,7 +5,6 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const PAGE_SIZE = 20;
-const MAX_PAGE = 500;
 
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,7 +27,7 @@ export async function GET(request: NextRequest) {
       .order("popularity", { ascending: false, nullsFirst: false })
       .order("release_year", { ascending: false })
       .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-    if (q) query = query.ilike("title", `%${q.replace(/[%_,]/g, " ")}%`);
+    if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
