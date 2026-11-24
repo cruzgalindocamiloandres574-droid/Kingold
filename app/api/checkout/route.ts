@@ -3,7 +3,7 @@ import {createClient} from "@/lib/supabase/server";
 import {NextResponse} from "next/server";
 
 export async function POST() {
-  const secret = process.env.STRIPE_SECRET_KEY;
+  const secret = process.env.STRIPE_SECRET_KEY || process.env.stripe_secret_client;
   if (!secret) return NextResponse.json({error:"Stripe no está configurado."},{status:503});
 
   const supabase = await createClient();
