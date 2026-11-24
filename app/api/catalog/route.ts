@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .order("popularity", { ascending: false, nullsFirst: false })
       .order("release_year", { ascending: false })
       .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-    if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
+    if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
