@@ -24,5 +24,5 @@ export async function POST() {
     customer: subscription.stripe_customer_id,
     return_url: baseUrl + "/cuenta"
   });
-  return NextResponse.json({ url: session.url });
+  return NextResponse.redirect(session.url, 303);
 }
