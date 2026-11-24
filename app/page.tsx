@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 
 type Film = {
   id: number; name: string; genre: string; year: number; duration: string;
@@ -46,11 +47,31 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Film | null>(null);
   const [videoError, setVideoError] = useState(false);
-  const genres = ["Todo", ...Array.from(new Set(films.map((film) => film.genre)))];
-  const visibleFilms = useMemo(() => films.filter((film) =>
+  const [catalogFilms, setCatalogFilms] = useState<Film[]>(films);
+
+  useEffect(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return;
+    const supabase = createBrowserClient(url, key);
+    let active = true;
+    supabase.from("movies").select("id,title,synopsis,genre,release_year,duration,art,video_url,creator,license,credit,status").eq("published", true).order("created_at", { ascending: true }).then(({ data, error }) => {
+      if (!active || error || !data?.length) return;
+      setCatalogFilms(data.map((movie) => ({
+        id: movie.id, name: movie.title, genre: movie.genre || "Cine", year: movie.release_year || 0,
+        duration: movie.duration || "—", synopsis: movie.synopsis || "", art: movie.art || "bunny",
+        status: movie.status === "available" && movie.video_url ? "available" : "soon",
+        videoUrl: movie.video_url || undefined, creator: movie.creator || undefined,
+        license: movie.license || undefined, credit: movie.credit || undefined,
+      })));
+    });
+    return () => { active = false; };
+  }, []);
+  const genres = ["Todo", ...Array.from(new Set(catalogFilms.map((film) => film.genre)))];
+  const visibleFilms = useMemo(() => catalogFilms.filter((film) =>
     (genre === "Todo" || film.genre === genre) &&
     (film.name.toLowerCase().includes(query.toLowerCase()) || film.synopsis.toLowerCase().includes(query.toLowerCase()))
-  ), [genre, query]);
+  ), [catalogFilms, genre, query]);
 
   function openFilm(film: Film) {
     if (film.status !== "available") return;
@@ -80,7 +101,7 @@ export default function Home() {
       <section className="ticker" aria-label="Características"><span>CINE QUE INSPIRA</span><b>✳</b><span>UNA CURADURÍA EN EVOLUCIÓN</span><b>✳</b><span>HISTORIAS SIN FRONTERAS</span></section>
 
       <section id="catalogo" className="catalog sectionWrap">
-        <div className="sectionHeading"><div><div className="eyebrow">LA SELECCIÓN NOIR</div><h2>Encuentra tu próxima <i>obsesión.</i></h2></div><span className="countLabel">0{films.length} TÍTULOS EN CATÁLOGO</span></div>
+        <div className="sectionHeading"><div><div className="eyebrow">LA SELECCIÓN NOIR</div><h2>Encuentra tu próxima <i>obsesión.</i></h2></div><span className="countLabel">0{catalogFilms.length} TÍTULOS EN CATÁLOGO</span></div>
         <div className="catalogControls">
           <label className="searchBox"><span>⌕</span><input aria-label="Buscar películas" placeholder="Buscar por título o historia..." value={query} onChange={(e) => setQuery(e.target.value)} /><kbd>⌕</kbd></label>
           <div className="genreFilters">{genres.map((item) => <button key={item} className={genre === item ? "selected" : ""} onClick={() => setGenre(item)}>{item}</button>)}</div>
