@@ -183,7 +183,7 @@ export default function Home() {
           videoUrl: movie.video_url ? String(movie.video_url) : undefined,
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
           creator: String(movie.creator || "Autoría por confirmar"), license: String(movie.license || "Licencia por confirmar"),
-          credit: String(movie.credit || ""), sourcePageUrl: undefined,
+          credit: String(movie.credit || ""), sourcePageUrl: movie.catalog_source ? String(movie.catalog_source) : undefined,
           audioTracks: Array.isArray(movie.audio_tracks) ? movie.audio_tracks as Film["audioTracks"] : [],
           subtitleTracks: Array.isArray(movie.subtitle_tracks) ? movie.subtitle_tracks as Film["subtitleTracks"] : [],
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
