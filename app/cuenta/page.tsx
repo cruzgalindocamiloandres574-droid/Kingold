@@ -16,6 +16,7 @@ export default async function Account() {
   const supabase = await createClient();
   const {data:{user}} = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const {data:profile} = await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();
   const {data:subscription} = await supabase.from("subscriptions")
     .select("status,current_period_end,stripe_customer_id").eq("user_id",user.id)
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
@@ -24,6 +25,7 @@ export default async function Account() {
     <a href="/">NOIR VAULT</a>
     <h1>Mi cuenta</h1>
     <p>Sesión iniciada como {user.email}</p>
+    {profile?.role === "admin" && <p><a className="btn" href="/admin">ABRIR ADMINISTRACIÓN</a></p>}
     <section style={{maxWidth:520,marginTop:28,padding:24,border:"1px solid #39332a",borderRadius:12}}>
       <small>NOIR PREMIUM</small>
       <h2>{subscription ? labels[subscription.status] || subscription.status : "Sin suscripción activa"}</h2>
