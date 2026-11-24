@@ -33,8 +33,8 @@ const films: Film[] = [
     creator: "Blender Foundation", license: "Creative Commons Atribución 3.0",
     credit: "(CC) Blender Foundation / mango.blender.org"
   },
-  { id: 4, name: "SPRING", genre: "Fantasía", year: 2019, duration: "8 min", synopsis: "Una pastora y su perro se enfrentan a antiguos espíritus para mantener el ciclo de la vida.", art: "spring", status: "soon" },
-  { id: 5, name: "SPRITE FRIGHT", genre: "Aventura", year: 2021, duration: "11 min", synopsis: "Un grupo de adolescentes descubre criaturas del bosque que esconden una fuerza inesperada.", art: "sprite", status: "soon" },
+  { id: 4, name: "SPRING", genre: "Fantasía", year: 2019, duration: "7 min", synopsis: "Una pastora y su perro se enfrentan a antiguos espíritus para mantener el ciclo de la vida.", art: "spring", status: "available", videoUrl: "https://video.blender.org/static/webseed/3d95fb3d-c866-42c8-9db1-fe82f48ccb95-720.mp4", creator: "Blender Foundation", license: "Creative Commons Atribución 4.0", credit: "© Blender Foundation | cloud.blender.org/spring" },
+  { id: 5, name: "SPRITE FRIGHT", genre: "Aventura", year: 2021, duration: "11 min", synopsis: "Un grupo de adolescentes descubre criaturas del bosque que esconden una fuerza inesperada.", art: "sprite", status: "available", videoUrl: "https://video.blender.org/download/videos/a69d68a5-a0e0-4a80-9d66-49f093c97aaf-720.mp4", creator: "Blender Foundation", license: "Creative Commons Atribución 1.0", credit: "(CC) Blender Foundation | studio.blender.org" },
   { id: 6, name: "AGENT 327", genre: "Comedia", year: 2017, duration: "4 min", synopsis: "Un agente secreto se infiltra en una barbería en una misión que se sale de control.", art: "agent", status: "soon" },
   { id: 7, name: "COSMOS LAUNDROMAT", genre: "Ciencia ficción", year: 2015, duration: "12 min", synopsis: "Una oveja desesperada conoce a un extraño personaje que le ofrece una segunda oportunidad.", art: "cosmos", status: "soon" },
   { id: 8, name: "CAMINANDES", genre: "Animación", year: 2013, duration: "3 min", synopsis: "Koro, una llama obstinada, intenta conseguir una baya en la Patagonia.", art: "caminandes", status: "soon" },
