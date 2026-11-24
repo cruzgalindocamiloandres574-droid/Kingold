@@ -191,3 +191,9 @@ button{color:inherit}
 .section textarea{resize:vertical}
 .section .note{color:#938c7d;font-size:10px}
 @media(max-width:600px){.section{padding:34px 18px}.section>section{padding:18px!important}}
+
+.catalogPagination{display:flex;align-items:center;justify-content:center;gap:18px;padding:30px 0 10px;color:#aaa;font-size:8px;letter-spacing:1.4px}
+.catalogPagination button{border:1px solid #756044;background:transparent;color:#e6cea9;padding:12px 15px;font-size:8px;letter-spacing:1.2px;cursor:pointer}
+.catalogPagination button:hover:not(:disabled){background:#c7a675;color:#111}
+.catalogPagination button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:500px){.catalogPagination{gap:8px}.catalogPagination button{padding:10px 9px;font-size:7px}.catalogPagination span{font-size:7px}}
