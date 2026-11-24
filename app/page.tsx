@@ -218,6 +218,12 @@ export default function Home() {
   }
 
   function handleVideoError() {
+    if (selectedAudioIndex > 0) {
+      setSelectedAudioIndex(0);
+      setSourceIndex(0);
+      setVideoState("loading");
+      return;
+    }
     if (selected?.fallbackVideoUrl && sourceIndex === 0) {
       setSourceIndex(1);
       setVideoState("loading");
