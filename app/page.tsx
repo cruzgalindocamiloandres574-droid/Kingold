@@ -7,6 +7,10 @@ type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
+  audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
+  subtitleTracks?: { label: string; language: string; src: string; isDefault?: boolean }[];
+  audioLanguages?: string[];
+  hasLatinSpanish?: boolean;
   status: "available" | "soon";
 };
 
@@ -144,6 +148,8 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Film | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
+  const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
+  const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogTotal, setCatalogTotal] = useState(11);
@@ -154,6 +160,7 @@ export default function Home() {
     const params = new URLSearchParams({ page: String(catalogPage) });
     if (query.trim()) params.set("q", query.trim());
     if (genre !== "Todo") params.set("genre", genre);
+    if (audioFilter !== "all") params.set("audio", audioFilter);
     void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("catalog"); return response.json(); })
       .then((result) => {
@@ -166,13 +173,17 @@ export default function Home() {
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
           creator: String(movie.creator || "Autoría por confirmar"), license: String(movie.license || "Licencia por confirmar"),
           credit: String(movie.credit || ""), sourcePageUrl: undefined,
+          audioTracks: Array.isArray(movie.audio_tracks) ? movie.audio_tracks as Film["audioTracks"] : [],
+          subtitleTracks: Array.isArray(movie.subtitle_tracks) ? movie.subtitle_tracks as Film["subtitleTracks"] : [],
+          audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
+          hasLatinSpanish: Boolean(movie.has_latin_spanish),
           status: movie.status === "available" && movie.video_url ? "available" : "soon",
         }));
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
       })
       .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo") setCatalogFilms(initialFilms); });
     return () => { active = false; };
-  }, [catalogPage, genre, query]);
+  }, [catalogPage, genre, query, audioFilter]);
 
   useEffect(() => {
     if (!selected) return;
@@ -201,6 +212,7 @@ export default function Home() {
   function openFilm(film: Film) {
     if (film.status !== "available" || !film.videoUrl) return;
     setSourceIndex(0);
+    setSelectedAudioIndex(0);
     setVideoState("loading");
     setSelected(film);
   }
@@ -215,7 +227,9 @@ export default function Home() {
   }
 
   const activeVideoUrl = selected
-    ? sourceIndex === 1 && selected.fallbackVideoUrl ? selected.fallbackVideoUrl : selected.videoUrl
+    ? selectedAudioIndex > 0 && selected.audioTracks?.[selectedAudioIndex - 1]?.url
+      ? selected.audioTracks[selectedAudioIndex - 1].url
+      : sourceIndex === 1 && selected.fallbackVideoUrl ? selected.fallbackVideoUrl : selected.videoUrl
     : undefined;
 
   return (
@@ -262,6 +276,12 @@ export default function Home() {
             </label>
             <div className="genreChips" aria-label="Filtrar por género">
               {genres.map((item) => <button key={item} className={genre === item ? "active" : ""} onClick={() => changeCatalogFilter(item)}>{item}</button>)}
+            </div>
+            <div className="audioFilters" aria-label="Filtrar por idioma de audio">
+              <span>IDIOMA DE AUDIO</span>
+              <button className={audioFilter === "all" ? "active" : ""} onClick={() => { setAudioFilter("all"); setCatalogPage(1); }}>TODOS</button>
+              <button className={audioFilter === "latin" ? "active" : ""} onClick={() => { setAudioFilter("latin"); setCatalogPage(1); }}>AUDIO LATINO</button>
+              <button className={audioFilter === "spanish" ? "active" : ""} onClick={() => { setAudioFilter("spanish"); setCatalogPage(1); }}>ESPAÑOL</button>
             </div>
           </div>
 
@@ -318,9 +338,12 @@ export default function Home() {
           <section className="playerDialog" role="dialog" aria-modal="true" aria-label={"Reproductor " + selected.name}>
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
-              <video key={selected.id + "-" + sourceIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
+              <video key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
                 onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onError={handleVideoError}>
                 <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
+                {(selected.subtitleTracks || []).map((track) => (
+                  <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />
+                ))}
                 Tu navegador no puede reproducir este formato de vídeo.
               </video>
               {videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente de vídeo</small></div>}
@@ -329,6 +352,16 @@ export default function Home() {
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span><span className="licenseTag">LICENCIA ABIERTA</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
+              <div className="playerLanguageControls">
+                <label>PISTA DE AUDIO
+                  <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
+                    <option value="0">Audio de la fuente (idioma por verificar)</option>
+                    {(selected.audioTracks || []).map((track, index) => <option key={track.url} value={String(index + 1)}>{track.label} · {track.language.toUpperCase()}</option>)}
+                  </select>
+                </label>
+                <div className="playerLanguageNote">{selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
+                {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
+              </div>
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
             </div>
           </section>
