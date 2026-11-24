@@ -15,6 +15,7 @@ create or replace function private.is_admin() returns boolean language sql stabl
 $$;
 revoke all on function private.is_admin() from public,anon;
 grant execute on function private.is_admin() to authenticated;
+grant insert, update, delete on public.movies to authenticated;
 create policy "Admins insert movies" on public.movies for insert to authenticated with check ((select private.is_admin()));
 create policy "Admins update movies" on public.movies for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 create policy "Admins delete movies" on public.movies for delete to authenticated using ((select private.is_admin()));
