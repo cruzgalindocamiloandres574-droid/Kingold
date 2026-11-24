@@ -153,11 +153,12 @@ export default function Home() {
     const supabase = createBrowserClient(url, key);
     let active = true;
 
-    supabase.from("movies")
-      .select("id,title,synopsis,genre,release_year,duration,poster_url,art,video_url,fallback_video_url,creator,license,credit,status")
-      .eq("published", true)
-      .order("created_at", { ascending: true })
-      .then(({ data, error }) => {
+    void (async () => {
+      try {
+        const { data, error } = await supabase.from("movies")
+          .select("id,title,synopsis,genre,release_year,duration,poster_url,art,video_url,fallback_video_url,creator,license,credit,status")
+          .eq("published", true)
+          .order("created_at", { ascending: true });
         if (!active || error || !data?.length) return;
         const databaseFilms: Film[] = data.map((movie) => ({
           id: movie.id, name: movie.title, genre: movie.genre || "Cine",
@@ -169,8 +170,10 @@ export default function Home() {
           status: movie.status === "available" && movie.video_url ? "available" : "soon",
         }));
         setCatalogFilms(databaseFilms);
-      })
-      .catch(() => undefined);
+      } catch {
+        // The local catalogue remains available if Supabase is temporarily unreachable.
+      }
+    })();
 
     return () => { active = false; };
   }, []);
