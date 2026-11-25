@@ -103,8 +103,8 @@ const initialFilms: Film[] = [
     id: "glass-half", name: "GLASS HALF", genre: "Comedia", year: 2015, duration: "3 min 13 s",
     synopsis: "Una comedia animada sobre el arte, las opiniones y las discusiones que nunca terminan.",
     posterUrl: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Glass_Half_-_Blender_Open_Movie-full_movie.webm/1280px--Glass_Half_-_Blender_Open_Movie-full_movie.webm.jpg",
-    videoUrl: transcoded("0/02", "Glass_Half_-_Blender_Open_Movie-full_movie.webm", "720p.vp9.webm"),
-    fallbackVideoUrl: transcoded("0/02", "Glass_Half_-_Blender_Open_Movie-full_movie.webm", "360p.mp4"),
+    videoUrl: "https://video.blender.org/object-storage/web_videos/64222c8a-c4c7-4b3b-9850-7fb2078edcf6-480.mp4",
+    fallbackVideoUrl: "https://video.blender.org/object-storage/web_videos/64222c8a-c4c7-4b3b-9850-7fb2078edcf6-360.mp4",
     creator: "Blender Foundation", license: "CC BY 4.0", credit: "Blender Foundation",
     sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Glass_Half_-_Blender_Open_Movie-full_movie.webm", status: "available",
   },
@@ -445,7 +445,7 @@ export default function Home() {
                 onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
                 onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
                 onEnded={() => { void clearCompletedProgress(); }}
-                onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onError={handleVideoError}>
+                onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
                 <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
                 {(selected.subtitleTracks || []).map((track) => (
                   <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />
