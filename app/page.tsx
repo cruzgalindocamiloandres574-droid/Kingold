@@ -526,7 +526,7 @@ export default function Home() {
               {selected.videoUrl && <div className="playerLanguageControls">
                 <label>PISTA DE AUDIO
                   <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
-                    <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : "Audio de la fuente (idioma por verificar)"}</option>
+                    <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : selected.audioLanguages?.[0] ? "Audio original · " + selected.audioLanguages[0].toUpperCase() : "Audio de la fuente (idioma por verificar)"}</option>
                     {(selected.audioTracks || []).map((track, index) => <option key={track.url} value={String(index + 1)}>{track.label} · {track.language.toUpperCase()}</option>)}
                   </select>
                 </label>
