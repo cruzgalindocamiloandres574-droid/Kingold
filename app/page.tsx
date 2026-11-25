@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
 
 
 type Film = {
@@ -154,6 +155,17 @@ function Brand({ footer = false }: { footer?: boolean }) {
 }
 
 export default function Home() {
+  const [supabase] = useState(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    return url && key ? createBrowserClient(url, key) : null;
+  });
+  const [viewerId, setViewerId] = useState<string | null>(null);
+  const [resumeAt, setResumeAt] = useState(0);
+  const [pendingWatchId, setPendingWatchId] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
+  const progressSavingRef = useRef(false);
   const [catalogFilms, setCatalogFilms] = useState<Film[]>(initialFilms);
   const [genre, setGenre] = useState("Todo");
   const [query, setQuery] = useState("");
@@ -163,8 +175,22 @@ export default function Home() {
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
   const [catalogPage, setCatalogPage] = useState(1);
-  const [catalogTotal, setCatalogTotal] = useState(11);
+  const [catalogTotal, setCatalogTotal] = useState(12);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (active) setViewerId(user?.id ?? null);
+    });
+    return () => { active = false; };
+  }, [supabase]);
+
+  useEffect(() => {
+    const watchId = new URLSearchParams(window.location.search).get("watch");
+    if (watchId) setPendingWatchId(watchId);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -197,6 +223,24 @@ export default function Home() {
   }, [catalogPage, genre, query, audioFilter]);
 
   useEffect(() => {
+    if (!pendingWatchId) return;
+    const film = catalogFilms.find((item) => item.id === pendingWatchId);
+    if (!film) return;
+    openFilm(film);
+    setPendingWatchId(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("watch");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+  }, [pendingWatchId, catalogFilms]);
+
+  useEffect(() => {
+    if (resumeAt <= 0 || !videoRef.current || videoRef.current.readyState < 1) return;
+    if (Math.abs(videoRef.current.currentTime - resumeAt) > 8) {
+      videoRef.current.currentTime = resumeAt;
+    }
+  }, [resumeAt, selected]);
+
+  useEffect(() => {
     if (!selected) return;
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelected(null); };
     window.addEventListener("keydown", onKeyDown);
@@ -220,12 +264,51 @@ export default function Home() {
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
 
-  function openFilm(film: Film) {
+  async function openFilm(film: Film) {
     if (film.status !== "available" || !film.videoUrl) return;
     setSourceIndex(0);
     setSelectedAudioIndex(0);
+    setResumeAt(0);
+    lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
     setSelected(film);
+    if (!supabase) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    setViewerId(user?.id ?? null);
+    if (!user) return;
+    const { data } = await supabase
+      .from("watch_progress")
+      .select("seconds_watched")
+      .eq("user_id", user.id)
+      .eq("movie_id", film.id)
+      .maybeSingle();
+    const savedSeconds = Number(data?.seconds_watched || 0);
+    if (savedSeconds > 15) setResumeAt(savedSeconds);
+  }
+
+  async function saveProgress(seconds: number, force = false) {
+    if (!supabase || !viewerId || !selected || progressSavingRef.current) return;
+    const wholeSeconds = Math.floor(seconds);
+    if (wholeSeconds < 5) return;
+    const previous = lastProgressRef.current;
+    if (previous.movieId === selected.id && !force && wholeSeconds - previous.seconds < 15) return;
+    lastProgressRef.current = { movieId: selected.id, seconds: wholeSeconds };
+    progressSavingRef.current = true;
+    const { error } = await supabase.from("watch_progress").upsert({
+      user_id: viewerId,
+      movie_id: selected.id,
+      seconds_watched: wholeSeconds,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,movie_id" });
+    progressSavingRef.current = false;
+    if (error) lastProgressRef.current = previous;
+  }
+
+  async function clearCompletedProgress() {
+    if (!supabase || !viewerId || !selected) return;
+    await supabase.from("watch_progress").delete()
+      .eq("user_id", viewerId).eq("movie_id", selected.id);
+    lastProgressRef.current = { movieId: selected.id, seconds: 0 };
   }
 
   function handleVideoError() {
@@ -355,7 +438,13 @@ export default function Home() {
           <section className="playerDialog" role="dialog" aria-modal="true" aria-label={"Reproductor " + selected.name}>
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
-              <video key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
+              <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
+                onLoadedMetadata={(event) => {
+                  if (resumeAt > 15) event.currentTarget.currentTime = resumeAt;
+                }}
+                onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
+                onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
+                onEnded={() => { void clearCompletedProgress(); }}
                 onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onError={handleVideoError}>
                 <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
                 {(selected.subtitleTracks || []).map((track) => (
@@ -369,6 +458,7 @@ export default function Home() {
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span><span className="licenseTag">LICENCIA ABIERTA</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
+              {resumeAt > 15 && <p className="playerLanguageNote">Continuando desde {Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               <div className="playerLanguageControls">
                 <label>PISTA DE AUDIO
                   <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
