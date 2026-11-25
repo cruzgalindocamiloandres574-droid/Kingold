@@ -31,9 +31,11 @@ export default async function Account() {
         .in("id",movieIds).eq("published",true)
     : {data:[]};
   const movieById = new Map((progressMovies || []).map((movie) => [movie.id,movie]));
-  const continueWatching = (progressRows || [])
-    .map((item) => ({...item,movie:movieById.get(item.movie_id)}))
-    .filter((item) => item.movie?.status === "available" && item.movie?.video_url);
+  const continueWatching = (progressRows || []).flatMap((item) => {
+    const movie = movieById.get(item.movie_id);
+    if (!movie || movie.status !== "available" || !movie.video_url) return [];
+    return [{ ...item, movie }];
+  });
 
   return <main className="section">
     <Link href="/">NOIR VAULT</Link>
