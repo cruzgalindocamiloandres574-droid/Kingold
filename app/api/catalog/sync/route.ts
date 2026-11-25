@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 const WIKIDATA_ENDPOINT = "https://query-next.wikidata.org/sparql";
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
-const BATCH_SIZE = 40;
+const BATCH_SIZE = 20;
 const SOURCE = "wikidata";
 
 type Binding = { value: string; "xml:lang"?: string };
@@ -84,12 +84,13 @@ async function runCatalogSync(request: NextRequest) {
   const cronAuthorized = Boolean(secret && authorization === `Bearer ${secret}`);
 
   let adminAuthorized = false;
+  let adminSessionClient: Awaited<ReturnType<typeof createSessionClient>> | null = null;
   if (!cronAuthorized) {
     try {
-      const sessionClient = await createSessionClient();
-      const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+      adminSessionClient = await createSessionClient();
+      const { data: { user }, error: authError } = await adminSessionClient.auth.getUser();
       if (user && !authError) {
-        const { data: profile, error: profileError } = await sessionClient
+        const { data: profile, error: profileError } = await adminSessionClient
           .from("profiles")
           .select("role")
           .eq("id", user.id)
@@ -98,6 +99,7 @@ async function runCatalogSync(request: NextRequest) {
       }
     } catch {
       adminAuthorized = false;
+      adminSessionClient = null;
     }
   }
 
@@ -107,12 +109,22 @@ async function runCatalogSync(request: NextRequest) {
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
-    return NextResponse.json({ error: "Faltan las credenciales privadas de Supabase" }, { status: 503 });
+  if (!url) {
+    return NextResponse.json({ error: "Falta la URL de Supabase" }, { status: 503 });
+  }
+  if (cronAuthorized && !serviceKey) {
+    return NextResponse.json({ error: "La sincronización programada no tiene una credencial privada configurada" }, { status: 503 });
+  }
+  if (!cronAuthorized && (!adminAuthorized || !adminSessionClient)) {
+    return NextResponse.json({ error: "La sesión administradora no está disponible. Vuelve a iniciar sesión." }, { status: 401 });
   }
 
   try {
-    const db = createClient(url, serviceKey, { auth: { persistSession: false } });
+    // Browser-triggered imports run with the authenticated admin session and its RLS policies.
+    // Only trusted cron calls use the server-only service key.
+    const db = cronAuthorized
+      ? createClient(url, serviceKey!, { auth: { persistSession: false } })
+      : adminSessionClient!;
     const { data: state, error: stateError } = await db
       .from("catalog_import_state")
       .select("next_offset,completed,total_imported")
@@ -139,7 +151,7 @@ async function runCatalogSync(request: NextRequest) {
     const sparql = `
       SELECT ?film ?filmLabel ?filmDescription
         (SAMPLE(?date) AS ?releaseDate)
-        (GROUP_CONCAT(DISTINCT STR(?genreLabel); separator=", ") AS ?genres)
+        (GROUP_CONCAT(DISTINCT STR(?genreLabel); SEPARATOR = ", ") AS ?genres)
         (SAMPLE(?image) AS ?imageSample)
       WHERE {
         ?film wdt:P31 wd:Q11424.
@@ -166,9 +178,12 @@ async function runCatalogSync(request: NextRequest) {
       },
       body: new URLSearchParams({ query: sparql }),
       cache: "no-store",
-      signal: AbortSignal.timeout(45000),
+      signal: AbortSignal.timeout(28000),
     });
-    if (!response.ok) throw new Error(`Wikidata query failed: ${response.status}`);
+    if (!response.ok) {
+      const responseDetail = (await response.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 180);
+      throw new Error(`Wikidata query failed: ${response.status}${responseDetail ? " · " + responseDetail : ""}`);
+    }
 
     const json = await response.json();
     const bindings = (json.results?.bindings || []) as WikidataFilm[];
