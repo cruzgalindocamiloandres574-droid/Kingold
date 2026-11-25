@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
     let query = db.from("movies")
       .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish,catalog_source", { count: "exact" })
       .eq("published", true)
+      // Put genuinely playable titles before metadata-only records in the public catalogue.
+      .order("status", { ascending: true })
       .order("popularity", { ascending: false, nullsFirst: false })
       .order("release_year", { ascending: false })
       .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
