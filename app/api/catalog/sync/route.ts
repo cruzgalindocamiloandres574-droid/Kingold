@@ -196,7 +196,7 @@ async function runCatalogSync(request: NextRequest) {
         credit: image
           ? `Datos: Wikidata (${qid}); imagen: ${image.credit} — Wikimedia Commons`
           : `Datos: Wikidata (${qid})`,
-        catalog_source: "wikidata",
+        catalog_source: `https://www.wikidata.org/wiki/${qid}`,
         published: true,
         status: "soon",
       };
