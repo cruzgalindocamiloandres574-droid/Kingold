@@ -173,7 +173,7 @@ async function runCatalogSync(request: NextRequest) {
     const json = await response.json();
     const bindings = (json.results?.bindings || []) as WikidataFilm[];
     const fileTitles = bindings
-      .map((item) => item.imageSample?.value ? commonsFileTitle(item.image.value) : null)
+      .map((item) => item.imageSample?.value ? commonsFileTitle(item.imageSample.value) : null)
       .filter((value): value is string => Boolean(value));
     const images = await fetchCommonsImages(fileTitles);
 
