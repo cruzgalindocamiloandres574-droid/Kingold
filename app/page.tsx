@@ -444,7 +444,7 @@ export default function Home() {
                   {film.posterUrl && <img className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
-                  {film.status === "available" ? <span className="posterPlay"><span>{film.readerUrl ? "LEER" : "▶"}</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
+                  {film.status === "available" ? <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.duration}</small></span>
@@ -509,8 +509,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="readerStage">
-                  <span>NOIR / DIGITAL READING</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
-                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR LECTOR O CAPÍTULOS ↗</a>
+                  <span>{selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
+                  <strong>{selected.name}</strong><p>{selected.synopsis}</p>
+                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                 </div>
               )}
               {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente multimedia</small></div>}
