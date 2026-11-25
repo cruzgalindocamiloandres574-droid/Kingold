@@ -208,7 +208,7 @@ export default function Home() {
   const [catalogAvailableTotal, setCatalogAvailableTotal] = useState(0);
 
   const openFilm = useCallback(async (film: Film) => {
-    if (film.status !== "available" || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
+    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
     setSourceIndex(0);
     setSelectedAudioIndex(0);
     setResumeAt(0);
@@ -454,8 +454,8 @@ export default function Home() {
           <div className="filmGrid">
             {visibleFilms.map((film, index) => (
               <button key={film.id} className={film.status === "soon" ? "filmCard filmSoon" : "filmCard"}
-                onClick={() => openFilm(film)} disabled={film.status !== "available"}
-                aria-label={film.status === "available" ? "Reproducir " + film.name : film.name + ", próximamente"}>
+                onClick={() => openFilm(film)} disabled={film.status !== "available" && !film.readerUrl}
+                aria-label={film.status === "available" ? "Abrir " + film.name : film.readerUrl ? "Consultar ficha oficial de " + film.name : film.name + ", próximamente"}>
                 <span className="filmPoster">
                   {film.posterUrl && <img className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
@@ -467,7 +467,7 @@ export default function Home() {
                       </span>
                       <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
                     </>
-                  ) : <span className="soonPill">PRÓXIMAMENTE</span>}
+                  ) : <span className="soonPill">{film.readerUrl ? "PRÓXIMAMENTE · VER FICHA ↗" : "PRÓXIMAMENTE"}</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} E${film.episodeNumber} · ` : ""}{film.duration}</small></span>
@@ -532,9 +532,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="readerStage">
-                  <span>{selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
-                  <strong>{selected.name}</strong><p>{selected.synopsis}</p>
-                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
+                  <span>{selected.status === "soon" ? "NOIR / PRÓXIMO ESTRENO" : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
+                  <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + " Este título todavía no está disponible para reproducirse." : selected.synopsis}</p>
+                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                 </div>
               )}
               {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente multimedia</small></div>}
