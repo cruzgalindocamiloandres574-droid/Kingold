@@ -28,12 +28,22 @@ export async function GET(request: NextRequest) {
     const db = catalogClient();
     let query = db.from("movies")
       .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,audio_url,reader_url,content_type,season_number,episode_number,season_count,episode_count,chapter_count,content_metadata,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish,catalog_source", { count: "exact" })
-      .eq("published", true)
-      // Put genuinely playable titles before metadata-only records in the public catalogue.
-      .order("status", { ascending: true })
-      .order("popularity", { ascending: false, nullsFirst: false })
-      .order("release_year", { ascending: false })
-      .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+      .eq("published", true);
+    // Series episodes must follow season and episode numbering, not popularity.
+    if (type === "series" || type === "anime") {
+      query = query
+        .order("status", { ascending: true })
+        .order("season_number", { ascending: true, nullsFirst: false })
+        .order("episode_number", { ascending: true, nullsFirst: false })
+        .order("popularity", { ascending: false, nullsFirst: false });
+    } else {
+      query = query
+        // Put genuinely playable titles before metadata-only records in the public catalogue.
+        .order("status", { ascending: true })
+        .order("popularity", { ascending: false, nullsFirst: false })
+        .order("release_year", { ascending: false });
+    }
+    query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     if (type && allowedTypes.has(type)) query = query.eq("content_type", type);
     if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
