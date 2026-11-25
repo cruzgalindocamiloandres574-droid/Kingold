@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -410,7 +411,7 @@ export default function Home() {
       </header>
 
       <section className="heroSection">
-        <div className="heroBackdropImage"><img src={featured.posterUrl || initialFilms[1].posterUrl} alt="" /></div>
+        <div className="heroBackdropImage"><Image src={featured.posterUrl || initialFilms[1].posterUrl} alt="" fill priority unoptimized sizes="100vw" /></div>
         <div className="heroShade" />
         <div className="heroContent">
           <div className="heroKicker"><span className="goldDot" /> UNA BIBLIOTECA DE ENTRETENIMIENTO</div>
@@ -482,7 +483,7 @@ export default function Home() {
                 onClick={() => openFilm(film)} disabled={film.status !== "available" && !film.readerUrl}
                 aria-label={film.status === "available" ? "Abrir " + film.name : film.readerUrl ? "Consultar ficha oficial de " + film.name : film.name + ", próximamente"}>
                 <span className="filmPoster">
-                  {film.posterUrl && <img className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
+                  {film.posterUrl && <Image className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} fill unoptimized sizes="(max-width: 680px) 50vw, 25vw" loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
                   {film.status === "available" ? (
