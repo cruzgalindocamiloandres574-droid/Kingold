@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 
 
@@ -178,6 +178,28 @@ export default function Home() {
   const [catalogTotal, setCatalogTotal] = useState(12);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
 
+  const openFilm = useCallback(async (film: Film) => {
+    if (film.status !== "available" || !film.videoUrl) return;
+    setSourceIndex(0);
+    setSelectedAudioIndex(0);
+    setResumeAt(0);
+    lastProgressRef.current = { movieId: film.id, seconds: 0 };
+    setVideoState("loading");
+    setSelected(film);
+    if (!supabase) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    setViewerId(user?.id ?? null);
+    if (!user) return;
+    const { data } = await supabase
+      .from("watch_progress")
+      .select("seconds_watched")
+      .eq("user_id", user.id)
+      .eq("movie_id", film.id)
+      .maybeSingle();
+    const savedSeconds = Number(data?.seconds_watched || 0);
+    if (savedSeconds > 15) setResumeAt(savedSeconds);
+  }, [supabase]);
+
   useEffect(() => {
     if (!supabase) return;
     let active = true;
@@ -231,7 +253,7 @@ export default function Home() {
     const url = new URL(window.location.href);
     url.searchParams.delete("watch");
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
-  }, [pendingWatchId, catalogFilms]);
+  }, [pendingWatchId, catalogFilms, openFilm]);
 
   useEffect(() => {
     if (resumeAt <= 0 || !videoRef.current || videoRef.current.readyState < 1) return;
@@ -263,28 +285,6 @@ export default function Home() {
   function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
-
-  async function openFilm(film: Film) {
-    if (film.status !== "available" || !film.videoUrl) return;
-    setSourceIndex(0);
-    setSelectedAudioIndex(0);
-    setResumeAt(0);
-    lastProgressRef.current = { movieId: film.id, seconds: 0 };
-    setVideoState("loading");
-    setSelected(film);
-    if (!supabase) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    setViewerId(user?.id ?? null);
-    if (!user) return;
-    const { data } = await supabase
-      .from("watch_progress")
-      .select("seconds_watched")
-      .eq("user_id", user.id)
-      .eq("movie_id", film.id)
-      .maybeSingle();
-    const savedSeconds = Number(data?.seconds_watched || 0);
-    if (savedSeconds > 15) setResumeAt(savedSeconds);
-  }
 
   async function saveProgress(seconds: number, force = false) {
     if (!supabase || !viewerId || !selected || progressSavingRef.current) return;
@@ -459,6 +459,7 @@ export default function Home() {
               <div className="playerMeta"><span>{selected.year}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span><span className="licenseTag">LICENCIA ABIERTA</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
               {resumeAt > 15 && <p className="playerLanguageNote">Continuando desde {Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
+              {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
               <div className="playerLanguageControls">
                 <label>PISTA DE AUDIO
                   <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
