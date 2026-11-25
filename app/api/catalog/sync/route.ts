@@ -177,17 +177,23 @@ async function runCatalogSync(request: NextRequest) {
       .filter((value): value is string => Boolean(value));
     const images = await fetchCommonsImages(fileTitles);
 
-    const rows = bindings.map((item) => {
+    const rows = bindings.flatMap((item) => {
       const qid = item.film.value.split("/").pop() || "";
+      const title = safeText(item.filmLabel.value);
+      const genre = safeText(item.genres?.value) || "Cine";
+      // Do not publish unlabelled Wikidata entities or adult-film records.
+      if (!title || /^Q\\d+$/i.test(title)) return [];
+      if (/pornographic film|cine pornográfico/i.test(genre)) return [];
+
       const fileTitle = item.imageSample?.value ? commonsFileTitle(item.imageSample.value) : null;
       const image = fileTitle ? images.get(fileTitle) : undefined;
       const releaseDate = item.releaseDate?.value?.slice(0, 10) || null;
       const releaseYear = releaseDate ? Number(releaseDate.slice(0, 4)) || null : null;
-      return {
+      return [{
         wikidata_id: qid,
-        title: safeText(item.filmLabel.value) || "Película sin título",
+        title,
         synopsis: safeText(item.filmDescription?.value) || null,
-        genre: safeText(item.genres?.value) || "Cine",
+        genre,
         release_year: releaseYear,
         release_date: releaseDate,
         poster_url: image?.url || null,
@@ -199,7 +205,7 @@ async function runCatalogSync(request: NextRequest) {
         catalog_source: `https://www.wikidata.org/wiki/${qid}`,
         published: true,
         status: "soon",
-      };
+      }];
     });
 
     if (rows.length) {
