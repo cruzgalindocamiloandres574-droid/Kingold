@@ -194,6 +194,7 @@ async function runCatalogSync(request: NextRequest) {
       .filter((value): value is string => Boolean(value));
     const images = await fetchCommonsImages(fileTitles);
 
+    const today = new Date().toISOString().slice(0, 10);
     const rows = bindings.flatMap((item) => {
       const qid = item.film.value.split("/").pop() || "";
       const title = safeText(item.filmLabel.value);
@@ -220,6 +221,9 @@ async function runCatalogSync(request: NextRequest) {
           ? `Datos: Wikidata (${qid}); imagen: ${image.credit} — Wikimedia Commons`
           : `Datos: Wikidata (${qid})`,
         catalog_source: `https://www.wikidata.org/wiki/${qid}`,
+        content_metadata: {
+          catalog_availability: releaseDate && releaseDate > today ? "upcoming" : "source_pending",
+        },
         published: true,
         status: "soon",
       }];
