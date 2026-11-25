@@ -142,7 +142,7 @@ async function runCatalogSync(request: NextRequest) {
         (GROUP_CONCAT(DISTINCT STR(?genreLabel); separator=", ") AS ?genres)
         (SAMPLE(?image) AS ?image)
       WHERE {
-        ?film wdt:P31/wdt:P279* wd:Q11424.
+        ?film wdt:P31 wd:Q11424.
         OPTIONAL { ?film wdt:P577 ?date. }
         OPTIONAL { ?film wdt:P18 ?image. }
         OPTIONAL {
