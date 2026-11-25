@@ -341,7 +341,7 @@ export default function Home() {
         <p>Crea tu cuenta y acompaña el crecimiento de una biblioteca dedicada a las buenas historias.</p>
         <div className="membershipPrice"><strong>$20.000</strong><span>COP / MES</span></div>
         <a className="buttonPrimary membershipButton" href="/registro">CREAR MI CUENTA <span>↗</span></a>
-        <small>Los cobros de membresía requieren completar las credenciales privadas y las pruebas de Stripe antes de habilitar pagos reales.</small>
+        <small>Stripe está conectado en modo de prueba. NOIR VAULT aún no realiza cobros reales; el lanzamiento comercial está pendiente de validar el recorrido de pago y la biblioteca con licencias de distribución.</small>
       </section>
 
       <footer className="siteFooter">
