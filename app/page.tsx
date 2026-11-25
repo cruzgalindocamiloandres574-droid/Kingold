@@ -34,7 +34,6 @@ const CONTENT_LABELS: Record<ContentType, string> = {
   documentary: "Documentales", audiobook: "Audiolibros", concert: "Conciertos", short: "Cortometrajes",
 };
 
-const commons = "https://upload.wikimedia.org/wikipedia/commons";
 const initialFilms: Film[] = [
   {
     id: "big-buck-bunny", name: "BIG BUCK BUNNY", genre: "Animación", year: 2008, duration: "10 min 35 s",
