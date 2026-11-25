@@ -179,7 +179,7 @@ async function runCatalogSync(request: NextRequest) {
 
     const rows = bindings.map((item) => {
       const qid = item.film.value.split("/").pop() || "";
-      const fileTitle = item.imageSample?.value ? commonsFileTitle(item.image.value) : null;
+      const fileTitle = item.imageSample?.value ? commonsFileTitle(item.imageSample.value) : null;
       const image = fileTitle ? images.get(fileTitle) : undefined;
       const releaseDate = item.releaseDate?.value?.slice(0, 10) || null;
       const releaseYear = releaseDate ? Number(releaseDate.slice(0, 4)) || null : null;
