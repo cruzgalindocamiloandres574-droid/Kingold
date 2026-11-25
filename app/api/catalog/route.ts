@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const year = request.nextUrl.searchParams.get("year");
     const language = request.nextUrl.searchParams.get("language");
     const audio = request.nextUrl.searchParams.get("audio");
+    const playback = request.nextUrl.searchParams.get("playback");
     const type = request.nextUrl.searchParams.get("type");
     const allowedTypes = new Set(["movie","series","anime","manga","podcast","documentary","audiobook","concert","short"]);
     const db = catalogClient();
@@ -51,21 +52,46 @@ export async function GET(request: NextRequest) {
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
     if (audio === "latin") query = query.eq("has_latin_spanish", true);
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
-    const [pageResult, availableResult] = await Promise.all([
+    if (playback === "internal") query = query.or("video_url.not.is.null,audio_url.not.is.null");
+    if (playback === "external") query = query.is("video_url", null).is("audio_url", null).not("reader_url", "is", null);
+    if (playback === "soon") query = query.eq("status", "soon");
+    const [pageResult, availableResult, internalResult, externalResult, upcomingResult] = await Promise.all([
       query,
       db.from("movies")
         .select("id", { count: "exact", head: true })
         .eq("published", true)
         .eq("status", "available")
         .or("video_url.not.is.null,audio_url.not.is.null,reader_url.not.is.null"),
+      db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", "available")
+        .or("video_url.not.is.null,audio_url.not.is.null"),
+      db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", "available")
+        .is("video_url", null)
+        .is("audio_url", null)
+        .not("reader_url", "is", null),
+      db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", "soon"),
     ]);
     if (pageResult.error) throw pageResult.error;
     if (availableResult.error) throw availableResult.error;
+    if (internalResult.error) throw internalResult.error;
+    if (externalResult.error) throw externalResult.error;
+    if (upcomingResult.error) throw upcomingResult.error;
     const total = pageResult.count || 0;
     return NextResponse.json({
       results: pageResult.data || [],
       total,
       availableTotal: availableResult.count || 0,
+      internalTotal: internalResult.count || 0,
+      externalTotal: externalResult.count || 0,
+      upcomingTotal: upcomingResult.count || 0,
       page,
       pageSize: PAGE_SIZE,
       totalPages: Math.ceil(total / PAGE_SIZE),
