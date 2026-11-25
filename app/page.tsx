@@ -4,15 +4,34 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 
 
+type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documentary" | "audiobook" | "concert" | "short";
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
+  audioUrl?: string; readerUrl?: string; contentType?: ContentType;
+  seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
   subtitleTracks?: { label: string; language: string; src: string; isDefault?: boolean }[];
   audioLanguages?: string[];
   hasLatinSpanish?: boolean;
   status: "available" | "soon";
+};
+
+const CONTENT_TYPES: { value: ContentType; label: string; eyebrow: string; description: string }[] = [
+  { value: "movie", label: "Películas", eyebrow: "01 / CINE", description: "Largometrajes y cortometrajes con fuentes verificadas." },
+  { value: "series", label: "Series", eyebrow: "02 / SERIES", description: "Historias organizadas por temporadas y episodios." },
+  { value: "anime", label: "Anime", eyebrow: "03 / ANIME", description: "Animación japonesa y otras escuelas de animación." },
+  { value: "manga", label: "Manga", eyebrow: "04 / MANGA", description: "Lectura por tomos y capítulos desde fuentes autorizadas." },
+  { value: "podcast", label: "Podcasts", eyebrow: "05 / PODCAST", description: "Conversaciones, cultura, ficción sonora y audio." },
+  { value: "documentary", label: "Documentales", eyebrow: "06 / DOCS", description: "Historias reales, ciencia, cultura y naturaleza." },
+  { value: "audiobook", label: "Audiolibros", eyebrow: "07 / BOOKS", description: "Literatura narrada y libros en audio." },
+  { value: "concert", label: "Conciertos", eyebrow: "08 / LIVE", description: "Música en directo y sesiones especiales." },
+  { value: "short", label: "Cortometrajes", eyebrow: "09 / SHORTS", description: "Piezas breves, experimentales y de autor." },
+];
+const CONTENT_LABELS: Record<ContentType, string> = {
+  movie: "Películas", series: "Series", anime: "Anime", manga: "Manga", podcast: "Podcasts",
+  documentary: "Documentales", audiobook: "Audiolibros", concert: "Conciertos", short: "Cortometrajes",
 };
 
 const commons = "https://upload.wikimedia.org/wikipedia/commons";
@@ -172,6 +191,7 @@ export default function Home() {
   const progressSavingRef = useRef(false);
   const [catalogFilms, setCatalogFilms] = useState<Film[]>(initialFilms);
   const [genre, setGenre] = useState("Todo");
+  const [contentType, setContentType] = useState<ContentType | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Film | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
@@ -183,14 +203,14 @@ export default function Home() {
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
 
   const openFilm = useCallback(async (film: Film) => {
-    if (film.status !== "available" || !film.videoUrl) return;
+    if (film.status !== "available" || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
     setSourceIndex(0);
     setSelectedAudioIndex(0);
     setResumeAt(0);
     lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
     setSelected(film);
-    if (!supabase) return;
+    if (!supabase || !film.videoUrl) return;
     const { data: { user } } = await supabase.auth.getUser();
     setViewerId(user?.id ?? null);
     if (!user) return;
@@ -221,6 +241,7 @@ export default function Home() {
   useEffect(() => {
     let active = true;
     const params = new URLSearchParams({ page: String(catalogPage) });
+    if (contentType !== "all") params.set("type", contentType);
     if (query.trim()) params.set("q", query.trim());
     if (genre !== "Todo") params.set("genre", genre);
     if (audioFilter !== "all") params.set("audio", audioFilter);
@@ -234,19 +255,27 @@ export default function Home() {
           synopsis: String(movie.synopsis || ""), posterUrl: String(movie.poster_url || ""),
           videoUrl: movie.video_url ? String(movie.video_url) : undefined,
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
+          audioUrl: movie.audio_url ? String(movie.audio_url) : undefined,
+          readerUrl: movie.reader_url ? String(movie.reader_url) : undefined,
+          contentType: String(movie.content_type || "movie") as ContentType,
+          seasonNumber: movie.season_number ? Number(movie.season_number) : undefined,
+          episodeNumber: movie.episode_number ? Number(movie.episode_number) : undefined,
+          seasonCount: movie.season_count ? Number(movie.season_count) : undefined,
+          episodeCount: movie.episode_count ? Number(movie.episode_count) : undefined,
+          chapterCount: movie.chapter_count ? Number(movie.chapter_count) : undefined,
           creator: String(movie.creator || "Autoría por confirmar"), license: String(movie.license || "Licencia por confirmar"),
           credit: String(movie.credit || ""), sourcePageUrl: movie.catalog_source ? String(movie.catalog_source) : undefined,
           audioTracks: Array.isArray(movie.audio_tracks) ? movie.audio_tracks as Film["audioTracks"] : [],
           subtitleTracks: Array.isArray(movie.subtitle_tracks) ? movie.subtitle_tracks as Film["subtitleTracks"] : [],
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
           hasLatinSpanish: Boolean(movie.has_latin_spanish),
-          status: movie.status === "available" && movie.video_url ? "available" : "soon",
+          status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url) ? "available" : "soon",
         }));
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
       })
-      .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo") setCatalogFilms(initialFilms); });
+      .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo" && contentType === "all") setCatalogFilms(initialFilms); });
     return () => { active = false; };
-  }, [catalogPage, genre, query, audioFilter]);
+  }, [catalogPage, genre, query, audioFilter, contentType]);
 
   useEffect(() => {
     if (!pendingWatchId) return;
@@ -285,8 +314,9 @@ export default function Home() {
 
   const visibleFilms = catalogFilms;
 
-  const availableCount = catalogFilms.filter((film) => film.status === "available" && film.videoUrl).length;
+  const availableCount = catalogFilms.filter((film) => film.status === "available" && (film.videoUrl || film.audioUrl || film.readerUrl)).length;
   function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
+  function changeContentType(value: ContentType | "all") { setContentType(value); setCatalogPage(1); setGenre("Todo"); }
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
 
@@ -330,18 +360,19 @@ export default function Home() {
     setVideoState("error");
   }
 
-  const activeVideoUrl = selected
+  const activeVideoUrl = selected?.videoUrl
     ? selectedAudioIndex > 0 && selected.audioTracks?.[selectedAudioIndex - 1]?.url
       ? selected.audioTracks[selectedAudioIndex - 1].url
       : sourceIndex === 1 && selected.fallbackVideoUrl ? selected.fallbackVideoUrl : selected.videoUrl
     : undefined;
+  const activeAudioUrl = selected?.audioUrl;
 
   return (
     <main className="noirSite">
       <header className="siteHeader">
         <Brand />
         <nav aria-label="Navegación principal">
-          <a href="#catalogo">Cartelera</a><a href="#colecciones">Colecciones</a><a href="#planes">Membresía</a>
+          <a href="#formatos">Explorar</a><a href="#catalogo">Catálogo</a><a href="#planes">Membresía</a>
         </nav>
         <div className="headerActions"><a className="headerLogin" href="/login">Entrar</a><a className="headerJoin" href="/registro">Unirme <span>↗</span></a></div>
       </header>
@@ -350,32 +381,47 @@ export default function Home() {
         <div className="heroBackdropImage"><img src={featured.posterUrl || initialFilms[1].posterUrl} alt="" /></div>
         <div className="heroShade" />
         <div className="heroContent">
-          <div className="heroKicker"><span className="goldDot" /> UNA EXPERIENCIA DE CINE INDEPENDIENTE</div>
+          <div className="heroKicker"><span className="goldDot" /> UNA BIBLIOTECA DE ENTRETENIMIENTO</div>
           <div className="heroEyebrow">NOIR VAULT ORIGINAL SELECTION</div>
           <h1>El cine merece<br /><em>otra mirada.</em></h1>
-          <p>Una selección de historias extraordinarias, animación de autor y mundos que se quedan contigo.</p>
+          <p>Cine, series, anime, manga, podcasts y otras formas de contar historias, reunidas en un solo lugar.</p>
           <div className="heroButtons">
             <button className="buttonPrimary" onClick={() => openFilm(featured)}><span className="buttonPlay">▶</span> VER DESTACADO</button>
             <a className="buttonGhost" href="#catalogo">EXPLORAR CARTELERA <span>↓</span></a>
           </div>
-          <div className="heroStats"><span><strong>{availableCount.toString().padStart(2, "0")}</strong> PELÍCULAS DISPONIBLES</span><i /><span>OBRAS CON LICENCIA ABIERTA</span></div>
+          <div className="heroStats"><span><strong>{availableCount.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
         </div>
         <div className="heroSideNote"><span>NV / 001</span><span>CURATED FOR THE CURIOUS</span></div>
       </section>
 
       <div className="trustStrip"><span>NOIR VAULT</span><i>✳</i><span>OPEN CINEMA</span><i>✳</i><span>IMÁGENES Y CRÉDITOS DE AUTOR</span><i>✳</i><span>UNA BIBLIOTECA EN CRECIMIENTO</span></div>
 
+      <section id="formatos" className="formatsSection">
+        <div className="contentWrap">
+          <div className="sectionOverline">EXPLORA POR FORMATO</div>
+          <div className="formatsIntro"><h2>Más que una <em>cartelera.</em></h2><p>Elige qué quieres ver, leer o escuchar. Cada formato tiene su propio filtro y su ficha de contenido.</p></div>
+          <div className="formatGrid">
+            {CONTENT_TYPES.map((format) => (
+              <button key={format.value} type="button" className={contentType === format.value ? "formatCard formatCardActive" : "formatCard"} onClick={() => { changeContentType(format.value); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }}>
+                <span>{format.eyebrow}</span><strong>{format.label}</strong><small>{format.description}</small><b>EXPLORAR ↗</b>
+              </button>
+            ))}
+          </div>
+          <button type="button" className="allFormatsButton" onClick={() => { changeContentType("all"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }}>VER TODAS LAS SECCIONES</button>
+        </div>
+      </section>
+
       <section id="catalogo" className="catalogSection">
         <div className="contentWrap">
           <div className="sectionIntro">
-            <div><div className="sectionOverline">LA CARTELERA</div><h2>Encuentra tu próxima <em>historia.</em></h2><p>Películas y cortometrajes seleccionados para descubrir algo diferente.</p></div>
+            <div><div className="sectionOverline">{contentType === "all" ? "LA BIBLIOTECA NOIR" : CONTENT_LABELS[contentType].toUpperCase()}</div><h2>{contentType === "all" ? <>Encuentra tu próxima <em>historia.</em></> : <>Explora <em>{CONTENT_LABELS[contentType]}.</em></>}</h2><p>{contentType === "all" ? "Películas, series, manga, podcasts y más formatos en una biblioteca en crecimiento." : CONTENT_TYPES.find((item) => item.value === contentType)?.description}</p></div>
             <div className="catalogCounter"><strong>{catalogTotal.toLocaleString("es-CO")}</strong><span>TÍTULOS<br />EN CATÁLOGO</span></div>
           </div>
 
           <div className="catalogToolbar">
             <label className="catalogSearch">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-              <input value={query} onChange={(event) => changeCatalogSearch(event.target.value)} placeholder="Buscar película, género o historia..." aria-label="Buscar en la cartelera" />
+              <input value={query} onChange={(event) => changeCatalogSearch(event.target.value)} placeholder="Buscar título, género o historia..." aria-label="Buscar en NOIR VAULT" />
               {query && <button type="button" aria-label="Limpiar búsqueda" onClick={() => changeCatalogSearch("")}>×</button>}
             </label>
             <div className="genreChips" aria-label="Filtrar por género">
@@ -398,7 +444,7 @@ export default function Home() {
                   {film.posterUrl && <img className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
-                  {film.status === "available" ? <span className="posterPlay"><span>▶</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
+                  {film.status === "available" ? <span className="posterPlay"><span>{film.readerUrl ? "LEER" : "▶"}</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.duration}</small></span>
@@ -406,17 +452,17 @@ export default function Home() {
             ))}
           </div>
           {catalogTotalPages > 1 && <div className="catalogPagination"><button disabled={catalogPage <= 1} onClick={() => setCatalogPage((p) => Math.max(1,p-1))}>← ANTERIORES</button><span>PÁGINA {catalogPage} DE {catalogTotalPages}</span><button disabled={catalogPage >= catalogTotalPages} onClick={() => setCatalogPage((p) => Math.min(catalogTotalPages,p+1))}>SIGUIENTES →</button></div>}
-          {visibleFilms.length === 0 && <div className="noResults"><strong>No encontramos esa película.</strong><span>Prueba con otro título o género.</span></div>}
-          <p className="catalogFootnote">La selección reproducible incluye obras publicadas bajo licencias Creative Commons. Cada ficha muestra su autoría y licencia. Los títulos sin fuente completa autorizada permanecen deshabilitados.</p>
+          {visibleFilms.length === 0 && <div className="noResults"><strong>{query ? "No encontramos ese título." : "Esta sección está preparando su catálogo."}</strong><span>{query ? "Prueba con otro término de búsqueda." : "Publicaremos contenidos cuando la fuente, el permiso y el formato de reproducción o lectura estén verificados."}</span></div>}
+          <p className="catalogFootnote">Las películas, episodios y audios solo se activan cuando existe una fuente multimedia registrada. Manga y lecturas abren su lector autorizado. Las fichas sin fuente completa o permisos confirmados permanecen deshabilitadas.</p>
         </div>
       </section>
 
       <section id="colecciones" className="collectionsSection">
         <div className="contentWrap collectionsLayout">
-          <div className="collectionsCopy"><div className="sectionOverline">DOS UNIVERSOS</div><h2>Una biblioteca.<br /><em>Mil maneras de sentir.</em></h2><p>Explora cortometrajes de autor y proyectos de animación que abrieron nuevas posibilidades para el cine digital.</p></div>
+          <div className="collectionsCopy"><div className="sectionOverline">UN UNIVERSO MULTIFORMATO</div><h2>Una biblioteca.<br /><em>Mil maneras de sentir.</em></h2><p>Del cine a la lectura y el audio: descubre historias en formatos distintos, con sus fuentes, créditos y permisos identificados.</p></div>
           <div className="collectionCards">
-            <a className="collectionCard collectionOpen" href="#catalogo"><span>01 / OPEN CINEMA</span><strong>Obras abiertas<br /><em>para descubrir.</em></strong><small>VER LA CARTELERA <b>↗</b></small></a>
-            <div className="collectionCard collectionPremiere"><span>02 / NOIR PREMIERE</span><strong>Grandes historias.<br /><em>Próximamente.</em></strong><small>CATÁLOGO COMERCIAL CON LICENCIA</small></div>
+            <a className="collectionCard collectionOpen" href="#formatos"><span>01 / NOIR LIBRARY</span><strong>Una colección<br /><em>para explorar.</em></strong><small>VER LOS FORMATOS <b>↗</b></small></a>
+            <a className="collectionCard collectionPremiere" href="#formatos"><span>02 / AUDIO & READ</span><strong>Escucha y lee<br /><em>nuevas historias.</em></strong><small>PODCASTS · MANGA · AUDIOLIBROS</small></a>
           </div>
         </div>
       </section>
@@ -437,34 +483,45 @@ export default function Home() {
         <span>© 2026 NOIR VAULT · THE CINEMA CLUB</span>
       </footer>
 
-      {selected && activeVideoUrl && (
+      {selected && (activeVideoUrl || activeAudioUrl || selected.readerUrl) && (
         <div className="playerOverlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
           <section className="playerDialog" role="dialog" aria-modal="true" aria-label={"Reproductor " + selected.name}>
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
-              <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
-                onLoadedMetadata={(event) => {
-                  if (resumeAt > 15) event.currentTarget.currentTime = resumeAt;
-                }}
-                onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
-                onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
-                onEnded={() => { void clearCompletedProgress(); }}
-                onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
-                <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
-                {(selected.subtitleTracks || []).map((track) => (
-                  <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />
-                ))}
-                Tu navegador no puede reproducir este formato de vídeo.
-              </video>
-              {videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente de vídeo</small></div>}
-              {videoState === "error" && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original desde su archivo público.</span><a href={selected.sourcePageUrl || activeVideoUrl} target="_blank" rel="noreferrer">ABRIR FUENTE DE LA PELÍCULA ↗</a><button onClick={() => { setSourceIndex(0); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
+              {activeVideoUrl ? (
+                <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
+                  onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
+                  onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
+                  onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
+                  onEnded={() => { void clearCompletedProgress(); }}
+                  onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
+                  <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
+                  {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
+                  Tu navegador no puede reproducir este formato de vídeo.
+                </video>
+              ) : activeAudioUrl ? (
+                <div className="audioStage">
+                  <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
+                  <audio key={selected.id} controls autoPlay preload="metadata" onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}>
+                    <source src={activeAudioUrl} />
+                    Tu navegador no puede reproducir este audio.
+                  </audio>
+                </div>
+              ) : (
+                <div className="readerStage">
+                  <span>NOIR / DIGITAL READING</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
+                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR LECTOR O CAPÍTULOS ↗</a>
+                </div>
+              )}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente multimedia</small></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setSourceIndex(0); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
             </div>
             <div className="playerInfo">
-              <div className="playerMeta"><span>{selected.year}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span><span className="licenseTag">LICENCIA ABIERTA</span></div>
+              <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
               {resumeAt > 15 && <p className="playerLanguageNote">Continuando desde {Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
-              <div className="playerLanguageControls">
+              {selected.videoUrl && <div className="playerLanguageControls">
                 <label>PISTA DE AUDIO
                   <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
                     <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : "Audio de la fuente (idioma por verificar)"}</option>
@@ -473,7 +530,9 @@ export default function Home() {
                 </label>
                 <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
                 {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
-              </div>
+              </div>}
+              {selected.audioUrl && <p className="playerLanguageNote">Audio disponible · {(selected.audioLanguages || []).join(", ") || "idioma por confirmar"}</p>}
+              {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR LECTOR AUTORIZADO ↗</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
             </div>
           </section>
