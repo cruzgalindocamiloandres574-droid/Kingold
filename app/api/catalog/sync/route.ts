@@ -80,7 +80,7 @@ async function fetchCommonsImages(titles: string[]) {
 
 
 const LIBRIVOX_SOURCE = "librivox";
-const LIBRIVOX_BATCH_SIZE = 100;
+const LIBRIVOX_BATCH_SIZE = 500;
 
 
 
