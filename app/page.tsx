@@ -558,9 +558,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="readerStage">
-                  <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
+                  <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : selected.contentType === "audiobook" ? "NOIR / AUDIOLIBRO EXTERNO" : "NOIR / FUENTE EXTERNA"}</span>
                   <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + (selected.availability === "upcoming" ? " Este título todavía no está disponible para reproducirse." : " Todavía no tiene una fuente multimedia verificada.") : selected.synopsis}</p>
-                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
+                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : selected.contentType === "audiobook" ? "ABRIR AUDIOLIBRO EN LIBRIVOX ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                 </div>
               )}
               {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
@@ -582,7 +582,7 @@ export default function Home() {
                 {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
               </div>}
               {selected.audioUrl && <p className="playerLanguageNote">Audio disponible · {(selected.audioLanguages || []).join(", ") || "idioma por confirmar"}</p>}
-              {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR LECTOR OFICIAL ↗" : selected.contentType === "podcast" ? "ABRIR PÁGINA DEL PODCAST ↗" : "VER PÁGINA OFICIAL ↗"}</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
+              {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR LECTOR OFICIAL ↗" : selected.contentType === "podcast" ? "ABRIR PÁGINA DEL PODCAST ↗" : selected.contentType === "audiobook" ? "ABRIR FICHA EN LIBRIVOX ↗" : "VER PÁGINA OFICIAL ↗"}</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
             </div>
           </section>
