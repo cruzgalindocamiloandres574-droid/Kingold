@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -80,8 +81,28 @@ async function fetchCommonsImages(titles: string[]) {
 async function runCatalogSync(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   const authorization = request.headers.get("authorization");
-  if (!secret || authorization !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  const cronAuthorized = Boolean(secret && authorization === `Bearer ${secret}`);
+
+  let adminAuthorized = false;
+  if (!cronAuthorized) {
+    try {
+      const sessionClient = await createSessionClient();
+      const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+      if (user && !authError) {
+        const { data: profile, error: profileError } = await sessionClient
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        adminAuthorized = !profileError && profile?.role === "admin";
+      }
+    } catch {
+      adminAuthorized = false;
+    }
+  }
+
+  if (!cronAuthorized && !adminAuthorized) {
+    return NextResponse.json({ error: "Debes iniciar sesión con una cuenta administradora." }, { status: 401 });
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
