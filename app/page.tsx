@@ -16,6 +16,7 @@ type Film = {
   audioLanguages?: string[];
   hasLatinSpanish?: boolean;
   status: "available" | "soon";
+  availability?: "available" | "upcoming" | "pending";
 };
 
 const CONTENT_TYPES: { value: ContentType; label: string; eyebrow: string; description: string }[] = [
@@ -197,10 +198,11 @@ export default function Home() {
   const [sourceIndex, setSourceIndex] = useState(0);
   const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
-  const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon">("all");
+  const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon" | "pending">("all");
   const [internalTotal, setInternalTotal] = useState(0);
   const [externalTotal, setExternalTotal] = useState(0);
   const [upcomingTotal, setUpcomingTotal] = useState(0);
+  const [pendingTotal, setPendingTotal] = useState(0);
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogTotal, setCatalogTotal] = useState(12);
@@ -276,12 +278,18 @@ export default function Home() {
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
           hasLatinSpanish: Boolean(movie.has_latin_spanish),
           status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url) ? "available" : "soon",
+          availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url)
+            ? "available"
+            : movie.content_metadata && typeof movie.content_metadata === "object" && (movie.content_metadata as Record<string, unknown>).catalog_availability === "upcoming"
+              ? "upcoming"
+              : "pending",
         }));
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
         setCatalogAvailableTotal(Number(result.availableTotal || 0));
         setInternalTotal(Number(result.internalTotal || 0));
         setExternalTotal(Number(result.externalTotal || 0));
         setUpcomingTotal(Number(result.upcomingTotal || 0));
+        setPendingTotal(Number(result.pendingTotal || 0));
       })
       .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo" && contentType === "all") setCatalogFilms(initialFilms); });
     return () => { active = false; };
@@ -448,6 +456,7 @@ export default function Home() {
               <button className={playbackFilter === "internal" ? "active" : ""} onClick={() => { setPlaybackFilter("internal"); setCatalogPage(1); }}>EN NOIR <small>{internalTotal}</small></button>
               <button className={playbackFilter === "external" ? "active" : ""} onClick={() => { setPlaybackFilter("external"); setCatalogPage(1); }}>FUENTES EXTERNAS <small>{externalTotal}</small></button>
               <button className={playbackFilter === "soon" ? "active" : ""} onClick={() => { setPlaybackFilter("soon"); setCatalogPage(1); }}>PRÓXIMAMENTE <small>{upcomingTotal}</small></button>
+              <button className={playbackFilter === "pending" ? "active" : ""} onClick={() => { setPlaybackFilter("pending"); setCatalogPage(1); }}>SIN REPRODUCCIÓN <small>{pendingTotal}</small></button>
             </div>
           </div>
 
@@ -467,7 +476,7 @@ export default function Home() {
                       </span>
                       <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
                     </>
-                  ) : <span className="soonPill">{film.readerUrl ? "PRÓXIMAMENTE · VER FICHA ↗" : "PRÓXIMAMENTE"}</span>}
+                  ) : <span className="soonPill">{film.availability === "upcoming" ? (film.readerUrl ? "PRÓXIMAMENTE · VER FICHA ↗" : "PRÓXIMAMENTE") : "SIN REPRODUCCIÓN"}</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} E${film.episodeNumber} · ` : ""}{film.duration}</small></span>
@@ -532,8 +541,8 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="readerStage">
-                  <span>{selected.status === "soon" ? "NOIR / PRÓXIMO ESTRENO" : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
-                  <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + " Este título todavía no está disponible para reproducirse." : selected.synopsis}</p>
+                  <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : "NOIR / FUENTE EXTERNA"}</span>
+                  <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + (selected.availability === "upcoming" ? " Este título todavía no está disponible para reproducirse." : " Todavía no tiene una fuente multimedia verificada.") : selected.synopsis}</p>
                   <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                 </div>
               )}
