@@ -247,3 +247,38 @@ button{color:inherit}
  .formatCard{min-height:168px;padding:13px;gap:8px}.formatCard strong{font-size:20px}.formatCard small{font-size:8px}
  .audioStage,.readerStage{padding:18px}.audioStage>strong,.readerStage>strong{font-size:28px}.audioStage>p,.readerStage>p{font-size:9px}
 }
+
+
+/* NOIR VAULT cinematic motion refresh */
+.heroSection{min-height:clamp(680px,78vh,900px);background:#080909}
+.heroBackdropImage img{will-change:transform;animation:noirKenBurns 32s cubic-bezier(.45,0,.55,1) infinite alternate}
+.heroShade{background:linear-gradient(90deg,#050606 0%,#080909eb 29%,#080909a8 58%,#0809094d 100%),linear-gradient(0deg,#080909 0%,transparent 43%,#08090955 100%)}
+.heroSection::before{content:"";position:absolute;z-index:-1;inset:-18%;pointer-events:none;background:radial-gradient(ellipse at 70% 38%,#d2a46c38 0%,transparent 30%),radial-gradient(ellipse at 22% 78%,#40616b25 0%,transparent 34%),linear-gradient(112deg,transparent 35%,#f5dfb51a 49%,transparent 62%);background-size:100% 100%,100% 100%,230% 100%;background-position:center,center,120% center;mix-blend-mode:screen;animation:noirLightSweep 19s ease-in-out infinite alternate}
+.heroSection::after{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;opacity:.25;background:repeating-linear-gradient(0deg,#ffffff0a 0 1px,transparent 1px 4px),linear-gradient(118deg,transparent 34%,#ffffff0b 48%,transparent 61%);background-size:100% 5px,230% 100%;background-position:center,-120% center;animation:noirFilmTexture 24s linear infinite}
+.heroContent h1{text-shadow:0 8px 35px #000b}
+.heroKicker .goldDot{animation:noirPulse 3.6s ease-in-out infinite}
+.siteHeader{position:sticky;top:0;backdrop-filter:blur(22px) saturate(125%);background:#090a09d9}
+.formatCard{position:relative;isolation:isolate;overflow:hidden;border-radius:3px;background:linear-gradient(145deg,#22241dcc,#10120feF);box-shadow:inset 0 1px #ffffff0d,0 14px 32px #0002}
+.formatCard::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 90% 5%,#c7a67520,transparent 38%);opacity:.7;transition:opacity .3s}
+.formatCard:hover::before,.formatCardActive::before{opacity:1}
+.formatCard:hover,.formatCardActive{box-shadow:0 18px 42px #0007,inset 0 1px #ffffff15}
+.filmPoster{border-radius:3px}
+.filmCaption strong{transition:color .2s}
+.filmCard:not(:disabled):hover .filmCaption strong{color:var(--gold2)}
+.catalogError{margin:0 0 20px;padding:13px 15px;border:1px solid #a96e5266;background:#351b173d;color:#e5b8a7;font-size:10px;line-height:1.7}
+.catalogError strong{color:#f1d1c4}
+@keyframes noirKenBurns{0%{transform:scale(1.025) translate3d(0,0,0)}100%{transform:scale(1.13) translate3d(-1.1%,-.7%,0)}}
+@keyframes noirLightSweep{0%{background-position:center,center,120% center;opacity:.55}100%{background-position:center,center,-10% center;opacity:1}}
+@keyframes noirFilmTexture{0%{background-position:center,-120% center}100%{background-position:center,120% center}}
+@keyframes noirPulse{0%,100%{box-shadow:0 0 8px var(--gold);opacity:.75}50%{box-shadow:0 0 20px var(--gold);opacity:1}}
+@media(max-width:680px){
+ .heroSection{min-height:650px;padding:64px 22px 54px}
+ .heroBackdropImage img{object-position:58% center;animation-duration:38s}
+ .heroShade{background:linear-gradient(90deg,#050606f5 0%,#080909df 58%,#080909a3 100%),linear-gradient(0deg,#080909 0%,transparent 58%)}
+ .heroSection::before{inset:-10%;opacity:.75}
+ .siteHeader{position:sticky}
+}
+@media(prefers-reduced-motion:reduce){
+ .heroBackdropImage img,.heroSection::before,.heroSection::after,.heroKicker .goldDot{animation:none!important}
+ .heroBackdropImage img{transform:scale(1.025)}
+}
