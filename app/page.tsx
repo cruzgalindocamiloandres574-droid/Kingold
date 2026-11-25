@@ -445,7 +445,14 @@ export default function Home() {
                   {film.posterUrl && <img className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
-                  {film.status === "available" ? <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
+                  {film.status === "available" ? (
+                    <>
+                      <span className={film.videoUrl || film.audioUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
+                        {film.videoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
+                      </span>
+                      <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
+                    </>
+                  ) : <span className="soonPill">PRÓXIMAMENTE</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} E${film.episodeNumber} · ` : ""}{film.duration}</small></span>
