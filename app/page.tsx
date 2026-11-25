@@ -164,9 +164,9 @@ function licenseUrl(license: string) {
   if (/\bCC0\b|public domain|dominio público/i.test(primaryLicense)) {
     return "https://creativecommons.org/publicdomain/zero/" + version + "/";
   }
-  return /BY-SA|Attribution-ShareAlike/i.test(primaryLicense)
-    ? "https://creativecommons.org/licenses/by-sa/" + version + "/"
-    : "https://creativecommons.org/licenses/by/" + version + "/";
+  const licenseFamily = /BY-SA|Attribution-ShareAlike/i.test(primaryLicense) ? "by-sa" : "by";
+  const jurisdiction = version === "3.0" && /\bUnited States\b|\bUS\b/i.test(primaryLicense) ? "us/" : "";
+  return "https://creativecommons.org/licenses/" + licenseFamily + "/" + version + "/" + jurisdiction;
 }
 
 function Brand({ footer = false }: { footer?: boolean }) {
@@ -537,7 +537,7 @@ export default function Home() {
                 {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
               </div>}
               {selected.audioUrl && <p className="playerLanguageNote">Audio disponible · {(selected.audioLanguages || []).join(", ") || "idioma por confirmar"}</p>}
-              {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR LECTOR AUTORIZADO ↗</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
+              {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR LECTOR OFICIAL ↗" : selected.contentType === "podcast" ? "ABRIR PÁGINA DEL PODCAST ↗" : "VER PÁGINA OFICIAL ↗"}</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
             </div>
           </section>
