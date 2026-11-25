@@ -54,8 +54,9 @@ export async function GET(request: NextRequest) {
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
     if (playback === "internal") query = query.or("video_url.not.is.null,audio_url.not.is.null");
     if (playback === "external") query = query.is("video_url", null).is("audio_url", null).not("reader_url", "is", null);
-    if (playback === "soon") query = query.eq("status", "soon");
-    const [pageResult, availableResult, internalResult, externalResult, upcomingResult] = await Promise.all([
+    if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
+    if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
+    const [pageResult, availableResult, internalResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       query,
       db.from("movies")
         .select("id", { count: "exact", head: true })
@@ -77,13 +78,20 @@ export async function GET(request: NextRequest) {
       db.from("movies")
         .select("id", { count: "exact", head: true })
         .eq("published", true)
-        .eq("status", "soon"),
+        .eq("status", "soon")
+        .contains("content_metadata", { catalog_availability: "upcoming" }),
+      db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", "soon")
+        .contains("content_metadata", { catalog_availability: "source_pending" }),
     ]);
     if (pageResult.error) throw pageResult.error;
     if (availableResult.error) throw availableResult.error;
     if (internalResult.error) throw internalResult.error;
     if (externalResult.error) throw externalResult.error;
     if (upcomingResult.error) throw upcomingResult.error;
+    if (pendingResult.error) throw pendingResult.error;
     const total = pageResult.count || 0;
     return NextResponse.json({
       results: pageResult.data || [],
@@ -92,6 +100,7 @@ export async function GET(request: NextRequest) {
       internalTotal: internalResult.count || 0,
       externalTotal: externalResult.count || 0,
       upcomingTotal: upcomingResult.count || 0,
+      pendingTotal: pendingResult.count || 0,
       page,
       pageSize: PAGE_SIZE,
       totalPages: Math.ceil(total / PAGE_SIZE),
