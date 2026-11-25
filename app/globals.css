@@ -209,3 +209,33 @@ button{color:inherit}
 .playerLanguageNote,.subtitleAvailable{font-size:9px;color:#aaa;line-height:1.6}
 .playerLanguageNote{color:#c5ad85}
 @media(max-width:600px){.audioFilters{gap:6px}.audioFilters>span{width:100%}.audioFilters button{padding:8px 9px;font-size:7px}.playerLanguageControls{align-items:stretch;flex-direction:column;gap:10px;padding:12px}.playerLanguageControls select{width:100%;min-width:0}}
+
+/* NOIR VAULT multi-format library */
+.formatsSection{padding:82px 0 74px;background:linear-gradient(180deg,#11130f,#0b0c0b);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.formatsIntro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:12px 0 28px}
+.formatsIntro h2{margin:0;font-size:clamp(34px,4vw,51px);font-weight:500;letter-spacing:-2px}
+.formatsIntro h2 em{font-family:'Playfair Display',serif;color:var(--gold2);font-weight:500}
+.formatsIntro p{max-width:390px;margin:0;color:#999;font-size:11px;line-height:1.8}
+.formatGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.formatCard{min-height:174px;padding:19px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:10px;background:linear-gradient(145deg,#1c1d18,#10120f);border:1px solid #ffffff1a;cursor:pointer;transition:transform .2s,border-color .2s,background .2s}
+.formatCard:hover,.formatCardActive{transform:translateY(-3px);border-color:#c7a675aa;background:linear-gradient(145deg,#29251d,#11130f)}
+.formatCard>span{font-size:7px;letter-spacing:2px;color:var(--gold)}
+.formatCard strong{font:25px 'Playfair Display',serif;color:#f1eadf;font-weight:500}
+.formatCard small{color:#999;font-size:9px;line-height:1.6}
+.formatCard b{margin-top:auto;font-size:7px;letter-spacing:1.6px;color:var(--gold2)}
+.allFormatsButton{margin-top:18px;padding:12px 16px;border:1px solid #786344;background:transparent;color:var(--gold2);font-size:8px;letter-spacing:1.4px;cursor:pointer}
+.audioStage,.readerStage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;padding:28px;background:radial-gradient(ellipse at 50% 20%,#4b3b25,#191a15 55%,#050605);text-align:center}
+.audioStageMark,.readerStage>span{font-size:8px;letter-spacing:3px;color:var(--gold2)}
+.audioStage>strong,.readerStage>strong{max-width:90%;font:clamp(24px,4vw,42px) 'Playfair Display',serif;color:#f1eadf}
+.audioStage>p,.readerStage>p{max-width:520px;color:#aaa;font-size:11px;line-height:1.8}
+.audioStage audio{width:min(100%,560px);margin-top:10px}
+.readerStage>a{display:inline-flex;padding:13px 17px;margin-top:8px;border:1px solid var(--gold);color:var(--gold2);font-size:9px;letter-spacing:1.4px}
+.playerLanguageNote a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:950px){.formatGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){
+ .formatsSection{padding:62px 0}
+ .formatsIntro{display:block}.formatsIntro h2{font-size:36px}.formatsIntro p{margin-top:12px}
+ .formatGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .formatCard{min-height:168px;padding:13px;gap:8px}.formatCard strong{font-size:20px}.formatCard small{font-size:8px}
+ .audioStage,.readerStage{padding:18px}.audioStage>strong,.readerStage>strong{font-size:28px}.audioStage>p,.readerStage>p{font-size:9px}
+}
