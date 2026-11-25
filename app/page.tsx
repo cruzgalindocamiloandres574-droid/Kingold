@@ -197,6 +197,10 @@ export default function Home() {
   const [sourceIndex, setSourceIndex] = useState(0);
   const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
+  const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon">("all");
+  const [internalTotal, setInternalTotal] = useState(0);
+  const [externalTotal, setExternalTotal] = useState(0);
+  const [upcomingTotal, setUpcomingTotal] = useState(0);
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogTotal, setCatalogTotal] = useState(12);
@@ -246,6 +250,7 @@ export default function Home() {
     if (query.trim()) params.set("q", query.trim());
     if (genre !== "Todo") params.set("genre", genre);
     if (audioFilter !== "all") params.set("audio", audioFilter);
+    if (playbackFilter !== "all") params.set("playback", playbackFilter);
     void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("catalog"); return response.json(); })
       .then((result) => {
@@ -274,10 +279,13 @@ export default function Home() {
         }));
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
         setCatalogAvailableTotal(Number(result.availableTotal || 0));
+        setInternalTotal(Number(result.internalTotal || 0));
+        setExternalTotal(Number(result.externalTotal || 0));
+        setUpcomingTotal(Number(result.upcomingTotal || 0));
       })
       .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo" && contentType === "all") setCatalogFilms(initialFilms); });
     return () => { active = false; };
-  }, [catalogPage, genre, query, audioFilter, contentType]);
+  }, [catalogPage, genre, query, audioFilter, contentType, playbackFilter]);
 
   useEffect(() => {
     if (!pendingWatchId) return;
@@ -433,6 +441,13 @@ export default function Home() {
               <button className={audioFilter === "all" ? "active" : ""} onClick={() => { setAudioFilter("all"); setCatalogPage(1); }}>TODOS</button>
               <button className={audioFilter === "latin" ? "active" : ""} onClick={() => { setAudioFilter("latin"); setCatalogPage(1); }}>AUDIO LATINO</button>
               <button className={audioFilter === "spanish" ? "active" : ""} onClick={() => { setAudioFilter("spanish"); setCatalogPage(1); }}>ESPAÑOL</button>
+            </div>
+            <div className="playbackFilters" aria-label="Filtrar por tipo de reproducción">
+              <span>TIPO DE ACCESO</span>
+              <button className={playbackFilter === "all" ? "active" : ""} onClick={() => { setPlaybackFilter("all"); setCatalogPage(1); }}>TODOS</button>
+              <button className={playbackFilter === "internal" ? "active" : ""} onClick={() => { setPlaybackFilter("internal"); setCatalogPage(1); }}>EN NOIR <small>{internalTotal}</small></button>
+              <button className={playbackFilter === "external" ? "active" : ""} onClick={() => { setPlaybackFilter("external"); setCatalogPage(1); }}>FUENTES EXTERNAS <small>{externalTotal}</small></button>
+              <button className={playbackFilter === "soon" ? "active" : ""} onClick={() => { setPlaybackFilter("soon"); setCatalogPage(1); }}>PRÓXIMAMENTE <small>{upcomingTotal}</small></button>
             </div>
           </div>
 
