@@ -5,7 +5,7 @@ import { createClient as createSessionClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql";
+const WIKIDATA_ENDPOINT = "https://query-next.wikidata.org/sparql";
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
 const BATCH_SIZE = 40;
 const SOURCE = "wikidata";
