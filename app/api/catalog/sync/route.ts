@@ -163,6 +163,8 @@ async function runCatalogSync(request: NextRequest) {
           FILTER(LANG(?genreLabel) = "es" || LANG(?genreLabel) = "en")
         }
         SERVICE wikibase:label { bd:serviceParam wikibase:language "es,en". }
+        # Do not import entities that have no real Spanish or English title.
+        FILTER(LANG(?filmLabel) IN ("es", "en"))
       }
       GROUP BY ?film ?filmLabel ?filmDescription
       ORDER BY ?film
