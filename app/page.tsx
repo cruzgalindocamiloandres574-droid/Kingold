@@ -156,11 +156,15 @@ const initialFilms: Film[] = [
 ];
 
 function licenseUrl(license: string) {
-  const versionMatch = license.match(/\\b(1\\.0|2\\.0|2\\.5|3\\.0|4\\.0)\\b/);
-  // If the provider does not expose a version, link to the official CC overview instead of guessing one.
+  // The first declared license belongs to the main work; poster credits may list a separate license.
+  const primaryLicense = license.split(/[;|]/)[0].trim();
+  const versionMatch = primaryLicense.match(/\b(1\.0|2\.0|2\.5|3\.0|4\.0)\b/);
   if (!versionMatch) return "https://creativecommons.org/share-your-work/cclicenses/";
   const version = versionMatch[1];
-  return /BY-SA|Attribution-ShareAlike/i.test(license)
+  if (/\bCC0\b|public domain|dominio público/i.test(primaryLicense)) {
+    return "https://creativecommons.org/publicdomain/zero/" + version + "/";
+  }
+  return /BY-SA|Attribution-ShareAlike/i.test(primaryLicense)
     ? "https://creativecommons.org/licenses/by-sa/" + version + "/"
     : "https://creativecommons.org/licenses/by/" + version + "/";
 }
@@ -445,9 +449,9 @@ export default function Home() {
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
                   {film.status === "available" ? <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span> : <span className="soonPill">PRÓXIMAMENTE</span>}
-                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
+                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
-                <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.duration}</small></span>
+                <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} E${film.episodeNumber} · ` : ""}{film.duration}</small></span>
               </button>
             ))}
           </div>
