@@ -106,7 +106,7 @@ async function runCatalogSync(request: NextRequest) {
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
     return NextResponse.json({ error: "Faltan las credenciales privadas de Supabase" }, { status: 503 });
   }
@@ -235,7 +235,8 @@ async function runCatalogSync(request: NextRequest) {
     });
   } catch (error) {
     console.error("Open catalog sync failed", error);
-    return NextResponse.json({ error: "Falló la importación desde fuentes abiertas" }, { status: 502 });
+    const detail = error instanceof Error ? error.message.slice(0, 280) : "Error de origen o base de datos";
+    return NextResponse.json({ error: "Falló la importación desde fuentes abiertas", detail }, { status: 502 });
   }
 }
 
