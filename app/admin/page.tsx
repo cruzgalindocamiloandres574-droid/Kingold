@@ -4,12 +4,15 @@ import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 type Movie={id:string;title:string;synopsis:string|null;genre:string|null;release_year:number|null;status:string;published:boolean;content_type:string};
 const empty={title:"",content_type:"movie",synopsis:"",genre:"Drama",release_year:"2026",duration:"",art:"bunny",video_url:"",audio_url:"",reader_url:"",season_number:"",episode_number:"",season_count:"",episode_count:"",chapter_count:"",creator:"",license:"",credit:"",status:"soon",published:true,audio_tracks_json:"[]",subtitle_tracks_json:"[]",audio_languages_text:"",has_latin_spanish:false};
+const sectionTargets=[{value:"movie",label:"Películas"},{value:"series",label:"Series"},{value:"anime",label:"Anime"},{value:"manga",label:"Manga"},{value:"podcast",label:"Podcasts"},{value:"documentary",label:"Documentales"},{value:"audiobook",label:"Audiolibros"},{value:"concert",label:"Conciertos"},{value:"short",label:"Cortometrajes"}];
 export default function AdminPage(){
  const [supabase]=useState(()=>{const u=process.env.NEXT_PUBLIC_SUPABASE_URL,k=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;return u&&k?createBrowserClient(u,k):null});
  const [allowed,setAllowed]=useState<boolean|null>(null),[movies,setMovies]=useState<Movie[]>([]),[form,setForm]=useState(empty),[message,setMessage]=useState("Cargando panel…"),[busy,setBusy]=useState(false),[syncBusy,setSyncBusy]=useState(false);
  const load=useCallback(async()=>{if(!supabase){setMessage("Falta conexión con Supabase.");return}const {data:{user}}=await supabase.auth.getUser();if(!user){setAllowed(false);setMessage("Inicia sesión con una cuenta administradora.");return}const {data:p,error:pe}=await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();if(pe||p?.role!=="admin"){setAllowed(false);setMessage("Esta cuenta no tiene permisos de administración.");return}setAllowed(true);const {data,error}=await supabase.from("movies").select("id,title,synopsis,genre,release_year,status,published,content_type").order("created_at",{ascending:false});if(error){setMessage(error.message);return}setMovies(data||[]);setMessage("Panel conectado. Los cambios se guardan en Supabase.")},[supabase]);
  useEffect(()=>{void load()},[load]);
- async function save(e:React.FormEvent){e.preventDefault();if(!supabase)return;let audioTracks:unknown,subtitleTracks:unknown;try{audioTracks=JSON.parse(form.audio_tracks_json);subtitleTracks=JSON.parse(form.subtitle_tracks_json);if(!Array.isArray(audioTracks)||!Array.isArray(subtitleTracks))throw new Error("Las pistas deben ser listas JSON.");}catch{setMessage("Revisa el JSON de las pistas de audio y subtítulos.");return}setBusy(true);setMessage("Guardando…");const base:Record<string,unknown>={...form};delete base.audio_tracks_json;delete base.subtitle_tracks_json;delete base.audio_languages_text;const payload={...base,release_year:form.release_year?Number(form.release_year):null,video_url:form.video_url||null,audio_url:form.audio_url||null,reader_url:form.reader_url||null,season_number:form.season_number?Number(form.season_number):null,episode_number:form.episode_number?Number(form.episode_number):null,season_count:form.season_count?Number(form.season_count):null,episode_count:form.episode_count?Number(form.episode_count):null,chapter_count:form.chapter_count?Number(form.chapter_count):null,audio_tracks:audioTracks,subtitle_tracks:subtitleTracks,audio_languages:form.audio_languages_text.split(",").map((v)=>v.trim()).filter(Boolean)};const {error}=await supabase.from("movies").insert(payload);setBusy(false);if(error){setMessage(error.message);return}setForm(empty);setMessage("Película guardada.");await load()}
+ const publishedMovies=movies.filter((movie)=>movie.published);
+ const sectionCounts=sectionTargets.map((section)=>({ ...section,count:publishedMovies.filter((movie)=>movie.content_type===section.value).length }));
+ async function save(e:React.FormEvent){e.preventDefault();if(!supabase)return;let audioTracks:unknown,subtitleTracks:unknown;try{audioTracks=JSON.parse(form.audio_tracks_json);subtitleTracks=JSON.parse(form.subtitle_tracks_json);if(!Array.isArray(audioTracks)||!Array.isArray(subtitleTracks))throw new Error("Las pistas deben ser listas JSON.");}catch{setMessage("Revisa el JSON de las pistas de audio y subtítulos.");return}setBusy(true);setMessage("Guardando…");const base:Record<string,unknown>={...form};delete base.audio_tracks_json;delete base.subtitle_tracks_json;delete base.audio_languages_text;const hasSource=Boolean(form.video_url||form.audio_url||form.reader_url);const savedStatus=form.status==="available"&&!hasSource?"soon":form.status;const payload={...base,status:savedStatus,release_year:form.release_year?Number(form.release_year):null,video_url:form.video_url||null,audio_url:form.audio_url||null,reader_url:form.reader_url||null,season_number:form.season_number?Number(form.season_number):null,episode_number:form.episode_number?Number(form.episode_number):null,season_count:form.season_count?Number(form.season_count):null,episode_count:form.episode_count?Number(form.episode_count):null,chapter_count:form.chapter_count?Number(form.chapter_count):null,audio_tracks:audioTracks,subtitle_tracks:subtitleTracks,audio_languages:form.audio_languages_text.split(",").map((v)=>v.trim()).filter(Boolean)};const {error}=await supabase.from("movies").insert(payload);setBusy(false);if(error){setMessage(error.message);return}setForm(empty);setMessage(savedStatus==="soon"&&form.status==="available"?"Contenido guardado como en preparación: falta registrar una fuente multimedia o lectora.":"Contenido guardado.");await load()}
  async function syncCatalog(){
   if(!supabase||syncBusy)return;
   setSyncBusy(true);
@@ -26,13 +29,42 @@ export default function AdminPage(){
    setMessage("No pudimos conectar con el importador. Comprueba la conexión e inténtalo de nuevo.");
   }finally{setSyncBusy(false)}
  }
+ async function syncAudiobooks(){
+  if(!supabase||syncBusy)return;
+  setSyncBusy(true);
+  setMessage("Consultando el siguiente lote de LibriVox…");
+  try{
+   const response=await fetch("/api/catalog/sync?source=librivox",{method:"POST"});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok){setMessage(data.detail||data.error||"No se pudo importar LibriVox.");return}
+   setMessage(data.complete
+    ? "LibriVox completado: "+(data.importedSoFar||0)+" audiolibros incorporados."
+    : "LibriVox: "+(data.importedThisBatch||0)+" nuevos · "+(data.importedSoFar||0)+" acumulados · lote de "+(data.fetchedThisBatch||0)+" revisados.");
+   await load();
+  }catch{
+   setMessage("No pudimos conectar con LibriVox. Comprueba la conexión e inténtalo de nuevo.");
+  }finally{setSyncBusy(false)}
+ }
  async function remove(id:string){if(!supabase||!window.confirm("¿Eliminar esta película del catálogo?"))return;const {error}=await supabase.from("movies").delete().eq("id",id);if(error){setMessage(error.message);return}setMessage("Película eliminada.");await load()}
  if(allowed===false)return <main className="section"><Link href="/">← NOIR VAULT</Link><h1>Administración</h1><p>{message}</p><a className="btn" href="/login">INICIAR SESIÓN</a></main>;
  return <main className="section" style={{maxWidth:1000,margin:"0 auto"}}><Link href="/">← NOIR VAULT</Link><h1>NOIR VAULT / ADMIN</h1><p>{message}</p>{allowed&&<>
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}>
   <h2>Ampliar biblioteca</h2>
   <p style={{opacity:.8}}>El importador automático actual añade fichas de cine desde Wikidata y Wikimedia Commons. Series, anime, manga, podcasts, audiolibros y conciertos se registran con tipo, fuente, créditos y permisos. El contenido solo se activa al disponer de una fuente multimedia o lectora autorizada.</p>
-  <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE (20 FICHAS)"}</button>
+  <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE CINE (20 FICHAS)"}</button>
+  <p style={{opacity:.75,fontSize:12,marginTop:14}}>LibriVox aporta un catálogo amplio de audiolibros grabados por voluntarios. Sus grabaciones se consideran dominio público en Estados Unidos; la situación jurídica del texto debe revisarse según el país.</p>
+  <button className="btn" type="button" onClick={syncAudiobooks} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE AUDIOLIBROS (100)"}</button>
+ </section>
+ <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}>
+  <h2>Meta por sección</h2>
+  <p style={{opacity:.8}}>Objetivo de 10.000 registros publicados por categoría. El avance refleja los datos guardados en Supabase, no cifras estimadas.</p>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:14}}>
+   {sectionCounts.map((section)=> <div key={section.value} style={{padding:13,border:"1px solid #39332a",borderRadius:8}}>
+    <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"baseline"}}><strong>{section.label}</strong><small>{section.count.toLocaleString("es-CO")} / 10.000</small></div>
+    <div style={{height:6,background:"#292a25",borderRadius:99,overflow:"hidden",marginTop:10}}><div style={{height:"100%",width:Math.min(100,section.count/10000*100)+"%",background:"#c7a675"}}/></div>
+    <small style={{display:"block",marginTop:7,color:"#999"}}>{10000-section.count>0?"Faltan "+(10000-section.count).toLocaleString("es-CO"):"Meta alcanzada"}</small>
+   </div>)}
+  </div>
  </section>
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}><h2>Agregar contenido</h2><form onSubmit={save} style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
  <input required placeholder="Título" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
