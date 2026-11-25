@@ -201,6 +201,7 @@ export default function Home() {
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogTotal, setCatalogTotal] = useState(12);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
+  const [catalogAvailableTotal, setCatalogAvailableTotal] = useState(0);
 
   const openFilm = useCallback(async (film: Film) => {
     if (film.status !== "available" || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
@@ -272,6 +273,7 @@ export default function Home() {
           status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url) ? "available" : "soon",
         }));
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
+        setCatalogAvailableTotal(Number(result.availableTotal || 0));
       })
       .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo" && contentType === "all") setCatalogFilms(initialFilms); });
     return () => { active = false; };
@@ -314,7 +316,6 @@ export default function Home() {
 
   const visibleFilms = catalogFilms;
 
-  const availableCount = catalogFilms.filter((film) => film.status === "available" && (film.videoUrl || film.audioUrl || film.readerUrl)).length;
   function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
   function changeContentType(value: ContentType | "all") { setContentType(value); setCatalogPage(1); setGenre("Todo"); }
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
@@ -389,7 +390,7 @@ export default function Home() {
             <button className="buttonPrimary" onClick={() => openFilm(featured)}><span className="buttonPlay">▶</span> VER DESTACADO</button>
             <a className="buttonGhost" href="#catalogo">EXPLORAR CARTELERA <span>↓</span></a>
           </div>
-          <div className="heroStats"><span><strong>{availableCount.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
+          <div className="heroStats"><span><strong>{catalogAvailableTotal.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
         </div>
         <div className="heroSideNote"><span>NV / 001</span><span>CURATED FOR THE CURIOUS</span></div>
       </section>
