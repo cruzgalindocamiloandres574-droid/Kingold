@@ -182,7 +182,7 @@ async function runCatalogSync(request: NextRequest) {
       const title = safeText(item.filmLabel.value);
       const genre = safeText(item.genres?.value) || "Cine";
       // Do not publish unlabelled Wikidata entities or adult-film records.
-      if (!title || /^Q\\d+$/i.test(title)) return [];
+      if (!title || /^Q[0-9]+$/i.test(title)) return [];
       if (/pornographic film|cine pornográfico/i.test(genre)) return [];
 
       const fileTitle = item.imageSample?.value ? commonsFileTitle(item.imageSample.value) : null;
