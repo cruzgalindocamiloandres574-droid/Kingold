@@ -17,7 +17,7 @@ type WikidataFilm = {
   filmDescription?: Binding;
   releaseDate?: Binding;
   genres?: Binding;
-  image?: Binding;
+  imageSample?: Binding;
 };
 
 function safeText(value?: string) {
@@ -140,7 +140,7 @@ async function runCatalogSync(request: NextRequest) {
       SELECT ?film ?filmLabel ?filmDescription
         (SAMPLE(?date) AS ?releaseDate)
         (GROUP_CONCAT(DISTINCT STR(?genreLabel); separator=", ") AS ?genres)
-        (SAMPLE(?image) AS ?image)
+        (SAMPLE(?image) AS ?imageSample)
       WHERE {
         ?film wdt:P31 wd:Q11424.
         OPTIONAL { ?film wdt:P577 ?date. }
@@ -173,13 +173,13 @@ async function runCatalogSync(request: NextRequest) {
     const json = await response.json();
     const bindings = (json.results?.bindings || []) as WikidataFilm[];
     const fileTitles = bindings
-      .map((item) => item.image?.value ? commonsFileTitle(item.image.value) : null)
+      .map((item) => item.imageSample?.value ? commonsFileTitle(item.image.value) : null)
       .filter((value): value is string => Boolean(value));
     const images = await fetchCommonsImages(fileTitles);
 
     const rows = bindings.map((item) => {
       const qid = item.film.value.split("/").pop() || "";
-      const fileTitle = item.image?.value ? commonsFileTitle(item.image.value) : null;
+      const fileTitle = item.imageSample?.value ? commonsFileTitle(item.image.value) : null;
       const image = fileTitle ? images.get(fileTitle) : undefined;
       const releaseDate = item.releaseDate?.value?.slice(0, 10) || null;
       const releaseYear = releaseDate ? Number(releaseDate.slice(0, 4)) || null : null;
