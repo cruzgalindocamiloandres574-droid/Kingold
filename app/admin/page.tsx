@@ -32,7 +32,7 @@ export default function AdminPage(){
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}>
   <h2>Ampliar biblioteca</h2>
   <p style={{opacity:.8}}>El importador automático actual añade fichas de cine desde Wikidata y Wikimedia Commons. Series, anime, manga, podcasts, audiolibros y conciertos se registran con tipo, fuente, créditos y permisos. El contenido solo se activa al disponer de una fuente multimedia o lectora autorizada.</p>
-  <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE (40 FICHAS)"}</button>
+  <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE (20 FICHAS)"}</button>
  </section>
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}><h2>Agregar contenido</h2><form onSubmit={save} style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
  <input required placeholder="Título" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
