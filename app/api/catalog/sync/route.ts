@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -82,106 +82,7 @@ async function fetchCommonsImages(titles: string[]) {
 const LIBRIVOX_SOURCE = "librivox";
 const LIBRIVOX_BATCH_SIZE = 100;
 
-async function importLibriVox(db: SupabaseClient<any>) {
-  const seed = await db.from("catalog_import_state").upsert(
-    { source: LIBRIVOX_SOURCE, next_offset: 0, completed: false, total_imported: 0 },
-    { onConflict: "source", ignoreDuplicates: true }
-  );
-  if (seed.error) throw seed.error;
-  const stateResult = await db.from("catalog_import_state")
-    .select("next_offset,completed,total_imported")
-    .eq("source", LIBRIVOX_SOURCE).maybeSingle();
-  if (stateResult.error) throw stateResult.error;
-  const state = stateResult.data;
-  if (!state) throw new Error("LibriVox import state missing");
-  if (state.completed) return NextResponse.json({ source: "LibriVox", complete: true, importedSoFar: state.total_imported });
 
-  const offset = Math.max(0, Number(state.next_offset) || 0);
-  const query = new URLSearchParams({ format: "json", coverart: "1", limit: String(LIBRIVOX_BATCH_SIZE), offset: String(offset), sort_order: "asc" });
-  const response = await fetch("https://librivox.org/api/feed/audiobooks/?" + query.toString(), {
-    headers: { "User-Agent": "NOIRVAULT/7.0 audiobook catalog importer" },
-    cache: "no-store",
-    signal: AbortSignal.timeout(22000),
-  });
-  if (!response.ok) throw new Error("LibriVox API status " + response.status);
-  const payload = await response.json();
-  const books = Array.isArray(payload.books) ? payload.books : [];
-  const cleanUrl = (value: unknown, host: string) => {
-    if (typeof value !== "string") return null;
-    try {
-      const parsed = new URL(value);
-      return parsed.protocol === "https:" && (parsed.hostname === host || parsed.hostname.endsWith("." + host)) ? parsed.toString() : null;
-    } catch { return null; }
-  };
-  const entries = books.flatMap((book: Record<string, unknown>) => {
-    const id = String(book.id || "").trim();
-    const page = cleanUrl(book.url_librivox, "librivox.org");
-    const title = safeText(String(book.title || ""));
-    if (!id || !page || !title) return [];
-    const authors = Array.isArray(book.authors) ? book.authors.map((a: Record<string, unknown>) => safeText([a.first_name, a.last_name].filter(Boolean).map(String).join(" "))).filter(Boolean).join(", ") : "";
-    const language = safeText(String(book.language || ""));
-    const languageMap: Record<string, string> = { English: "en", Spanish: "es", French: "fr", German: "de", Italian: "it", Portuguese: "pt", Japanese: "ja", Russian: "ru", Dutch: "nl", Multilingual: "mul" };
-    const seconds = Number(book.totaltimesecs) || 0;
-    return [{
-      title,
-      synopsis: safeText(String(book.description || "")) || "Audiolibro grabado por voluntarios de LibriVox.",
-      genre: "Literatura",
-      release_year: Number(book.copyright_year) || null,
-      duration: safeText(String(book.totaltime || "")) || null,
-      runtime_minutes: seconds > 0 ? Math.round(seconds / 60) : null,
-      poster_url: cleanUrl(book.coverart_thumbnail || book.coverart_jpg, "librivox.org"),
-      creator: authors || "LibriVox volunteers",
-      license: "Grabación de dominio público en EE. UU.; verificar situación legal local del texto",
-      credit: "LibriVox · grabaciones de voluntarios",
-      catalog_source: page,
-      reader_url: page,
-      audio_languages: languageMap[language] ? [languageMap[language]] : [],
-      content_type: "audiobook",
-      content_metadata: {
-        catalog_provider: "librivox",
-        provider_id: id,
-        rss_url: cleanUrl(book.url_rss, "librivox.org"),
-        archive_zip_url: cleanUrl(book.url_zip_file, "archive.org"),
-        recording_license: "public_domain_us",
-        local_rights_review: "required",
-        source_language: language || null,
-        number_of_audio_sections: Number(book.num_sections) || null
-      },
-      published: true,
-      status: "available"
-    }];
-  });
-
-  const pages = entries.map((row: Record<string, unknown>) => row.catalog_source as string);
-  const existing = pages.length
-    ? await db.from("movies").select("catalog_source").in("catalog_source", pages)
-    : { data: [], error: null };
-  if (existing.error) throw existing.error;
-  const existingSet = new Set((existing.data || []).map((row: { catalog_source: string }) => row.catalog_source));
-  const newRows = entries.filter((row: Record<string, unknown>) => !existingSet.has(row.catalog_source as string));
-  if (newRows.length) {
-    const inserted = await db.from("movies").insert(newRows);
-    if (inserted.error) throw inserted.error;
-  }
-  const nextOffset = offset + books.length;
-  const complete = books.length < LIBRIVOX_BATCH_SIZE;
-  const total = Number(state.total_imported || 0) + newRows.length;
-  const updated = await db.from("catalog_import_state").update({
-    next_offset: nextOffset, completed: complete, total_imported: total, updated_at: new Date().toISOString()
-  }).eq("source", LIBRIVOX_SOURCE);
-  if (updated.error) throw updated.error;
-  return NextResponse.json({
-    source: "LibriVox",
-    fetchedThisBatch: books.length,
-    importedThisBatch: newRows.length,
-    importedSoFar: total,
-    offset,
-    nextOffset,
-    complete,
-    playback: "Ficha oficial externa; RSS y ZIP no se registran como vídeo o audio reproducible en NOIR.",
-    rights: "Las grabaciones son de dominio público en EE. UU.; revisar la situación legal del texto en Colombia."
-  });
-}
 
 async function runCatalogSync(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -228,9 +129,109 @@ async function runCatalogSync(request: NextRequest) {
     // Always verify the administrator session above, then use the private server key.
     // The import-state table is intentionally not exposed to anon/authenticated users.
     const db = createClient(url, serviceKey, { auth: { persistSession: false } });
+    const importLibriVox = async () => {
+      const seed = await db.from("catalog_import_state").upsert(
+        { source: LIBRIVOX_SOURCE, next_offset: 0, completed: false, total_imported: 0 },
+        { onConflict: "source", ignoreDuplicates: true }
+      );
+      if (seed.error) throw seed.error;
+      const stateResult = await db.from("catalog_import_state")
+        .select("next_offset,completed,total_imported")
+        .eq("source", LIBRIVOX_SOURCE).maybeSingle();
+      if (stateResult.error) throw stateResult.error;
+      const state = stateResult.data;
+      if (!state) throw new Error("LibriVox import state missing");
+      if (state.completed) return NextResponse.json({ source: "LibriVox", complete: true, importedSoFar: state.total_imported });
+    
+      const offset = Math.max(0, Number(state.next_offset) || 0);
+      const query = new URLSearchParams({ format: "json", coverart: "1", limit: String(LIBRIVOX_BATCH_SIZE), offset: String(offset), sort_order: "asc" });
+      const response = await fetch("https://librivox.org/api/feed/audiobooks/?" + query.toString(), {
+        headers: { "User-Agent": "NOIRVAULT/7.0 audiobook catalog importer" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(22000),
+      });
+      if (!response.ok) throw new Error("LibriVox API status " + response.status);
+      const payload = await response.json();
+      const books = Array.isArray(payload.books) ? payload.books : [];
+      const cleanUrl = (value: unknown, host: string) => {
+        if (typeof value !== "string") return null;
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === "https:" && (parsed.hostname === host || parsed.hostname.endsWith("." + host)) ? parsed.toString() : null;
+        } catch { return null; }
+      };
+      const entries = books.flatMap((book: Record<string, unknown>) => {
+        const id = String(book.id || "").trim();
+        const page = cleanUrl(book.url_librivox, "librivox.org");
+        const title = safeText(String(book.title || ""));
+        if (!id || !page || !title) return [];
+        const authors = Array.isArray(book.authors) ? book.authors.map((a: Record<string, unknown>) => safeText([a.first_name, a.last_name].filter(Boolean).map(String).join(" "))).filter(Boolean).join(", ") : "";
+        const language = safeText(String(book.language || ""));
+        const languageMap: Record<string, string> = { English: "en", Spanish: "es", French: "fr", German: "de", Italian: "it", Portuguese: "pt", Japanese: "ja", Russian: "ru", Dutch: "nl", Multilingual: "mul" };
+        const seconds = Number(book.totaltimesecs) || 0;
+        return [{
+          title,
+          synopsis: safeText(String(book.description || "")) || "Audiolibro grabado por voluntarios de LibriVox.",
+          genre: "Literatura",
+          release_year: Number(book.copyright_year) || null,
+          duration: safeText(String(book.totaltime || "")) || null,
+          runtime_minutes: seconds > 0 ? Math.round(seconds / 60) : null,
+          poster_url: cleanUrl(book.coverart_thumbnail || book.coverart_jpg, "librivox.org"),
+          creator: authors || "LibriVox volunteers",
+          license: "Grabación de dominio público en EE. UU.; verificar situación legal local del texto",
+          credit: "LibriVox · grabaciones de voluntarios",
+          catalog_source: page,
+          reader_url: page,
+          audio_languages: languageMap[language] ? [languageMap[language]] : [],
+          content_type: "audiobook",
+          content_metadata: {
+            catalog_provider: "librivox",
+            provider_id: id,
+            rss_url: cleanUrl(book.url_rss, "librivox.org"),
+            archive_zip_url: cleanUrl(book.url_zip_file, "archive.org"),
+            recording_license: "public_domain_us",
+            local_rights_review: "required",
+            source_language: language || null,
+            number_of_audio_sections: Number(book.num_sections) || null
+          },
+          published: true,
+          status: "available"
+        }];
+      });
+    
+      const pages = entries.map((row: Record<string, unknown>) => row.catalog_source as string);
+      const existing = pages.length
+        ? await db.from("movies").select("catalog_source").in("catalog_source", pages)
+        : { data: [], error: null };
+      if (existing.error) throw existing.error;
+      const existingSet = new Set((existing.data || []).map((row: { catalog_source: string }) => row.catalog_source));
+      const newRows = entries.filter((row: Record<string, unknown>) => !existingSet.has(row.catalog_source as string));
+      if (newRows.length) {
+        const inserted = await db.from("movies").insert(newRows);
+        if (inserted.error) throw inserted.error;
+      }
+      const nextOffset = offset + books.length;
+      const complete = books.length < LIBRIVOX_BATCH_SIZE;
+      const total = Number(state.total_imported || 0) + newRows.length;
+      const updated = await db.from("catalog_import_state").update({
+        next_offset: nextOffset, completed: complete, total_imported: total, updated_at: new Date().toISOString()
+      }).eq("source", LIBRIVOX_SOURCE);
+      if (updated.error) throw updated.error;
+      return NextResponse.json({
+        source: "LibriVox",
+        fetchedThisBatch: books.length,
+        importedThisBatch: newRows.length,
+        importedSoFar: total,
+        offset,
+        nextOffset,
+        complete,
+        playback: "Ficha oficial externa; RSS y ZIP no se registran como vídeo o audio reproducible en NOIR.",
+        rights: "Las grabaciones son de dominio público en EE. UU.; revisar la situación legal del texto en Colombia."
+      });
+    };
     const requestedSource = new URL(request.url).searchParams.get("source") || SOURCE;
     if (requestedSource === LIBRIVOX_SOURCE) {
-      return await importLibriVox(db);
+      return await importLibriVox();
     }
     if (requestedSource !== SOURCE) {
       return NextResponse.json({ error: "Fuente de importación no reconocida." }, { status: 400 });
