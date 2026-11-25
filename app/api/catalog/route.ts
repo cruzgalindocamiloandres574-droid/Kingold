@@ -51,9 +51,25 @@ export async function GET(request: NextRequest) {
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
     if (audio === "latin") query = query.eq("has_latin_spanish", true);
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
-    const { data, count, error } = await query;
-    if (error) throw error;
-    return NextResponse.json({ results: data || [], total: count || 0, page, pageSize: PAGE_SIZE, totalPages: Math.ceil((count || 0) / PAGE_SIZE) });
+    const [pageResult, availableResult] = await Promise.all([
+      query,
+      db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", "available")
+        .or("video_url.not.is.null,audio_url.not.is.null,reader_url.not.is.null"),
+    ]);
+    if (pageResult.error) throw pageResult.error;
+    if (availableResult.error) throw availableResult.error;
+    const total = pageResult.count || 0;
+    return NextResponse.json({
+      results: pageResult.data || [],
+      total,
+      availableTotal: availableResult.count || 0,
+      page,
+      pageSize: PAGE_SIZE,
+      totalPages: Math.ceil(total / PAGE_SIZE),
+    });
   } catch (error) {
     console.error("Catalog API error", error);
     return NextResponse.json({ error: "No se pudo cargar el catálogo" }, { status: 500 });
