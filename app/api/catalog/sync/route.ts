@@ -5,7 +5,7 @@ import { createClient as createSessionClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const WIKIDATA_ENDPOINT = "https://query-next.wikidata.org/sparql";
+const WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"; // Stable endpoint for this aggregate query while the QLever v2 migration is validated.
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
 const BATCH_SIZE = 20;
 const SOURCE = "wikidata";
@@ -112,19 +112,17 @@ async function runCatalogSync(request: NextRequest) {
   if (!url) {
     return NextResponse.json({ error: "Falta la URL de Supabase" }, { status: 503 });
   }
-  if (cronAuthorized && !serviceKey) {
-    return NextResponse.json({ error: "La sincronización programada no tiene una credencial privada configurada" }, { status: 503 });
+  if (!serviceKey) {
+    return NextResponse.json({ error: "La importación requiere una credencial privada del servidor (SUPABASE_SECRET_KEY o SUPABASE_SERVICE_ROLE_KEY)." }, { status: 503 });
   }
   if (!cronAuthorized && (!adminAuthorized || !adminSessionClient)) {
     return NextResponse.json({ error: "La sesión administradora no está disponible. Vuelve a iniciar sesión." }, { status: 401 });
   }
 
   try {
-    // Browser-triggered imports run with the authenticated admin session and its RLS policies.
-    // Only trusted cron calls use the server-only service key.
-    const db = cronAuthorized
-      ? createClient(url, serviceKey!, { auth: { persistSession: false } })
-      : adminSessionClient!;
+    // Always verify the administrator session above, then use the private server key.
+    // The import-state table is intentionally not exposed to anon/authenticated users.
+    const db = createClient(url, serviceKey, { auth: { persistSession: false } });
     const { data: state, error: stateError } = await db
       .from("catalog_import_state")
       .select("next_offset,completed,total_imported")
