@@ -35,9 +35,6 @@ const CONTENT_LABELS: Record<ContentType, string> = {
 };
 
 const commons = "https://upload.wikimedia.org/wikipedia/commons";
-const transcoded = (folder: string, file: string, rendition: string) =>
-  commons + "/transcoded/" + folder + "/" + file + "/" + file + "." + rendition;
-
 const initialFilms: Film[] = [
   {
     id: "big-buck-bunny", name: "BIG BUCK BUNNY", genre: "Animación", year: 2008, duration: "10 min 35 s",
