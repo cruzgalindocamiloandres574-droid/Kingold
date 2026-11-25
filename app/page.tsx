@@ -137,8 +137,11 @@ const initialFilms: Film[] = [
 ];
 
 function licenseUrl(license: string) {
-  const version = license.includes("4.0") ? "4.0" : license.includes("2.5") ? "2.5" : "3.0";
-  return license.includes("SA")
+  const versionMatch = license.match(/\\b(1\\.0|2\\.0|2\\.5|3\\.0|4\\.0)\\b/);
+  // If the provider does not expose a version, link to the official CC overview instead of guessing one.
+  if (!versionMatch) return "https://creativecommons.org/share-your-work/cclicenses/";
+  const version = versionMatch[1];
+  return /BY-SA|Attribution-ShareAlike/i.test(license)
     ? "https://creativecommons.org/licenses/by-sa/" + version + "/"
     : "https://creativecommons.org/licenses/by/" + version + "/";
 }
