@@ -204,6 +204,7 @@ export default function Home() {
   const [upcomingTotal, setUpcomingTotal] = useState(0);
   const [pendingTotal, setPendingTotal] = useState(0);
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
+  const [videoAttempt, setVideoAttempt] = useState(0);
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogTotal, setCatalogTotal] = useState(12);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
@@ -216,6 +217,7 @@ export default function Home() {
     setResumeAt(0);
     lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
+    setVideoAttempt(0);
     setSelected(film);
     if (!supabase || !film.videoUrl) return;
     const { data: { user } } = await supabase.auth.getUser();
@@ -366,6 +368,7 @@ export default function Home() {
     if (selectedAudioIndex > 0) {
       setSelectedAudioIndex(0);
       setSourceIndex(0);
+      setVideoAttempt((attempt) => attempt + 1);
       setVideoState("loading");
       return;
     }
@@ -521,7 +524,7 @@ export default function Home() {
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
               {activeVideoUrl ? (
-                <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
+                <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
                   onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
                   onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
                   onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
@@ -534,7 +537,7 @@ export default function Home() {
               ) : activeAudioUrl ? (
                 <div className="audioStage">
                   <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
-                  <audio key={selected.id} controls autoPlay preload="metadata" onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}>
+                  <audio key={selected.id + "-" + videoAttempt} controls autoPlay preload="metadata" onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}>
                     <source src={activeAudioUrl} />
                     Tu navegador no puede reproducir este audio.
                   </audio>
@@ -546,8 +549,8 @@ export default function Home() {
                   <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                 </div>
               )}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>Conectando con la fuente multimedia</small></div>}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setSourceIndex(0); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
             </div>
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
