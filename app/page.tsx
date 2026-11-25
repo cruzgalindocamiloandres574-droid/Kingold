@@ -209,6 +209,7 @@ export default function Home() {
   const [catalogTotal, setCatalogTotal] = useState(12);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
   const [catalogAvailableTotal, setCatalogAvailableTotal] = useState(0);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
 
   const openFilm = useCallback(async (film: Film) => {
     if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
@@ -255,6 +256,7 @@ export default function Home() {
     if (genre !== "Todo") params.set("genre", genre);
     if (audioFilter !== "all") params.set("audio", audioFilter);
     if (playbackFilter !== "all") params.set("playback", playbackFilter);
+    setCatalogError(null);
     void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("catalog"); return response.json(); })
       .then((result) => {
@@ -286,6 +288,7 @@ export default function Home() {
               ? "upcoming"
               : "pending",
         }));
+        setCatalogError(null);
         setCatalogFilms(databaseFilms); setCatalogTotal(Number(result.total || 0)); setCatalogTotalPages(Number(result.totalPages || 1));
         setCatalogAvailableTotal(Number(result.availableTotal || 0));
         setInternalTotal(Number(result.internalTotal || 0));
@@ -293,7 +296,16 @@ export default function Home() {
         setUpcomingTotal(Number(result.upcomingTotal || 0));
         setPendingTotal(Number(result.pendingTotal || 0));
       })
-      .catch(() => { if (active && catalogPage === 1 && !query && genre === "Todo" && contentType === "all") setCatalogFilms(initialFilms); });
+      .catch(() => {
+        if (!active) return;
+        setCatalogError("No se pudo conectar con el catálogo en este momento. Revisa la conexión e inténtalo de nuevo.");
+        const canUseLocalFallback = catalogPage === 1 && !query.trim() && genre === "Todo" && contentType === "all" && audioFilter === "all" && playbackFilter === "all";
+        setCatalogFilms(canUseLocalFallback ? initialFilms : []);
+        if (canUseLocalFallback) {
+          setCatalogTotal(initialFilms.length);
+          setCatalogTotalPages(1);
+        }
+      });
     return () => { active = false; };
   }, [catalogPage, genre, query, audioFilter, contentType, playbackFilter]);
 
@@ -463,6 +475,7 @@ export default function Home() {
             </div>
           </div>
 
+          {catalogError && <p className="catalogError" role="alert"><strong>CATÁLOGO SIN CONEXIÓN</strong> · {catalogError} Los títulos de respaldo solo se muestran cuando no hay filtros aplicados.</p>}
           <div className="filmGrid">
             {visibleFilms.map((film, index) => (
               <button key={film.id} className={film.status === "soon" ? "filmCard filmSoon" : "filmCard"}
