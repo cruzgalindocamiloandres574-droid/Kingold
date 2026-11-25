@@ -141,7 +141,7 @@ const initialFilms: Film[] = [
     creator: "Santi Korovsky", license: "CC BY 3.0",
     credit: "Santi Korovsky · Cambios de formato para reproducción web; audio original en español rioplatense.",
     sourcePageUrl: "https://commons.wikimedia.org/wiki/File:Pasión_Oriental.webm", status: "available",
-    audioLanguages: ["es-AR"], hasLatinSpanish: true,
+    audioLanguages: ["es-AR"], hasLatinSpanish: false,
   },
   {
     id: "agent-327", name: "AGENT 327", genre: "Comedia", year: 2017, duration: "En preparación",
