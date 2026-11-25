@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -82,7 +82,7 @@ async function fetchCommonsImages(titles: string[]) {
 const LIBRIVOX_SOURCE = "librivox";
 const LIBRIVOX_BATCH_SIZE = 100;
 
-async function importLibriVox(db: ReturnType<typeof createClient>) {
+async function importLibriVox(db: SupabaseClient<any>) {
   const seed = await db.from("catalog_import_state").upsert(
     { source: LIBRIVOX_SOURCE, next_offset: 0, completed: false, total_imported: 0 },
     { onConflict: "source", ignoreDuplicates: true }
