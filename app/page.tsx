@@ -9,7 +9,7 @@ type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documen
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
-  audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; subtitleDownloadUrl?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
+  audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; subtitleDownloadUrl?: string; subtitleNote?: string; subtitleCredit?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
@@ -295,6 +295,14 @@ export default function Home() {
           subtitleDownloadUrl: movie.content_metadata && typeof movie.content_metadata === "object"
             && typeof (movie.content_metadata as Record<string, unknown>).spanish_subtitles_download === "string"
             ? String((movie.content_metadata as Record<string, unknown>).spanish_subtitles_download)
+            : undefined,
+          subtitleNote: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).subtitle_note === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).subtitle_note)
+            : undefined,
+          subtitleCredit: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).subtitle_credit === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).subtitle_credit)
             : undefined,
           contentAdvisory: movie.content_metadata && typeof movie.content_metadata === "object"
             && typeof (movie.content_metadata as Record<string, unknown>).content_advisory === "string"
@@ -645,10 +653,12 @@ export default function Home() {
                   {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
                   Tu navegador no puede reproducir este formato de vídeo.
                 </video>
-                {selected.subtitleDownloadUrl && (
+                {(selected.subtitleTracks || []).length > 0 && (
                   <p className="playerLanguageNote">
-                    Subtítulos oficiales en español latinoamericano · Traducción: Jacqueline Guzmán y Nicolás Fassi · PISTA INTEGRADA EN EL REPRODUCTOR ·{" "}
-                    <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR ARCHIVO SRT ↗</a>
+                    {selected.subtitleNote || "Subtítulos disponibles en el idioma indicado por el selector del reproductor."}
+                    {selected.subtitleCredit ? " · " + selected.subtitleCredit : ""}
+                    {" · SUBTÍTULOS DISPONIBLES EN CONTROLES DEL REPRODUCTOR"}
+                    {selected.subtitleDownloadUrl && <> · <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR SRT ↗</a></>}
                   </p>
                 )}
                   </>
