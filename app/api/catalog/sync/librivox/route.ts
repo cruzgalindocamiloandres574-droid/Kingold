@@ -11,6 +11,10 @@ async function handleLibriVoxCron(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  console.info("[librivox-cron] invocation accepted", {
+    method: request.method,
+    at: new Date().toISOString(),
+  });
   try {
     const destination = new URL("/api/catalog/sync?source=librivox", request.url);
     const upstream = await fetch(destination, {
@@ -24,6 +28,10 @@ async function handleLibriVoxCron(request: NextRequest) {
       signal: AbortSignal.timeout(55_000),
     });
     const body = await upstream.text();
+    console.info("[librivox-cron] importer response", {
+      status: upstream.status,
+      bodyBytes: new TextEncoder().encode(body).length,
+    });
     return new NextResponse(body, {
       status: upstream.status,
       headers: {
