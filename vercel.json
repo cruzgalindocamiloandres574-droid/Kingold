@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/catalog/sync/librivox",
-      "schedule": "0 10 * * *"
+      "schedule": "0 5 * * *"
     }
   ]
 }
