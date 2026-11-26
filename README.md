@@ -62,7 +62,7 @@ Copia `.env.example` en `.env.local` y completa los valores:
 - `STRIPE_WEBHOOK_SECRET`: secreto de firma del webhook.
 - `STRIPE_PRICE_ID`: identificador del precio de suscripción.
 - `NEXT_PUBLIC_SITE_URL`: URL pública del sitio.
-- `CRON_SECRET`: secreto opcional/recomendado para autorizar las invocaciones programadas de Vercel.
+- `CRON_SECRET`: secreto **obligatorio** en producción para autorizar las dos importaciones programadas de Vercel. Sin esta variable, las rutas de Cron responden `401`.
 
 Las claves privadas solo deben guardarse en el entorno del servidor (por ejemplo, variables de entorno de Vercel), no en GitHub, código cliente ni capturas públicas.
 
