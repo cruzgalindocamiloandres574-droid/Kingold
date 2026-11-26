@@ -201,8 +201,7 @@ async function runCatalogSync(request: NextRequest) {
             verified: true,
           }];
         });
-        const firstAudio = audioTracks[0]?.url || null;
-        return [{
+         return [{
           title,
           synopsis: safeText(String(book.description || "")) || "Audiolibro grabado por voluntarios de LibriVox.",
           genre: "Literatura",
