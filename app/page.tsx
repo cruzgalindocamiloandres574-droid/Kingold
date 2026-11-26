@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 
 
@@ -455,6 +455,17 @@ export default function Home() {
     setVideoState("error");
   }
 
+  function handleAudioError(event: SyntheticEvent<HTMLAudioElement>) {
+    const failedElement = event.currentTarget;
+    const mediaError = failedElement.error;
+    setVideoDiagnostic({
+      code: mediaError?.code ?? 0,
+      message: mediaError?.message || "El navegador no proporcionó más detalles.",
+      source: failedElement.currentSrc || activeAudioUrl || "Fuente de audio no identificada",
+    });
+    setVideoState("error");
+  }
+
   const activeVideoUrl = selected?.videoUrl
     ? selectedAudioIndex > 0 && selected.audioTracks?.[selectedAudioIndex - 1]?.url
       ? selected.audioTracks[selectedAudioIndex - 1].url
@@ -487,10 +498,11 @@ export default function Home() {
           <div className="heroStats" aria-label="Estado del catálogo">
             <span><strong>{catalogLoading ? "…" : catalogAvailableTotal.toString().padStart(2, "0")}</strong> CON FUENTE</span>
             <i />
-            <span><strong>{catalogLoading ? "…" : internalTotal.toString().padStart(2, "0")}</strong> MEDIOS DIRECTOS</span>
+            <span><strong>{catalogLoading ? "…" : internalTotal.toString().padStart(2, "0")}</strong> MEDIOS EN NOIR</span>
             <i />
-            <span><strong>{catalogLoading ? "…" : externalTotal.toString().padStart(2, "0")}</strong> FUENTES EXTERNAS</span>
+            <span><strong>{catalogLoading ? "…" : externalTotal.toString().padStart(2, "0")}</strong> ENLACES EXTERNOS</span>
           </div>
+          <p className="heroStatsNote">Cifras globales de todos los formatos, no solo películas. “Medios en NOIR” son archivos de vídeo o audio integrados; los enlaces externos se abren en el proveedor y dependen de su disponibilidad.</p>
         </div>
         <div className="heroSideNote"><span>NV / 001</span><span>CURATED FOR THE CURIOUS</span></div>
       </section>
@@ -651,7 +663,7 @@ export default function Home() {
                   )}
                   <audio key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
                     onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")}
-                    onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}
+                    onPlaying={() => setVideoState("ready")} onError={handleAudioError}
                     onEnded={() => { if (selected.audioTracks && selectedAudioIndex < selected.audioTracks.length - 1) { setSelectedAudioIndex((index) => index + 1); setVideoState("loading"); } }}>
                     <source src={activeAudioUrl} type="audio/mpeg" />
                     Tu navegador no puede reproducir este audio.
@@ -695,7 +707,7 @@ export default function Home() {
                 </div>
               )}
               {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setVideoDiagnostic(null); setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button>{videoDiagnostic && <details className="videoDiagnostics"><summary>DETALLES TÉCNICOS</summary><p>Código del navegador: {videoDiagnostic.code || "no disponible"} · {videoDiagnostic.code === 1 ? "Reproducción cancelada" : videoDiagnostic.code === 2 ? "Error de red" : videoDiagnostic.code === 3 ? "Error al decodificar el vídeo" : videoDiagnostic.code === 4 ? "Formato o códec no compatible" : "Error no identificado"}</p><p>Archivo: <code>{videoDiagnostic.source.split("/").pop()?.split("?")[0] || videoDiagnostic.source}</code></p>{videoDiagnostic.message !== "El navegador no proporcionó más detalles." && <p>{videoDiagnostic.message}</p>}</details>}</div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setVideoDiagnostic(null); setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button>{videoDiagnostic && <details className="videoDiagnostics"><summary>DETALLES TÉCNICOS</summary><p>Código del navegador: {videoDiagnostic.code || "no disponible"} · {videoDiagnostic.code === 1 ? "Reproducción cancelada" : videoDiagnostic.code === 2 ? "Error de red" : videoDiagnostic.code === 3 ? "Error al decodificar el medio" : videoDiagnostic.code === 4 ? "Formato o códec no compatible" : "Error no identificado"}</p><p>Archivo: <code>{videoDiagnostic.source.split("/").pop()?.split("?")[0] || videoDiagnostic.source}</code></p>{videoDiagnostic.message !== "El navegador no proporcionó más detalles." && <p>{videoDiagnostic.message}</p>}</details>}</div>}
             </div>
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
