@@ -398,7 +398,7 @@ export default function Home() {
       ? selected.audioTracks[selectedAudioIndex - 1].url
       : sourceIndex === 1 && selected.fallbackVideoUrl ? selected.fallbackVideoUrl : selected.videoUrl
     : undefined;
-  const activeAudioUrl = selected?.audioUrl;
+  const activeAudioUrl = selected?.audioTracks?.[selectedAudioIndex]?.url || selected?.audioUrl;
 
   return (
     <main className="noirSite">
@@ -551,10 +551,24 @@ export default function Home() {
               ) : activeAudioUrl ? (
                 <div className="audioStage">
                   <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
-                  <audio key={selected.id + "-" + videoAttempt} controls autoPlay preload="metadata" onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}>
-                    <source src={activeAudioUrl} />
+                  {(selected.audioTracks || []).length > 1 && (
+                    <label className="audioChapterPicker">
+                      <span>CAPÍTULO / PISTA ({selectedAudioIndex + 1} DE {selected.audioTracks?.length})</span>
+                      <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setVideoState("loading"); }}>
+                        {(selected.audioTracks || []).map((track, index) => (
+                          <option key={track.url} value={String(index)}>{track.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  <audio key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
+                    onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")}
+                    onPlaying={() => setVideoState("ready")} onError={() => setVideoState("error")}
+                    onEnded={() => { if (selected.audioTracks && selectedAudioIndex < selected.audioTracks.length - 1) { setSelectedAudioIndex((index) => index + 1); setVideoState("loading"); } }}>
+                    <source src={activeAudioUrl} type="audio/mpeg" />
                     Tu navegador no puede reproducir este audio.
                   </audio>
+                  {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
                 </div>
               ) : (
                 <div className="readerStage">
