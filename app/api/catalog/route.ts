@@ -47,6 +47,9 @@ export async function GET(request: NextRequest) {
         .order("popularity", { ascending: false, nullsFirst: false })
         .order("release_year", { ascending: false });
     }
+    // Stable unique tie-breaker prevents records from moving between pages
+    // when status, popularity, and release year are identical.
+    query = query.order("id", { ascending: true });
     query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     if (type && allowedTypes.has(type)) query = query.eq("content_type", type);
     if (featureOnly) query = query.gte("runtime_minutes", 60);
