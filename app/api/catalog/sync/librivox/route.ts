@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Vercel Cron sends POST by default. Accept both methods for compatibility,
-// but always forward one authenticated GET to the existing importer.
+// Vercel Cron invokes scheduled routes with GET. Keep POST support for
+// compatibility with other callers; both methods share the same authorization.
 async function handleLibriVoxCron(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
