@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Vercel Cron calls this dedicated path. Forward only authenticated cron requests
-// to the existing importer, which handles LibriVox state, deduplication and writes.
-export async function GET(request: NextRequest) {
+// Vercel Cron sends POST by default. Accept both methods for compatibility,
+// but always forward one authenticated GET to the existing importer.
+async function handleLibriVoxCron(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,4 +37,12 @@ export async function GET(request: NextRequest) {
       { status: 502 },
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  return handleLibriVoxCron(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handleLibriVoxCron(request);
 }
