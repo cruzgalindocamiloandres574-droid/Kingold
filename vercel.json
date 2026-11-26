@@ -6,7 +6,7 @@
       "schedule": "0 9 * * *"
     },
     {
-      "path": "/api/catalog/sync?source=librivox",
+      "path": "/api/catalog/sync/librivox",
       "schedule": "0 10 * * *"
     }
   ]
