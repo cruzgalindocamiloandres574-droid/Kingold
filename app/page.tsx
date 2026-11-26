@@ -757,7 +757,7 @@ export default function Home() {
                   )}
                 </div>
               )}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando una fuente alternativa de respaldo para el mismo contenido" : "Conectando con la fuente multimedia"}</small></div>}
               {(activeVideoUrl || activeAudioUrl) && videoState === "error" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setVideoDiagnostic(null); setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button>{videoDiagnostic && <details className="videoDiagnostics"><summary>DETALLES TÉCNICOS</summary><p>Código del navegador: {videoDiagnostic.code || "no disponible"} · {videoDiagnostic.code === 1 ? "Reproducción cancelada" : videoDiagnostic.code === 2 ? "Error de red" : videoDiagnostic.code === 3 ? "Error al decodificar el medio" : videoDiagnostic.code === 4 ? "Formato o códec no compatible" : "Error no identificado"}</p><p>Archivo: <code>{videoDiagnostic.source.split("/").pop()?.split("?")[0] || videoDiagnostic.source}</code></p>{videoDiagnostic.message !== "El navegador no proporcionó más detalles." && <p>{videoDiagnostic.message}</p>}</details>}</div>}
             </div>
             <div className="playerInfo">
@@ -792,8 +792,8 @@ export default function Home() {
               {selected.videoUrl && selected.fallbackVideoUrl && (
                 <div className="playerSourceSwitch">
                   <div>
-                    <strong>{sourceIndex === 0 ? "¿EL VÍDEO TARDA O SE DETIENE?" : "ESTÁS USANDO LA COPIA DE RESPALDO"}</strong>
-                    <span>{sourceIndex === 0 ? "Prueba una versión de menor resolución si tu conexión o dispositivo tiene dificultades." : "Puedes volver a la fuente principal cuando tengas una conexión más estable."}</span>
+                    <strong>{sourceIndex === 0 ? "¿EL VÍDEO TARDA O SE DETIENE?" : "ESTÁS USANDO LA FUENTE DE RESPALDO"}</strong>
+                    <span>{sourceIndex === 0 ? "Prueba otra fuente de distribución si la principal no carga o se detiene." : "Puedes volver a la fuente principal cuando quieras."}</span>
                   </div>
                   <button type="button" onClick={() => {
                     const currentSeconds = videoRef.current?.currentTime ?? resumeAt;
@@ -803,7 +803,7 @@ export default function Home() {
                     setVideoAttempt((attempt) => attempt + 1);
                     setVideoState("loading");
                   }}>
-                    {sourceIndex === 0 ? "PROBAR COPIA LIGERA ↗" : "VOLVER A FUENTE PRINCIPAL ↗"}
+                    {sourceIndex === 0 ? "PROBAR FUENTE ALTERNATIVA ↗" : "VOLVER A FUENTE PRINCIPAL ↗"}
                   </button>
                 </div>
               )}
