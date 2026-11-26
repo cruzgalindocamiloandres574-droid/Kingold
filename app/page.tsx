@@ -167,6 +167,18 @@ function licenseUrl(license: string) {
   return "https://creativecommons.org/licenses/" + licenseFamily + "/" + version + "/" + jurisdiction;
 }
 
+function videoMimeType(url: string) {
+  // Some Commons mobile fallbacks use an MPEG-4 QuickTime (.mov) wrapper.
+  // Do not pre-declare video/quicktime: Chromium on Android may reject that
+  // MIME before trying the actual media bytes. Let the browser inspect it.
+  const pathname = url.split(/[?#]/, 1)[0].toLowerCase();
+  if (pathname.endsWith(".mp4")) return "video/mp4";
+  if (pathname.endsWith(".mov")) return undefined;
+  if (pathname.endsWith(".ogg") || pathname.endsWith(".ogv")) return "video/ogg";
+  if (pathname.endsWith(".webm")) return "video/webm";
+  return undefined;
+}
+
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a className={footer ? "brandLockup brandLockupFooter" : "brandLockup"} href="#" aria-label="NOIR VAULT, inicio">
@@ -603,7 +615,7 @@ export default function Home() {
                   onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
                   onEnded={() => { void clearCompletedProgress(); }}
                   onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
-                  <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : activeVideoUrl.toLowerCase().includes(".mov") ? "video/quicktime" : activeVideoUrl.toLowerCase().includes(".ogg") ? "video/ogg" : "video/webm"} />
+                  <source src={activeVideoUrl} type={videoMimeType(activeVideoUrl)} />
                   {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
                   Tu navegador no puede reproducir este formato de vídeo.
                 </video>
