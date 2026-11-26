@@ -9,7 +9,7 @@ type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documen
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
-  audioUrl?: string; readerUrl?: string; subtitleDownloadUrl?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
+  audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; subtitleDownloadUrl?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
@@ -274,6 +274,10 @@ export default function Home() {
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
           audioUrl: movie.audio_url ? String(movie.audio_url) : undefined,
           readerUrl: movie.reader_url ? String(movie.reader_url) : undefined,
+          externalEmbedUrl: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).external_embed_url === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).external_embed_url)
+            : undefined,
           subtitleDownloadUrl: movie.content_metadata && typeof movie.content_metadata === "object"
             && typeof (movie.content_metadata as Record<string, unknown>).spanish_subtitles_download === "string"
             ? String((movie.content_metadata as Record<string, unknown>).spanish_subtitles_download)
@@ -627,6 +631,19 @@ export default function Home() {
                       <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FICHA OFICIAL ↗</a>
                     </small>
                   )}
+                </div>
+              ) : selected.externalEmbedUrl ? (
+                <div className="externalVideoStage">
+                  <iframe
+                    key={selected.id + "-official-embed"}
+                    src={selected.externalEmbedUrl}
+                    title={selected.name + " · reproductor oficial"}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                  <small>REPRODUCCIÓN OFICIAL EXTERNA · YouTube controla la disponibilidad, los anuncios y el reproductor.</small>
                 </div>
               ) : (
                 <div className="readerStage">
