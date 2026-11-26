@@ -53,7 +53,15 @@ export async function GET(request: NextRequest) {
     query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     if (type && allowedTypes.has(type)) query = query.eq("content_type", type);
     if (featureOnly) query = query.gte("runtime_minutes", 60);
-    if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
+    if (q) {
+      // Turn punctuation and spaces into SQL LIKE wildcards so searches can
+      // match titles whose stored punctuation differs from the user's query.
+      const terms = q.replace(/[(),.%_*]/g, " ").trim().split(/\s+/).filter(Boolean);
+      if (terms.length) {
+        const pattern = `%${terms.join("%")}%`;
+        query = query.or(`title.ilike.${pattern},synopsis.ilike.${pattern},genre.ilike.${pattern}`);
+      }
+    }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
