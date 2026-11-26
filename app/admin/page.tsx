@@ -33,18 +33,35 @@ export default function AdminPage(){
  async function syncAudiobooks(){
   if(!supabase||syncBusy)return;
   setSyncBusy(true);
-  setMessage("Consultando el siguiente lote de LibriVox…");
+  const maxBatches=5;
+  let batches=0, fetched=0, imported=0, importedSoFar=0, complete=false;
+  let failure="";
   try{
-   const response=await fetch("/api/catalog/sync?source=librivox",{method:"POST"});
-   const data=await response.json().catch(()=>({}));
-   if(!response.ok){setMessage(data.detail||data.error||"No se pudo importar LibriVox.");return}
-   setMessage(data.complete
-    ? "LibriVox completado: "+(data.importedSoFar||0)+" audiolibros incorporados."
-    : "LibriVox: "+(data.importedThisBatch||0)+" nuevos · "+(data.importedSoFar||0)+" acumulados · lote de "+(data.fetchedThisBatch||0)+" revisados.");
+   for(let batch=0;batch<maxBatches;batch++){
+    setMessage("Consultando LibriVox · lote "+(batch+1)+" de "+maxBatches+"…");
+    const response=await fetch("/api/catalog/sync?source=librivox",{method:"POST"});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.detail||data.error||"No se pudo importar LibriVox.");
+    batches++;
+    fetched+=Number(data.fetchedThisBatch)||0;
+    imported+=Number(data.importedThisBatch)||0;
+    importedSoFar=Number(data.importedSoFar)||importedSoFar;
+    complete=Boolean(data.complete);
+    if(complete||!Number(data.fetchedThisBatch))break;
+   }
+  }catch(error){
+   failure=error instanceof Error?error.message:"Error de conexión con LibriVox.";
+  }finally{
    await load();
-  }catch{
-   setMessage("No pudimos conectar con LibriVox. Comprueba la conexión e inténtalo de nuevo.");
-  }finally{setSyncBusy(false)}
+   if(failure){
+    setMessage("Importación detenida tras "+batches+" lote(s): "+fetched+" revisados, "+imported+" nuevos. "+failure);
+   }else if(complete){
+    setMessage("LibriVox completado: "+importedSoFar+" audiolibros incorporados al catálogo como fichas externas.");
+   }else{
+    setMessage("LibriVox: "+fetched+" fichas revisadas en "+batches+" lotes · "+imported+" nuevas · "+importedSoFar+" acumuladas. Puedes pulsar de nuevo para continuar.");
+   }
+   setSyncBusy(false);
+  }
  }
  async function remove(id:string){if(!supabase||!window.confirm("¿Eliminar esta película del catálogo?"))return;const {error}=await supabase.from("movies").delete().eq("id",id);if(error){setMessage(error.message);return}setMessage("Película eliminada.");await load()}
  if(allowed===false)return <main className="section"><Link href="/">← NOIR VAULT</Link><h1>Administración</h1><p>{message}</p><a className="btn" href="/login">INICIAR SESIÓN</a></main>;
@@ -54,7 +71,7 @@ export default function AdminPage(){
   <p style={{opacity:.8}}>El importador automático actual añade fichas de cine desde Wikidata y Wikimedia Commons. Series, anime, manga, podcasts, audiolibros y conciertos se registran con tipo, fuente, créditos y permisos. El contenido solo se activa al disponer de una fuente multimedia o lectora autorizada.</p>
   <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE CINE (20 FICHAS)"}</button>
   <p style={{opacity:.75,fontSize:12,marginTop:14}}>LibriVox aporta audiolibros grabados por voluntarios. El importador registra fichas y enlaces oficiales; la reproducción dentro de NOIR permanece desactivada hasta verificar en Colombia los derechos del texto, la traducción y la grabación. LibriVox declara sus grabaciones de dominio público en Estados Unidos, pero advierte que pueden no serlo en otros países.</p>
-  <button className="btn" type="button" onClick={syncAudiobooks} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE AUDIOLIBROS (500)"}</button>
+  <button className="btn" type="button" onClick={syncAudiobooks} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR HASTA 2.500 AUDIOLIBROS (5 LOTES)"}</button>
  </section>
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}>
   <h2>Meta por sección</h2>
