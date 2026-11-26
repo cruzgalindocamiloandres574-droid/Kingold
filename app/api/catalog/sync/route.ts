@@ -144,6 +144,11 @@ async function runCatalogSync(request: NextRequest) {
       if (state.completed) return NextResponse.json({ source: "LibriVox", complete: true, importedSoFar: state.total_imported });
     
       const offset = Math.max(0, Number(state.next_offset) || 0);
+      console.info("[catalog-sync:librivox] batch started", {
+        offset,
+        previousTotal: Number(state.total_imported) || 0,
+        at: new Date().toISOString(),
+      });
       const query = new URLSearchParams({
         format: "json",
         coverart: "1",
@@ -249,6 +254,12 @@ async function runCatalogSync(request: NextRequest) {
       }
       const nextOffset = offset + books.length;
       const complete = books.length < LIBRIVOX_BATCH_SIZE;
+      console.info("[catalog-sync:librivox] batch processed", {
+        fetched: books.length,
+        inserted: newRows.length,
+        nextOffset,
+        complete,
+      });
       const total = Number(state.total_imported || 0) + newRows.length;
       const updated = await db.from("catalog_import_state").update({
         next_offset: nextOffset, completed: complete, total_imported: total, updated_at: new Date().toISOString()
