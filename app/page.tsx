@@ -209,6 +209,7 @@ export default function Home() {
   const [resumeAt, setResumeAt] = useState(0);
   const [pendingWatchId, setPendingWatchId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
   const pendingProgressRef = useRef<{ userId: string; movieId: string; seconds: number } | null>(null);
   const progressFlushRef = useRef<Promise<void> | null>(null);
@@ -277,6 +278,18 @@ export default function Home() {
     });
     return () => { active = false; };
   }, [supabase]);
+
+  useEffect(() => {
+    if (resumeAt <= 15) return;
+    const video = videoRef.current;
+    if (video && video.readyState >= 1 && Math.abs(video.currentTime - resumeAt) > 2) {
+      video.currentTime = resumeAt;
+    }
+    const audio = audioRef.current;
+    if (audio && audio.readyState >= 1 && Math.abs(audio.currentTime - resumeAt) > 2) {
+      audio.currentTime = resumeAt;
+    }
+  }, [resumeAt, selected?.id]);
 
   useEffect(() => {
     const watchId = new URLSearchParams(window.location.search).get("watch");
@@ -777,7 +790,7 @@ export default function Home() {
                       </select>
                     </label>
                   )}
-                  <audio key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
+                  <audio ref={audioRef} key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
                     onLoadedMetadata={(event) => { if (!selected.audioTracks?.length && resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
                     onTimeUpdate={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime); }}
                     onPause={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime, true); }}
