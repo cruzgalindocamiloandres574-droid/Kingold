@@ -694,7 +694,7 @@ export default function Home() {
                   />
                   <div className="externalVideoFooter">
                     <span>FUENTE OFICIAL · YouTube controla la disponibilidad y los anuncios.</span>
-                    <a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR EN YOUTUBE ↗</a>
+                    <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FUENTE OFICIAL ↗</a>
                   </div>
                 </div>
               ) : (
