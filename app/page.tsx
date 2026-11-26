@@ -282,7 +282,7 @@ export default function Home() {
         if (!active) return;
         const databaseFilms: Film[] = (result.results || []).map((movie: Record<string, unknown>) => ({
           id: String(movie.id), name: String(movie.title || "Sin título"), genre: String(movie.genre || "Cine"),
-          year: Number(movie.release_year || 0), duration: movie.runtime_minutes ? String(movie.runtime_minutes) + " min" : String(movie.duration || "—"),
+          year: Number(movie.release_year || 0), duration: movie.duration ? String(movie.duration) : movie.runtime_minutes ? String(movie.runtime_minutes) + " min" : "—",
           synopsis: String(movie.synopsis || ""), posterUrl: String(movie.poster_url || ""),
           videoUrl: movie.video_url ? String(movie.video_url) : undefined,
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
