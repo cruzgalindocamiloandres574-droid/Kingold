@@ -28,13 +28,13 @@ export default async function Account() {
     .eq("user_id",user.id).order("updated_at",{ascending:false}).limit(10);
   const movieIds = [...new Set((progressRows || []).map((item) => item.movie_id))];
   const {data:progressMovies} = movieIds.length
-    ? await supabase.from("movies").select("id,title,poster_url,status,video_url")
+    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url")
         .in("id",movieIds).eq("published",true)
     : {data:[]};
   const movieById = new Map((progressMovies || []).map((movie) => [movie.id,movie]));
   const continueWatching = (progressRows || []).flatMap((item) => {
     const movie = movieById.get(item.movie_id);
-    if (!movie || movie.status !== "available" || !movie.video_url) return [];
+    if (!movie || movie.status !== "available" || (!movie.video_url && !movie.audio_url)) return [];
     return [{ ...item, movie }];
   });
 
@@ -59,7 +59,7 @@ export default async function Account() {
           {item.movie.poster_url && <Image src={item.movie.poster_url} alt="" width={64} height={88} unoptimized style={{width:64,height:88,objectFit:"cover",borderRadius:6}}/>}
           <div style={{flex:1,minWidth:0}}>
             <strong>{item.movie.title}</strong>
-            <p style={{margin:"6px 0",opacity:.75}}>Visto hasta {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
+            <p style={{margin:"6px 0",opacity:.75}}>{item.movie.audio_url && !item.movie.video_url ? "Escuchado hasta" : "Visto hasta"} {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
             <small>{new Date(item.updated_at).toLocaleDateString("es-CO",{dateStyle:"medium"})}</small>
           </div>
           <a className="btn" href={"/?watch="+encodeURIComponent(item.movie_id)+"#catalogo"}>CONTINUAR</a>
