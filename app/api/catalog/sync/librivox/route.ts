@@ -7,7 +7,15 @@ export const maxDuration = 60;
 // compatibility with other callers; both methods share the same authorization.
 async function handleLibriVoxCron(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  const authorization = request.headers.get("authorization");
+  if (!secret || authorization !== `Bearer ${secret}`) {
+    // Record only presence/configuration booleans; never log credentials.
+    console.warn("[librivox-cron] invocation rejected", {
+      method: request.method,
+      cronSecretConfigured: Boolean(secret),
+      authorizationHeaderPresent: Boolean(authorization),
+      at: new Date().toISOString(),
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -39,7 +47,11 @@ async function handleLibriVoxCron(request: NextRequest) {
         "cache-control": "no-store",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[librivox-cron] importer request failed", {
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      at: new Date().toISOString(),
+    });
     return NextResponse.json(
       { error: "The LibriVox catalog sync could not reach the importer." },
       { status: 502 },
