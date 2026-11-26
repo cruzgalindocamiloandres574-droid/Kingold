@@ -191,7 +191,7 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
   const progressSavingRef = useRef(false);
-  const [catalogFilms, setCatalogFilms] = useState<Film[]>(initialFilms);
+  const [catalogFilms, setCatalogFilms] = useState<Film[]>([]);
   const [genre, setGenre] = useState("Todo");
   const [contentType, setContentType] = useState<ContentType | "all">("all");
   const [query, setQuery] = useState("");
@@ -207,10 +207,11 @@ export default function Home() {
   const [videoState, setVideoState] = useState<"loading" | "ready" | "error">("loading");
   const [videoAttempt, setVideoAttempt] = useState(0);
   const [catalogPage, setCatalogPage] = useState(1);
-  const [catalogTotal, setCatalogTotal] = useState(12);
+  const [catalogTotal, setCatalogTotal] = useState(0);
   const [catalogTotalPages, setCatalogTotalPages] = useState(1);
   const [catalogAvailableTotal, setCatalogAvailableTotal] = useState(0);
   const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [catalogLoading, setCatalogLoading] = useState(true);
 
   const openFilm = useCallback(async (film: Film) => {
     if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
@@ -257,6 +258,7 @@ export default function Home() {
     if (genre !== "Todo") params.set("genre", genre);
     if (audioFilter !== "all") params.set("audio", audioFilter);
     if (playbackFilter !== "all") params.set("playback", playbackFilter);
+    setCatalogLoading(true);
     setCatalogError(null);
     void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("catalog"); return response.json(); })
@@ -300,15 +302,31 @@ export default function Home() {
         setExternalTotal(Number(result.externalTotal || 0));
         setUpcomingTotal(Number(result.upcomingTotal || 0));
         setPendingTotal(Number(result.pendingTotal || 0));
+        setCatalogLoading(false);
       })
       .catch(() => {
         if (!active) return;
         setCatalogError("No se pudo conectar con el catálogo en este momento. Revisa la conexión e inténtalo de nuevo.");
+        setCatalogLoading(false);
         const canUseLocalFallback = catalogPage === 1 && !query.trim() && genre === "Todo" && contentType === "all" && audioFilter === "all" && playbackFilter === "all";
         setCatalogFilms(canUseLocalFallback ? initialFilms : []);
         if (canUseLocalFallback) {
+          const availableFallback = initialFilms.filter((film) => film.status === "available");
           setCatalogTotal(initialFilms.length);
           setCatalogTotalPages(1);
+          setCatalogAvailableTotal(availableFallback.length);
+          setInternalTotal(availableFallback.filter((film) => film.videoUrl || film.audioUrl).length);
+          setExternalTotal(availableFallback.filter((film) => !film.videoUrl && !film.audioUrl && film.readerUrl).length);
+          setUpcomingTotal(initialFilms.filter((film) => film.availability === "upcoming").length);
+          setPendingTotal(initialFilms.filter((film) => film.status === "soon" && film.availability !== "upcoming").length);
+        } else {
+          setCatalogTotal(0);
+          setCatalogTotalPages(1);
+          setCatalogAvailableTotal(0);
+          setInternalTotal(0);
+          setExternalTotal(0);
+          setUpcomingTotal(0);
+          setPendingTotal(0);
         }
       });
     return () => { active = false; };
@@ -349,7 +367,7 @@ export default function Home() {
     [catalogFilms],
   );
 
-  const visibleFilms = catalogFilms;
+  const visibleFilms = catalogLoading ? [] : catalogFilms;
 
   function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
   function changeContentType(value: ContentType | "all") { setContentType(value); setCatalogPage(1); setGenre("Todo"); }
@@ -426,7 +444,7 @@ export default function Home() {
             <button className="buttonPrimary" onClick={() => openFilm(featured)}><span className="buttonPlay">▶</span> VER DESTACADO</button>
             <a className="buttonGhost" href="#catalogo">EXPLORAR CARTELERA <span>↓</span></a>
           </div>
-          <div className="heroStats"><span><strong>{catalogAvailableTotal.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
+          <div className="heroStats"><span><strong>{catalogLoading ? "…" : catalogAvailableTotal.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
         </div>
         <div className="heroSideNote"><span>NV / 001</span><span>CURATED FOR THE CURIOUS</span></div>
       </section>
@@ -452,7 +470,7 @@ export default function Home() {
         <div className="contentWrap">
           <div className="sectionIntro">
             <div><div className="sectionOverline">{contentType === "all" ? "LA BIBLIOTECA NOIR" : CONTENT_LABELS[contentType].toUpperCase()}</div><h2>{contentType === "all" ? <>Encuentra tu próxima <em>historia.</em></> : <>Explora <em>{CONTENT_LABELS[contentType]}.</em></>}</h2><p>{contentType === "all" ? "Películas, series, manga, podcasts y más formatos en una biblioteca en crecimiento." : CONTENT_TYPES.find((item) => item.value === contentType)?.description}</p></div>
-            <div className="catalogCounter"><strong>{catalogTotal.toLocaleString("es-CO")}</strong><span>TÍTULOS<br />EN CATÁLOGO</span></div>
+            <div className="catalogCounter"><strong>{catalogLoading ? "…" : catalogTotal.toLocaleString("es-CO")}</strong><span>TÍTULOS<br />EN CATÁLOGO</span></div>
           </div>
 
           <div className="catalogToolbar">
@@ -473,10 +491,10 @@ export default function Home() {
             <div className="playbackFilters" aria-label="Filtrar por tipo de reproducción">
               <span>TIPO DE ACCESO</span>
               <button className={playbackFilter === "all" ? "active" : ""} onClick={() => { setPlaybackFilter("all"); setCatalogPage(1); }}>TODOS</button>
-              <button className={playbackFilter === "internal" ? "active" : ""} onClick={() => { setPlaybackFilter("internal"); setCatalogPage(1); }}>EN NOIR <small>{internalTotal}</small></button>
-              <button className={playbackFilter === "external" ? "active" : ""} onClick={() => { setPlaybackFilter("external"); setCatalogPage(1); }}>FUENTES EXTERNAS <small>{externalTotal}</small></button>
-              <button className={playbackFilter === "soon" ? "active" : ""} onClick={() => { setPlaybackFilter("soon"); setCatalogPage(1); }}>PRÓXIMAMENTE <small>{upcomingTotal}</small></button>
-              <button className={playbackFilter === "pending" ? "active" : ""} onClick={() => { setPlaybackFilter("pending"); setCatalogPage(1); }}>SIN REPRODUCCIÓN <small>{pendingTotal}</small></button>
+              <button className={playbackFilter === "internal" ? "active" : ""} onClick={() => { setPlaybackFilter("internal"); setCatalogPage(1); }}>EN NOIR <small>{catalogLoading ? "—" : internalTotal}</small></button>
+              <button className={playbackFilter === "external" ? "active" : ""} onClick={() => { setPlaybackFilter("external"); setCatalogPage(1); }}>FUENTES EXTERNAS <small>{catalogLoading ? "—" : externalTotal}</small></button>
+              <button className={playbackFilter === "soon" ? "active" : ""} onClick={() => { setPlaybackFilter("soon"); setCatalogPage(1); }}>PRÓXIMAMENTE <small>{catalogLoading ? "—" : upcomingTotal}</small></button>
+              <button className={playbackFilter === "pending" ? "active" : ""} onClick={() => { setPlaybackFilter("pending"); setCatalogPage(1); }}>SIN REPRODUCCIÓN <small>{catalogLoading ? "—" : pendingTotal}</small></button>
             </div>
           </div>
 
@@ -505,7 +523,8 @@ export default function Home() {
             ))}
           </div>
           {catalogTotalPages > 1 && <div className="catalogPagination"><button disabled={catalogPage <= 1} onClick={() => setCatalogPage((p) => Math.max(1,p-1))}>← ANTERIORES</button><span>PÁGINA {catalogPage} DE {catalogTotalPages}</span><button disabled={catalogPage >= catalogTotalPages} onClick={() => setCatalogPage((p) => Math.min(catalogTotalPages,p+1))}>SIGUIENTES →</button></div>}
-          {visibleFilms.length === 0 && <div className="noResults"><strong>{query ? "No encontramos ese título." : "Esta sección está preparando su catálogo."}</strong><span>{query ? "Prueba con otro término de búsqueda." : "Publicaremos contenidos cuando la fuente, el permiso y el formato de reproducción o lectura estén verificados."}</span></div>}
+          {catalogLoading && <div className="noResults" role="status"><strong>CARGANDO CATÁLOGO REAL…</strong><span>Consultando NOIR VAULT en Supabase.</span></div>}
+          {visibleFilms.length === 0 && !catalogLoading && <div className="noResults"><strong>{query ? "No encontramos ese título." : "Esta sección está preparando su catálogo."}</strong><span>{query ? "Prueba con otro término de búsqueda." : "Publicaremos contenidos cuando la fuente, el permiso y el formato de reproducción o lectura estén verificados."}</span></div>}
           <p className="catalogFootnote">Las películas, episodios y audios solo se activan cuando existe una fuente multimedia registrada. Manga y lecturas abren su lector autorizado. Las fichas sin fuente completa o permisos confirmados permanecen deshabilitadas.</p>
         </div>
       </section>
