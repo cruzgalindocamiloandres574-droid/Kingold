@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const audio = request.nextUrl.searchParams.get("audio");
     const playback = request.nextUrl.searchParams.get("playback");
     const type = request.nextUrl.searchParams.get("type");
+    const featureOnly = request.nextUrl.searchParams.get("feature") === "1" && type === "movie";
     const allowedTypes = new Set(["movie","series","anime","manga","podcast","documentary","audiobook","concert","short"]);
     const db = catalogClient();
     let query = db.from("movies")
@@ -48,6 +49,7 @@ export async function GET(request: NextRequest) {
     }
     query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     if (type && allowedTypes.has(type)) query = query.eq("content_type", type);
+    if (featureOnly) query = query.gte("runtime_minutes", 60);
     if (q) { const term = q.replace(/[(),.%_*]/g, " ").replace(/\s+/g, " ").trim(); query = query.or(`title.ilike.%${term}%,synopsis.ilike.%${term}%,genre.ilike.%${term}%`); }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
