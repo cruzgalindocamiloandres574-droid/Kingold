@@ -606,9 +606,9 @@ export default function Home() {
                   {film.status === "available" ? (
                     <>
                       <span className={film.videoUrl || film.audioUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
-                        {film.videoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
+                        {film.videoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.externalEmbedUrl ? "EMBED OFICIAL EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
                       </span>
-                      <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
+                      <span className="posterPlay"><span>{film.externalEmbedUrl ? "▶" : film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
                     </>
                   ) : <span className="soonPill">{film.availability === "upcoming" ? (film.readerUrl ? "PRÓXIMAMENTE · VER FICHA ↗" : "PRÓXIMAMENTE") : "SIN REPRODUCCIÓN"}</span>}
                   <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.hasLatinSpanish ? " · AUDIO LATINO" : film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
