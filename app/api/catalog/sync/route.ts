@@ -211,12 +211,12 @@ async function runCatalogSync(request: NextRequest) {
           runtime_minutes: seconds > 0 ? Math.round(seconds / 60) : null,
           poster_url: cleanUrl(book.coverart_thumbnail || book.coverart_jpg, "librivox.org"),
           creator: authors || "LibriVox volunteers",
-          license: "Grabación declarada de dominio público por LibriVox; verificar derechos del texto según el país",
+          license: "Dominio público declarado por LibriVox en EE. UU.; derechos de grabación y texto para Colombia pendientes de verificación",
           credit: "LibriVox · grabaciones de voluntarios. Atribución al lector y al autor cuando figuran en la ficha oficial.",
           catalog_source: page,
           reader_url: page,
-          audio_url: firstAudio,
-          audio_tracks: audioTracks,
+          audio_url: null,
+          audio_tracks: [],
           audio_languages: bookLanguage ? [bookLanguage] : [],
           content_type: "audiobook",
           content_metadata: {
@@ -228,8 +228,10 @@ async function runCatalogSync(request: NextRequest) {
             local_rights_review: "required",
             source_language: language || null,
             number_of_audio_sections: Number(book.num_sections) || rawSections.length || null,
-            playable_audio_sections: audioTracks.length,
-            playback_mode: audioTracks.length ? "chapter_playlist" : "official_external_page",
+            playable_audio_sections: 0,
+            official_audio_sections: audioTracks.length,
+            direct_playback_enabled: false,
+            playback_mode: "official_external_page_pending_local_rights_review",
           },
           published: true,
           status: "available",
@@ -261,7 +263,7 @@ async function runCatalogSync(request: NextRequest) {
         offset,
         nextOffset,
         complete,
-        playback: "Los capítulos MP3 con URL HTTPS de Internet Archive se entregan al reproductor de NOIR; los registros sin pistas mantienen acceso a la ficha oficial.",
+        playback: "Solo se abre la ficha oficial de LibriVox. La reproducción directa dentro de NOIR queda desactivada hasta verificar en Colombia los derechos del texto, la traducción y la grabación.",
         rights: "Las grabaciones son de dominio público en EE. UU.; revisar la situación legal del texto en Colombia."
       });
     };
