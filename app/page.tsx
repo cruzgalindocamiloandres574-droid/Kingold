@@ -561,6 +561,7 @@ export default function Home() {
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
               {activeVideoUrl ? (
+                <>
                 <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
                   onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
                   onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
@@ -577,6 +578,7 @@ export default function Home() {
                     <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR ARCHIVO SRT ↗</a>
                   </p>
                 )}
+                </>
               ) : activeAudioUrl ? (
                 <div className="audioStage">
                   <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
