@@ -211,6 +211,7 @@ export default function Home() {
   const [contentConsentId, setContentConsentId] = useState<string | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
   const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
+  const [selectedSubtitleIndex, setSelectedSubtitleIndex] = useState(-1);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
   const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon" | "pending">("all");
   const [internalTotal, setInternalTotal] = useState(0);
@@ -231,6 +232,7 @@ export default function Home() {
     if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
     setSourceIndex(0);
     setSelectedAudioIndex(0);
+    setSelectedSubtitleIndex(film.subtitleTracks?.findIndex((track) => track.isDefault) ?? -1);
     setResumeAt(0);
     lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
@@ -367,6 +369,20 @@ export default function Home() {
       });
     return () => { active = false; };
   }, [catalogPage, genre, query, audioFilter, contentType, playbackFilter]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !selected) return;
+    const syncSubtitleMode = () => {
+      const tracks = video.textTracks;
+      for (let index = 0; index < tracks.length; index += 1) {
+        tracks[index].mode = index === selectedSubtitleIndex ? "showing" : "disabled";
+      }
+    };
+    syncSubtitleMode();
+    video.addEventListener("loadedmetadata", syncSubtitleMode);
+    return () => video.removeEventListener("loadedmetadata", syncSubtitleMode);
+  }, [selected, selectedSubtitleIndex, videoAttempt, selectedAudioIndex, sourceIndex]);
 
   useEffect(() => {
     if (!pendingWatchId) return;
@@ -650,7 +666,19 @@ export default function Home() {
                   onEnded={() => { void clearCompletedProgress(); }}
                   onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
                   <source src={activeVideoUrl} type={videoMimeType(activeVideoUrl)} />
-                  {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
+                  {(selected.subtitleTracks || []).map((track, index) => (
+                    <track
+                      key={track.src}
+                      kind="subtitles"
+                      src={track.src}
+                      srcLang={track.language}
+                      label={track.label}
+                      default={Boolean(track.isDefault)}
+                      onLoad={(event) => {
+                        event.currentTarget.track.mode = index === selectedSubtitleIndex ? "showing" : "disabled";
+                      }}
+                    />
+                  ))}
                   Tu navegador no puede reproducir este formato de vídeo.
                 </video>
                 {(selected.subtitleTracks || []).length > 0 && (
@@ -737,7 +765,21 @@ export default function Home() {
                   </select>
                 </label>
                 <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
-                {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
+                {(selected.subtitleTracks || []).length > 0 && (
+                  <label>
+                    SUBTÍTULOS
+                    <select
+                      value={String(selectedSubtitleIndex)}
+                      onChange={(event) => setSelectedSubtitleIndex(Number(event.target.value))}
+                      aria-label="Seleccionar pista de subtítulos"
+                    >
+                      <option value="-1">Desactivados</option>
+                      {(selected.subtitleTracks || []).map((track, index) => (
+                        <option key={track.src} value={String(index)}>{track.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               </div>}
               {selected.videoUrl && selected.fallbackVideoUrl && (
                 <div className="playerSourceSwitch">
