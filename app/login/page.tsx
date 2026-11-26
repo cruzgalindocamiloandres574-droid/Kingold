@@ -84,6 +84,7 @@ export default function Login() {
           {message && <p role="alert" style={{ margin: "4px 0", color: message.kind === "error" ? "#ffb0a8" : "#c7a675", lineHeight: 1.6 }}>{message.text}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ width: "100%", minHeight: 48, opacity: busy ? .65 : 1 }}>{busy ? "CONECTANDO…" : "INICIAR SESIÓN"}</button>
         </form>
+        <p style={{ margin: "16px 0 0", fontSize: 13 }}><Link href="/recuperar" style={{ color: "#c7a675" }}>¿Olvidaste tu contraseña?</Link></p>
         <p style={{ color: "#aaa", marginTop: 24 }}>¿Aún no tienes cuenta? <Link href="/registro" style={{ color: "#e6cea9" }}>Crear cuenta</Link></p>
       </div>
     </main>
