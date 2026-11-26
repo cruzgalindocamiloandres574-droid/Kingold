@@ -292,3 +292,9 @@ button{color:inherit}
  .heroBackdropImage img,.heroSection::before,.heroSection::after,.heroKicker .goldDot{animation:none!important}
  .heroBackdropImage img{transform:scale(1.025)}
 }
+
+/* NOIR VAULT cinematic fallback artwork for records without licensed posters */
+.filmPoster:not(:has(.posterImage)){background:radial-gradient(ellipse at 50% 37%,#766043 0%,#343027 24%,#171a16 58%,#080a09 100%)}
+.filmPoster:not(:has(.posterImage))::after{content:"NV";position:absolute;z-index:0;inset:18% 8% 25%;display:grid;place-items:center;border:1px solid #d5b9852b;border-radius:50%;color:#e4c99a24;font:clamp(76px,10vw,140px)/1 "Playfair Display",serif;letter-spacing:-.1em;text-shadow:0 0 55px #d4aa6330;pointer-events:none}
+.filmPoster:not(:has(.posterImage)) .posterVignette{background:radial-gradient(ellipse at 50% 43%,transparent 0%,#07080735 53%,#050605e8 100%),linear-gradient(180deg,#0708078c 0%,transparent 35%,#050605e8 100%)}
+.filmPoster:not(:has(.posterImage)) .posterBottom::before{content:"NOIR VAULT  /  ARCHIVE";margin-bottom:3px;color:#d9bd8b;font-size:6px;letter-spacing:2px}
