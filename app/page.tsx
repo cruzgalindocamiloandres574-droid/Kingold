@@ -9,7 +9,7 @@ type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documen
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
-  audioUrl?: string; readerUrl?: string; subtitleDownloadUrl?: string; contentType?: ContentType;
+  audioUrl?: string; readerUrl?: string; subtitleDownloadUrl?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
@@ -196,6 +196,7 @@ export default function Home() {
   const [contentType, setContentType] = useState<ContentType | "all">("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Film | null>(null);
+  const [contentConsentId, setContentConsentId] = useState<string | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
   const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
@@ -221,6 +222,7 @@ export default function Home() {
     lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
     setVideoAttempt(0);
+    setContentConsentId(null);
     setSelected(film);
     if (!supabase || !film.videoUrl) return;
     const { data: { user } } = await supabase.auth.getUser();
@@ -275,6 +277,14 @@ export default function Home() {
           subtitleDownloadUrl: movie.content_metadata && typeof movie.content_metadata === "object"
             && typeof (movie.content_metadata as Record<string, unknown>).spanish_subtitles_download === "string"
             ? String((movie.content_metadata as Record<string, unknown>).spanish_subtitles_download)
+            : undefined,
+          contentAdvisory: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).content_advisory === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).content_advisory)
+            : undefined,
+          ageGuidance: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).age_guidance === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).age_guidance)
             : undefined,
           contentType: String(movie.content_type || "movie") as ContentType,
           seasonNumber: movie.season_number ? Number(movie.season_number) : undefined,
@@ -561,7 +571,17 @@ export default function Home() {
             <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
               {activeVideoUrl ? (
-                <>
+                selected.contentAdvisory && contentConsentId !== selected.id ? (
+                  <div className="contentWarning" role="note">
+                    <span>AVISO DE CONTENIDO · {selected.ageGuidance || "CONTENIDO SENSIBLE"}</span>
+                    <strong>Antes de reproducir</strong>
+                    <p>{selected.contentAdvisory}</p>
+                    <button type="button" onClick={() => { setContentConsentId(selected.id); setVideoState("loading"); }}>
+                      ENTIENDO · CONTINUAR
+                    </button>
+                  </div>
+                ) : (
+                  <>
                 <video ref={videoRef} key={selected.id + "-" + sourceIndex + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay playsInline preload="metadata" poster={selected.posterUrl || undefined}
                   onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
                   onTimeUpdate={(event) => { void saveProgress(event.currentTarget.currentTime); }}
@@ -578,7 +598,8 @@ export default function Home() {
                     <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR ARCHIVO SRT ↗</a>
                   </p>
                 )}
-                </>
+                  </>
+                )
               ) : activeAudioUrl ? (
                 <div className="audioStage">
                   <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
@@ -621,8 +642,8 @@ export default function Home() {
                   )}
                 </div>
               )}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
-              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
+              {(activeVideoUrl || activeAudioUrl) && videoState === "error" && (!selected.contentAdvisory || contentConsentId === selected.id) && <div className="videoError"><strong>No se pudo iniciar esta fuente.</strong><span>Comprueba tu conexión o abre la fuente original.</span><a href={selected.sourcePageUrl || activeAudioUrl || activeVideoUrl || selected.readerUrl} target="_blank" rel="noreferrer">ABRIR FUENTE ORIGINAL ↗</a><button onClick={() => { setSourceIndex(0); setSelectedAudioIndex(0); setVideoAttempt((attempt) => attempt + 1); setVideoState("loading"); }}>VOLVER A INTENTAR</button></div>}
             </div>
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
