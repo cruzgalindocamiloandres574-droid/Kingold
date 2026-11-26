@@ -135,6 +135,10 @@ button{color:inherit}
 .loadingRing{width:32px;height:32px;border:2px solid #ffffff25;border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .videoError a,.videoError button{font-size:9px;letter-spacing:1px;color:var(--gold2);border:1px solid #8d724b;padding:10px 13px;background:transparent;margin-top:5px;cursor:pointer}
+.videoDiagnostics{width:min(100%,620px);max-height:120px;overflow:auto;margin-top:7px;padding:9px 11px;border:1px solid #ffffff20;background:#10120fd9;text-align:left}
+.videoDiagnostics summary{color:var(--gold2);font-size:8px;letter-spacing:1.2px;cursor:pointer}
+.videoDiagnostics p{margin:7px 0 0;color:#aaa;font-size:8px;line-height:1.5;overflow-wrap:anywhere}
+.videoDiagnostics code{color:#d7c7a9;font-size:8px;overflow-wrap:anywhere}
 .playerInfo{padding:23px 27px 28px}
 .playerMeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#aaa;font-size:9px;letter-spacing:.5px}
 .playerMeta i{font-style:normal;color:var(--gold)}
