@@ -594,7 +594,7 @@ export default function Home() {
                 </video>
                 {selected.subtitleDownloadUrl && (
                   <p className="playerLanguageNote">
-                    Subtítulos oficiales en español latinoamericano · PISTA INTEGRADA EN EL REPRODUCTOR ·{" "}
+                    Subtítulos oficiales en español latinoamericano · Traducción: Jacqueline Guzmán y Nicolás Fassi · PISTA INTEGRADA EN EL REPRODUCTOR ·{" "}
                     <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR ARCHIVO SRT ↗</a>
                   </p>
                 )}
