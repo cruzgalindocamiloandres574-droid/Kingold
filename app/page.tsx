@@ -544,7 +544,7 @@ export default function Home() {
                   onPause={(event) => { void saveProgress(event.currentTarget.currentTime, true); }}
                   onEnded={() => { void clearCompletedProgress(); }}
                   onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")} onPlaying={() => setVideoState("ready")} onWaiting={() => { if (videoRef.current && videoRef.current.readyState < 3) setVideoState("loading"); }} onError={handleVideoError}>
-                  <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : "video/webm"} />
+                  <source src={activeVideoUrl} type={activeVideoUrl.toLowerCase().includes(".mp4") ? "video/mp4" : activeVideoUrl.toLowerCase().includes(".mov") ? "video/quicktime" : activeVideoUrl.toLowerCase().includes(".ogg") ? "video/ogg" : "video/webm"} />
                   {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
                   Tu navegador no puede reproducir este formato de vídeo.
                 </video>
