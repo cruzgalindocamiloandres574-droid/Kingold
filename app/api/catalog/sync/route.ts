@@ -148,7 +148,7 @@ async function runCatalogSync(request: NextRequest) {
         format: "json",
         coverart: "1",
         extended: "1",
-        fields: "{id,title,description,language,copyright_year,num_sections,url_rss,url_zip_file,url_librivox,totaltime,totaltimesecs,authors,sections}",
+        fields: "{id,title,description,language,copyright_year,num_sections,url_rss,url_zip_file,url_librivox,totaltime,totaltimesecs,authors,sections,coverart_jpg,coverart_thumbnail}",
         limit: String(LIBRIVOX_BATCH_SIZE),
         offset: String(offset),
         sort_order: "asc",
