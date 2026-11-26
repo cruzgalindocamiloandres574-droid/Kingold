@@ -9,7 +9,7 @@ type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documen
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
-  audioUrl?: string; readerUrl?: string; contentType?: ContentType;
+  audioUrl?: string; readerUrl?: string; subtitleDownloadUrl?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
@@ -270,6 +270,10 @@ export default function Home() {
           fallbackVideoUrl: movie.fallback_video_url ? String(movie.fallback_video_url) : undefined,
           audioUrl: movie.audio_url ? String(movie.audio_url) : undefined,
           readerUrl: movie.reader_url ? String(movie.reader_url) : undefined,
+          subtitleDownloadUrl: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).spanish_subtitles_download === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).spanish_subtitles_download)
+            : undefined,
           contentType: String(movie.content_type || "movie") as ContentType,
           seasonNumber: movie.season_number ? Number(movie.season_number) : undefined,
           episodeNumber: movie.episode_number ? Number(movie.episode_number) : undefined,
@@ -575,6 +579,12 @@ export default function Home() {
                   <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : selected.contentType === "audiobook" ? "NOIR / AUDIOLIBRO EXTERNO" : "NOIR / FUENTE EXTERNA"}</span>
                   <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + (selected.availability === "upcoming" ? " Este título todavía no está disponible para reproducirse." : " Todavía no tiene una fuente multimedia verificada.") : selected.synopsis}</p>
                   <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : selected.contentType === "audiobook" ? "ABRIR AUDIOLIBRO EN LIBRIVOX ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
+                  {selected.subtitleDownloadUrl && (
+                    <>
+                      <small className="readerSubtitleNote">El vídeo oficial se descarga en MKV y aún no se reproduce dentro de NOIR. Los subtítulos en español están disponibles como archivo SRT.</small>
+                      <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR SUBTÍTULOS EN ESPAÑOL (SRT) ↗</a>
+                    </>
+                  )}
                 </div>
               )}
               {(activeVideoUrl || activeAudioUrl) && videoState === "loading" && <div className="videoLoading"><span className="loadingRing" /><strong>Preparando la reproducción</strong><small>{sourceIndex === 1 ? "Usando el archivo de respaldo para una conexión más ligera" : "Conectando con la fuente multimedia"}</small></div>}
