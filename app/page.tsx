@@ -214,6 +214,7 @@ export default function Home() {
   const [selectedSubtitleIndex, setSelectedSubtitleIndex] = useState(-1);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
   const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon" | "pending">("all");
+  const [featureOnly, setFeatureOnly] = useState(false);
   const [internalTotal, setInternalTotal] = useState(0);
   const [externalTotal, setExternalTotal] = useState(0);
   const [upcomingTotal, setUpcomingTotal] = useState(0);
@@ -276,6 +277,7 @@ export default function Home() {
     if (genre !== "Todo") params.set("genre", genre);
     if (audioFilter !== "all") params.set("audio", audioFilter);
     if (playbackFilter !== "all") params.set("playback", playbackFilter);
+    if (featureOnly && contentType === "movie") params.set("feature", "1");
     setCatalogLoading(true);
     setCatalogError(null);
     void fetch("/api/catalog?" + params.toString(), { cache: "no-store" })
@@ -346,7 +348,7 @@ export default function Home() {
         if (!active) return;
         setCatalogError("No se pudo conectar con el catálogo en este momento. Revisa la conexión e inténtalo de nuevo.");
         setCatalogLoading(false);
-        const canUseLocalFallback = catalogPage === 1 && !query.trim() && genre === "Todo" && contentType === "all" && audioFilter === "all" && playbackFilter === "all";
+        const canUseLocalFallback = catalogPage === 1 && !query.trim() && genre === "Todo" && contentType === "all" && audioFilter === "all" && playbackFilter === "all" && !featureOnly;
         setCatalogFilms(canUseLocalFallback ? initialFilms : []);
         if (canUseLocalFallback) {
           const availableFallback = initialFilms.filter((film) => film.status === "available");
@@ -368,7 +370,7 @@ export default function Home() {
         }
       });
     return () => { active = false; };
-  }, [catalogPage, genre, query, audioFilter, contentType, playbackFilter]);
+  }, [catalogPage, genre, query, audioFilter, contentType, playbackFilter, featureOnly]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -570,6 +572,12 @@ export default function Home() {
               <button className={audioFilter === "latin" ? "active" : ""} onClick={() => { setAudioFilter("latin"); setCatalogPage(1); }}>AUDIO LATINO</button>
               <button className={audioFilter === "spanish" ? "active" : ""} onClick={() => { setAudioFilter("spanish"); setCatalogPage(1); }}>ESPAÑOL</button>
             </div>
+            {contentType === "movie" && (
+              <div className="playbackFilters" aria-label="Filtrar por duración de película">
+                <span>DURACIÓN</span>
+                <button className={featureOnly ? "active" : ""} aria-pressed={featureOnly} onClick={() => { setFeatureOnly((value) => !value); setCatalogPage(1); }}>LARGOMETRAJES · 60+ MIN</button>
+              </div>
+            )}
             <div className="playbackFilters" aria-label="Filtrar por tipo de reproducción">
               <span>TIPO DE ACCESO</span>
               <button className={playbackFilter === "all" ? "active" : ""} onClick={() => { setPlaybackFilter("all"); setCatalogPage(1); }}>TODOS</button>
