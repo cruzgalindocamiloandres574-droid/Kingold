@@ -458,7 +458,13 @@ export default function Home() {
             <button className="buttonPrimary" onClick={() => openFilm(featured)}><span className="buttonPlay">▶</span> VER DESTACADO</button>
             <a className="buttonGhost" href="#catalogo">EXPLORAR CARTELERA <span>↓</span></a>
           </div>
-          <div className="heroStats"><span><strong>{catalogLoading ? "…" : catalogAvailableTotal.toString().padStart(2, "0")}</strong> TÍTULOS CON FUENTE</span><i /><span>CONTENIDO Y DERECHOS IDENTIFICADOS</span></div>
+          <div className="heroStats" aria-label="Estado del catálogo">
+            <span><strong>{catalogLoading ? "…" : catalogAvailableTotal.toString().padStart(2, "0")}</strong> CON FUENTE</span>
+            <i />
+            <span><strong>{catalogLoading ? "…" : internalTotal.toString().padStart(2, "0")}</strong> MEDIOS DIRECTOS</span>
+            <i />
+            <span><strong>{catalogLoading ? "…" : externalTotal.toString().padStart(2, "0")}</strong> FUENTES EXTERNAS</span>
+          </div>
         </div>
         <div className="heroSideNote"><span>NV / 001</span><span>CURATED FOR THE CURIOUS</span></div>
       </section>
