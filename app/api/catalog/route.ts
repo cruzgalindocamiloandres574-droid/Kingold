@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
     if (audio === "latin") query = query.eq("has_latin_spanish", true);
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
-    if (playback === "internal") query = query.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null");
+    if (playback === "internal") query = query.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null,content_metadata->>external_embed_url.not.is.null");
     if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).not("reader_url", "is", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       if (type && allowedTypes.has(type)) countQuery = countQuery.eq("content_type", type);
       return countQuery;
     };
-    const [pageResult, availableResult, internalResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
+    const [pageResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       query,
       countByStatus("available")
         .or("video_url.not.is.null,audio_url.not.is.null,reader_url.not.is.null"),
@@ -82,7 +82,12 @@ export async function GET(request: NextRequest) {
       countByStatus("available")
         .is("video_url", null)
         .is("audio_url", null)
-        .not("reader_url", "is", null),
+        .not("content_metadata->external_embed_url", "is", null),
+      countByStatus("available")
+        .is("video_url", null)
+        .is("audio_url", null)
+        .not("reader_url", "is", null)
+        .is("content_metadata->external_embed_url", null),
       countByStatus("soon")
         .contains("content_metadata", { catalog_availability: "upcoming" }),
       countByStatus("soon")
@@ -91,6 +96,7 @@ export async function GET(request: NextRequest) {
     if (pageResult.error) throw pageResult.error;
     if (availableResult.error) throw availableResult.error;
     if (internalResult.error) throw internalResult.error;
+    if (embedResult.error) throw embedResult.error;
     if (externalResult.error) throw externalResult.error;
     if (upcomingResult.error) throw upcomingResult.error;
     if (pendingResult.error) throw pendingResult.error;
@@ -99,7 +105,7 @@ export async function GET(request: NextRequest) {
       results: pageResult.data || [],
       total,
       availableTotal: availableResult.count || 0,
-      internalTotal: internalResult.count || 0,
+      internalTotal: (internalResult.count || 0) + (embedResult.count || 0),
       externalTotal: externalResult.count || 0,
       upcomingTotal: upcomingResult.count || 0,
       pendingTotal: pendingResult.count || 0,
