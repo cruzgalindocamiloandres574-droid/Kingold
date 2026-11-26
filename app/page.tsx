@@ -252,7 +252,10 @@ export default function Home() {
     setVideoAttempt(0);
     setContentConsentId(null);
     setSelected(film);
-    if (!supabase || !film.videoUrl) return;
+    // Resume single-file video and audio sources. Multi-track chapter lists
+    // need a persisted track index before they can be resumed accurately.
+    const supportsProgress = Boolean(film.videoUrl || (film.audioUrl && !film.audioTracks?.length));
+    if (!supabase || !supportsProgress) return;
     const { data: { user } } = await supabase.auth.getUser();
     setViewerId(user?.id ?? null);
     if (!user) return;
@@ -775,9 +778,19 @@ export default function Home() {
                     </label>
                   )}
                   <audio key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
+                    onLoadedMetadata={(event) => { if (!selected.audioTracks?.length && resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
+                    onTimeUpdate={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime); }}
+                    onPause={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime, true); }}
                     onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")}
                     onPlaying={() => setVideoState("ready")} onError={handleAudioError}
-                    onEnded={() => { if (selected.audioTracks && selectedAudioIndex < selected.audioTracks.length - 1) { setSelectedAudioIndex((index) => index + 1); setVideoState("loading"); } }}>
+                    onEnded={() => {
+                      if (selected.audioTracks?.length && selectedAudioIndex < selected.audioTracks.length - 1) {
+                        setSelectedAudioIndex((index) => index + 1);
+                        setVideoState("loading");
+                      } else if (!selected.audioTracks?.length) {
+                        void clearCompletedProgress();
+                      }
+                    }}>
                     <source src={activeAudioUrl} type="audio/mpeg" />
                     Tu navegador no puede reproducir este audio.
                   </audio>
