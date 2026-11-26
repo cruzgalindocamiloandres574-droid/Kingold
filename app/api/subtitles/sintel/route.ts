@@ -56,6 +56,19 @@ export async function GET() {
     }
 
     const vtt = srtToVtt(source);
+    const cueEnds = [...vtt.matchAll(/\\d{2}:(\\d{2}):(\\d{2})\\.(\\d{3})\\s+$/gm)];
+    const lastCue = cueEnds[cueEnds.length - 1];
+    const lastCueSeconds = lastCue
+      ? Number(lastCue[1]) * 60 + Number(lastCue[2]) + Number(lastCue[3]) / 1000
+      : 0;
+    // The Commons Spanish track currently stops at 10:29 although the film is 14:48.
+    // Never publish a partial track as complete subtitles.
+    if (lastCueSeconds < 888 * 0.9) {
+      return new NextResponse("The available Spanish subtitle file is incomplete and is not enabled for playback.", {
+        status: 422,
+        headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+      });
+    }
     return new NextResponse(vtt, {
       headers: {
         "content-type": "text/vtt; charset=utf-8",
