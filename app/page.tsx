@@ -592,6 +592,12 @@ export default function Home() {
                     Tu navegador no puede reproducir este audio.
                   </audio>
                   {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
+                  {selected.contentType === "podcast" && selected.audioUrl && selected.readerUrl && (
+                    <small className="audioTrackNote">
+                      Audio transmitido desde el archivo oficial de NASA. NOIR VAULT no aloja ni redistribuye el archivo.{" "}
+                      <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FICHA OFICIAL ↗</a>
+                    </small>
+                  )}
                 </div>
               ) : (
                 <div className="readerStage">
