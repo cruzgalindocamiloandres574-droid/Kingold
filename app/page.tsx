@@ -165,7 +165,7 @@ function licenseUrl(license: string) {
     return "https://creativecommons.org/publicdomain/zero/1.0/";
   }
   if (/public domain|dominio público/i.test(primaryLicense)) {
-    return "https://creativecommons.org/publicdomain/mark/1.0/";
+    return "https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm";
   }
   const versionMatch = primaryLicense.match(/\b(1\.0|2\.0|2\.5|3\.0|4\.0)\b/);
   if (!versionMatch) return "https://creativecommons.org/share-your-work/cclicenses/";
