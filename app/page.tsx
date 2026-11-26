@@ -203,6 +203,7 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
   const progressSavingRef = useRef(false);
+  const pendingProgressRef = useRef<{ userId: string; movieId: string; seconds: number } | null>(null);
   const [catalogFilms, setCatalogFilms] = useState<Film[]>([]);
   const [genre, setGenre] = useState("Todo");
   const [contentType, setContentType] = useState<ContentType | "all">("all");
@@ -429,21 +430,43 @@ export default function Home() {
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
 
   async function saveProgress(seconds: number, force = false) {
-    if (!supabase || !viewerId || !selected || progressSavingRef.current) return;
+    const db = supabase;
+    const userId = viewerId;
+    const movie = selected;
+    if (!db || !userId || !movie) return;
     const wholeSeconds = Math.floor(seconds);
     if (wholeSeconds < 5) return;
     const previous = lastProgressRef.current;
-    if (previous.movieId === selected.id && !force && wholeSeconds - previous.seconds < 15) return;
-    lastProgressRef.current = { movieId: selected.id, seconds: wholeSeconds };
+    if (previous.movieId === movie.id && !force && wholeSeconds - previous.seconds < 15) return;
+
+    lastProgressRef.current = { movieId: movie.id, seconds: wholeSeconds };
+    pendingProgressRef.current = { userId, movieId: movie.id, seconds: wholeSeconds };
+    if (progressSavingRef.current) return;
+
     progressSavingRef.current = true;
-    const { error } = await supabase.from("watch_progress").upsert({
-      user_id: viewerId,
-      movie_id: selected.id,
-      seconds_watched: wholeSeconds,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id,movie_id" });
-    progressSavingRef.current = false;
-    if (error) lastProgressRef.current = previous;
+    try {
+      // Coalesce timeupdate events while one request is in flight, but never
+      // discard a newer pause/final position that arrived during that request.
+      while (pendingProgressRef.current) {
+        const next = pendingProgressRef.current;
+        pendingProgressRef.current = null;
+        const { error } = await db.from("watch_progress").upsert({
+          user_id: next.userId,
+          movie_id: next.movieId,
+          seconds_watched: next.seconds,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id,movie_id" });
+
+        if (error && !pendingProgressRef.current) {
+          // Let the next playback event retry rather than suppressing it for 15 seconds.
+          lastProgressRef.current = { movieId: "", seconds: 0 };
+        }
+      }
+    } catch {
+      if (!pendingProgressRef.current) lastProgressRef.current = { movieId: "", seconds: 0 };
+    } finally {
+      progressSavingRef.current = false;
+    }
   }
 
   async function clearCompletedProgress() {
