@@ -298,3 +298,13 @@ button{color:inherit}
 .filmPoster:not(:has(.posterImage))::after{content:"NV";position:absolute;z-index:0;inset:18% 8% 25%;display:grid;place-items:center;border:1px solid #d5b9852b;border-radius:50%;color:#e4c99a24;font:clamp(76px,10vw,140px)/1 "Playfair Display",serif;letter-spacing:-.1em;text-shadow:0 0 55px #d4aa6330;pointer-events:none}
 .filmPoster:not(:has(.posterImage)) .posterVignette{background:radial-gradient(ellipse at 50% 43%,transparent 0%,#07080735 53%,#050605e8 100%),linear-gradient(180deg,#0708078c 0%,transparent 35%,#050605e8 100%)}
 .filmPoster:not(:has(.posterImage)) .posterBottom::before{content:"NOIR VAULT  /  ARCHIVE";margin-bottom:3px;color:#d9bd8b;font-size:6px;letter-spacing:2px}
+
+/* Explicit video-source switch for unstable connections and mobile browsers */
+.playerSourceSwitch{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:12px;padding:14px 16px;border:1px solid #8a754a55;background:linear-gradient(120deg,#b7955a12,#141713)}
+.playerSourceSwitch>div{display:flex;flex-direction:column;gap:5px;min-width:180px;flex:1}
+.playerSourceSwitch strong{color:#d9c39c;font-size:8px;letter-spacing:1.3px}
+.playerSourceSwitch span{color:#aaa;font-size:9px;line-height:1.6}
+.playerSourceSwitch button{min-height:38px;padding:9px 13px;border:1px solid #8a754a;background:#171913;color:#e4d1ad;font-size:8px;letter-spacing:1px;cursor:pointer}
+.playerSourceSwitch button:hover{background:#8a754a22;border-color:#c5a46d}
+.playerSourceSwitch button:focus-visible{outline:2px solid #d9bc88;outline-offset:3px}
+@media(max-width:600px){.playerSourceSwitch{align-items:stretch;flex-direction:column;gap:10px;padding:12px}.playerSourceSwitch button{width:100%}}
