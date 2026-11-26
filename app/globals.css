@@ -237,6 +237,9 @@ button{color:inherit}
 .audioStage>strong,.readerStage>strong{max-width:90%;font:clamp(24px,4vw,42px) 'Playfair Display',serif;color:#f1eadf}
 .audioStage>p,.readerStage>p{max-width:520px;color:#aaa;font-size:11px;line-height:1.8}
 .audioStage audio{width:min(100%,560px);margin-top:10px}
+.audioChapterPicker{width:min(100%,560px);display:flex;flex-direction:column;gap:7px;text-align:left;color:var(--gold2);font-size:8px;letter-spacing:1.4px}
+.audioChapterPicker select{width:100%;min-height:42px;padding:10px 12px;border:1px solid #756143;border-radius:5px;background:#11130f;color:#f1eadf;font:12px Inter,Arial,sans-serif;letter-spacing:0}
+.audioTrackNote{max-width:560px;color:#a8a095;font-size:9px;line-height:1.6}
 .readerStage>a{display:inline-flex;padding:13px 17px;margin-top:8px;border:1px solid var(--gold);color:var(--gold2);font-size:9px;letter-spacing:1.4px}
 .playerLanguageNote a{color:var(--gold2);text-decoration:underline;text-underline-offset:3px}
 @media(max-width:950px){.formatGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
