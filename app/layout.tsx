@@ -6,7 +6,9 @@ export const metadata: Metadata = {
   description: "Una selección de cine independiente, animación de autor y obras abiertas para descubrir.",
   applicationName: "NOIR VAULT",
   metadataBase: new URL("https://noir-vault-psi.vercel.app"),
+  alternates: { canonical: "/" },
   openGraph: {
+    url: "/",
     title: "NOIR VAULT — The Cinema Club",
     description: "Una nueva forma de descubrir historias extraordinarias.",
     siteName: "NOIR VAULT",
