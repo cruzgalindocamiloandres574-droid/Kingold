@@ -16,6 +16,8 @@ type Film = {
   subtitleTracks?: { label: string; language: string; src: string; isDefault?: boolean }[];
   audioLanguages?: string[];
   hasLatinSpanish?: boolean;
+  silentFilm?: boolean;
+  licensePageUrl?: string;
   status: "available" | "soon";
   availability?: "available" | "upcoming" | "pending";
 };
@@ -154,14 +156,20 @@ const initialFilms: Film[] = [
 ];
 
 function licenseUrl(license: string) {
-  // The first declared license belongs to the main work; poster credits may list a separate license.
+  // Public Domain Mark is a status label, not the CC0 dedication.
   const primaryLicense = license.split(/[;|]/)[0].trim();
+  if (/public\s+domain\s+mark|pdm\s*1\.0/i.test(primaryLicense)) {
+    return "https://creativecommons.org/publicdomain/mark/1.0/";
+  }
+  if (/\bCC0\b/i.test(primaryLicense)) {
+    return "https://creativecommons.org/publicdomain/zero/1.0/";
+  }
+  if (/public domain|dominio público/i.test(primaryLicense)) {
+    return "https://creativecommons.org/publicdomain/mark/1.0/";
+  }
   const versionMatch = primaryLicense.match(/\b(1\.0|2\.0|2\.5|3\.0|4\.0)\b/);
   if (!versionMatch) return "https://creativecommons.org/share-your-work/cclicenses/";
   const version = versionMatch[1];
-  if (/\bCC0\b|public domain|dominio público/i.test(primaryLicense)) {
-    return "https://creativecommons.org/publicdomain/zero/" + version + "/";
-  }
   const licenseFamily = /BY-SA|Attribution-ShareAlike/i.test(primaryLicense) ? "by-sa" : "by";
   const jurisdiction = version === "3.0" && /\bUnited States\b|\bUS\b/i.test(primaryLicense) ? "us/" : "";
   return "https://creativecommons.org/licenses/" + licenseFamily + "/" + version + "/" + jurisdiction;
@@ -297,6 +305,12 @@ export default function Home() {
             && typeof (movie.content_metadata as Record<string, unknown>).external_embed_url === "string"
             ? String((movie.content_metadata as Record<string, unknown>).external_embed_url)
             : undefined,
+          licensePageUrl: movie.content_metadata && typeof movie.content_metadata === "object"
+            && typeof (movie.content_metadata as Record<string, unknown>).license_url === "string"
+            ? String((movie.content_metadata as Record<string, unknown>).license_url)
+            : undefined,
+          silentFilm: Boolean(movie.content_metadata && typeof movie.content_metadata === "object"
+            && (movie.content_metadata as Record<string, unknown>).silent_film),
           subtitleDownloadUrl: movie.content_metadata && typeof movie.content_metadata === "object"
             && typeof (movie.content_metadata as Record<string, unknown>).spanish_subtitles_download === "string"
             ? String((movie.content_metadata as Record<string, unknown>).spanish_subtitles_download)
@@ -789,13 +803,19 @@ export default function Home() {
               {resumeAt > 15 && <p className="playerLanguageNote">Continuando desde {Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
               {selected.videoUrl && <div className="playerLanguageControls">
-                <label>PISTA DE AUDIO
-                  <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
-                    <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : selected.audioLanguages?.[0] ? "Audio original · " + selected.audioLanguages[0].toUpperCase() : "Audio de la fuente (idioma por verificar)"}</option>
-                    {(selected.audioTracks || []).map((track, index) => <option key={track.url} value={String(index + 1)}>{track.label} · {track.language.toUpperCase()}</option>)}
-                  </select>
-                </label>
-                <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
+                {selected.silentFilm ? (
+                  <div className="playerLanguageNote">PELÍCULA MUDA · Esta versión no contiene una pista de audio.</div>
+                ) : (
+                  <>
+                    <label>PISTA DE AUDIO
+                      <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setSourceIndex(0); setVideoState("loading"); }}>
+                        <option value="0">{selected.audioLanguages?.includes("es-AR") ? "Audio original · Español rioplatense" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio original · Español" : selected.audioLanguages?.[0] ? "Audio original · " + selected.audioLanguages[0].toUpperCase() : "Audio de la fuente (idioma por verificar)"}</option>
+                        {(selected.audioTracks || []).map((track, index) => <option key={track.url} value={String(index + 1)}>{track.label} · {track.language.toUpperCase()}</option>)}
+                      </select>
+                    </label>
+                    <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
+                  </>
+                )}
                 {(selected.subtitleTracks || []).length > 0 && (
                   <label>
                     SUBTÍTULOS
@@ -832,7 +852,7 @@ export default function Home() {
               )}
               {selected.audioUrl && <p className="playerLanguageNote">Audio disponible · {(selected.audioLanguages || []).join(", ") || "idioma por confirmar"}</p>}
               {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR LECTOR OFICIAL ↗" : selected.contentType === "podcast" ? "ABRIR PÁGINA DEL PODCAST ↗" : selected.contentType === "audiobook" ? "ABRIR FICHA EN LIBRIVOX ↗" : "VER PÁGINA OFICIAL ↗"}</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
-              <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
+              <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={selected.licensePageUrl || licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
             </div>
           </section>
         </div>
