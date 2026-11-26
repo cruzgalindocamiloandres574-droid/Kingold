@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     if (audio === "latin") query = query.eq("has_latin_spanish", true);
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
     if (playback === "internal") query = query.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null,content_metadata->>external_embed_url.not.is.null");
-    if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).not("reader_url", "is", null).is("content_metadata->external_embed_url", null);
+    if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
     // Summary counts follow the selected format. Without a type filter they
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
         .is("video_url", null)
         .is("audio_url", null)
         .not("reader_url", "is", null)
-        .is("content_metadata->external_embed_url", null),
+        .is("content_metadata->>external_embed_url", null),
       countByStatus("soon")
         .contains("content_metadata", { catalog_availability: "upcoming" }),
       countByStatus("soon")
