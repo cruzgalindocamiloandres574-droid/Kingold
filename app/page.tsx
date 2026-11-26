@@ -210,8 +210,9 @@ export default function Home() {
   const [pendingWatchId, setPendingWatchId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
-  const progressSavingRef = useRef(false);
   const pendingProgressRef = useRef<{ userId: string; movieId: string; seconds: number } | null>(null);
+  const progressFlushRef = useRef<Promise<void> | null>(null);
+  const completedProgressMoviesRef = useRef<Set<string>>(new Set());
   const [catalogFilms, setCatalogFilms] = useState<Film[]>([]);
   const [genre, setGenre] = useState("Todo");
   const [contentType, setContentType] = useState<ContentType | "all">("all");
@@ -244,6 +245,7 @@ export default function Home() {
     setSelectedAudioIndex(0);
     setSelectedSubtitleIndex(film.subtitleTracks?.findIndex((track) => track.isDefault) ?? -1);
     setResumeAt(0);
+    completedProgressMoviesRef.current.delete(film.id);
     lastProgressRef.current = { movieId: film.id, seconds: 0 };
     setVideoState("loading");
     setVideoDiagnostic(null);
@@ -443,11 +445,50 @@ export default function Home() {
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
   const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
 
+  async function flushProgressQueue(db: NonNullable<typeof supabase>) {
+    const activeFlush = progressFlushRef.current;
+    if (activeFlush) {
+      await activeFlush;
+      if (pendingProgressRef.current) await flushProgressQueue(db);
+      return;
+    }
+
+    const flush = (async () => {
+      // Keep the newest position in the queue and drain it before resolving.
+      while (pendingProgressRef.current) {
+        const next = pendingProgressRef.current;
+        pendingProgressRef.current = null;
+        try {
+          const { error } = await db.from("watch_progress").upsert({
+            user_id: next.userId,
+            movie_id: next.movieId,
+            seconds_watched: next.seconds,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "user_id,movie_id" });
+
+          if (error && !pendingProgressRef.current) {
+            lastProgressRef.current = { movieId: "", seconds: 0 };
+          }
+        } catch {
+          if (!pendingProgressRef.current) lastProgressRef.current = { movieId: "", seconds: 0 };
+        }
+      }
+    })();
+
+    progressFlushRef.current = flush;
+    try {
+      await flush;
+    } finally {
+      if (progressFlushRef.current === flush) progressFlushRef.current = null;
+    }
+    if (pendingProgressRef.current) await flushProgressQueue(db);
+  }
+
   async function saveProgress(seconds: number, force = false) {
     const db = supabase;
     const userId = viewerId;
     const movie = selected;
-    if (!db || !userId || !movie) return;
+    if (!db || !userId || !movie || completedProgressMoviesRef.current.has(movie.id)) return;
     const wholeSeconds = Math.floor(seconds);
     if (wholeSeconds < 5) return;
     const previous = lastProgressRef.current;
@@ -455,39 +496,23 @@ export default function Home() {
 
     lastProgressRef.current = { movieId: movie.id, seconds: wholeSeconds };
     pendingProgressRef.current = { userId, movieId: movie.id, seconds: wholeSeconds };
-    if (progressSavingRef.current) return;
-
-    progressSavingRef.current = true;
-    try {
-      // Coalesce timeupdate events while one request is in flight, but never
-      // discard a newer pause/final position that arrived during that request.
-      while (pendingProgressRef.current) {
-        const next = pendingProgressRef.current;
-        pendingProgressRef.current = null;
-        const { error } = await db.from("watch_progress").upsert({
-          user_id: next.userId,
-          movie_id: next.movieId,
-          seconds_watched: next.seconds,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id,movie_id" });
-
-        if (error && !pendingProgressRef.current) {
-          // Let the next playback event retry rather than suppressing it for 15 seconds.
-          lastProgressRef.current = { movieId: "", seconds: 0 };
-        }
-      }
-    } catch {
-      if (!pendingProgressRef.current) lastProgressRef.current = { movieId: "", seconds: 0 };
-    } finally {
-      progressSavingRef.current = false;
-    }
+    await flushProgressQueue(db);
   }
 
   async function clearCompletedProgress() {
-    if (!supabase || !viewerId || !selected) return;
-    await supabase.from("watch_progress").delete()
-      .eq("user_id", viewerId).eq("movie_id", selected.id);
-    lastProgressRef.current = { movieId: selected.id, seconds: 0 };
+    const db = supabase;
+    const userId = viewerId;
+    const movie = selected;
+    if (!db || !userId || !movie) return;
+
+    // Block any late timeupdate/pause event for this completed title, drain
+    // the final queued write, then delete its saved position.
+    completedProgressMoviesRef.current.add(movie.id);
+    if (pendingProgressRef.current?.movieId === movie.id) pendingProgressRef.current = null;
+    await flushProgressQueue(db);
+    await db.from("watch_progress").delete()
+      .eq("user_id", userId).eq("movie_id", movie.id);
+    lastProgressRef.current = { movieId: movie.id, seconds: 0 };
   }
 
   function handleVideoError() {
