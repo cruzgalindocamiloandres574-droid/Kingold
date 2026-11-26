@@ -40,6 +40,7 @@ button{color:inherit}
 .heroStats{display:flex;align-items:center;flex-wrap:wrap;gap:16px 22px;margin-top:69px;color:#aaa;font-size:8px;letter-spacing:1.4px}
 .heroStats strong{font-size:17px;color:var(--gold2);margin-right:7px}
 .heroStats i{height:18px;width:1px;background:#ffffff33}
+.heroStatsNote{max-width:650px;margin:13px 0 0;color:#938f86;font-size:9px;line-height:1.75;letter-spacing:.25px}
 .heroSideNote{position:absolute;right:5%;bottom:50px;display:flex;gap:18px;writing-mode:vertical-rl;color:#b5a789;font-size:8px;letter-spacing:2px}
 .trustStrip{min-height:57px;padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:#aaa;font-size:8px;letter-spacing:2px;text-align:center}
 .trustStrip i{font-style:normal;color:var(--gold);font-size:12px}
