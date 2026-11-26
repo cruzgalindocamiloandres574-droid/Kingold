@@ -53,7 +53,7 @@ export default function AdminPage(){
   <h2>Ampliar biblioteca</h2>
   <p style={{opacity:.8}}>El importador automático actual añade fichas de cine desde Wikidata y Wikimedia Commons. Series, anime, manga, podcasts, audiolibros y conciertos se registran con tipo, fuente, créditos y permisos. El contenido solo se activa al disponer de una fuente multimedia o lectora autorizada.</p>
   <button className="btn" type="button" onClick={syncCatalog} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE CINE (20 FICHAS)"}</button>
-  <p style={{opacity:.75,fontSize:12,marginTop:14}}>LibriVox aporta un catálogo amplio de audiolibros grabados por voluntarios. Sus grabaciones se consideran dominio público en Estados Unidos; la situación jurídica del texto debe revisarse según el país.</p>
+  <p style={{opacity:.75,fontSize:12,marginTop:14}}>LibriVox aporta audiolibros grabados por voluntarios. El importador consulta las pistas de cada obra y activa en el reproductor de NOIR los capítulos MP3 HTTPS de Internet Archive que se puedan verificar. Las grabaciones se declaran de dominio público en Estados Unidos; revisa los derechos del texto según el país.</p>
   <button className="btn" type="button" onClick={syncAudiobooks} disabled={syncBusy}>{syncBusy?"IMPORTANDO…":"IMPORTAR SIGUIENTE LOTE DE AUDIOLIBROS (500)"}</button>
  </section>
  <section style={{padding:22,border:"1px solid #39332a",borderRadius:12,marginTop:24}}>
