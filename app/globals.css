@@ -37,7 +37,7 @@ button{color:inherit}
 .buttonPlay{font-size:12px}
 .buttonGhost{display:inline-flex;align-items:center;gap:14px;color:#eee9df;font-size:9px;letter-spacing:1.5px;font-weight:700;border-bottom:1px solid #a995765c;padding:12px 0}
 .buttonGhost span{color:var(--gold2);font-size:15px}
-.heroStats{display:flex;align-items:center;gap:22px;margin-top:69px;color:#aaa;font-size:8px;letter-spacing:1.6px}
+.heroStats{display:flex;align-items:center;flex-wrap:wrap;gap:16px 22px;margin-top:69px;color:#aaa;font-size:8px;letter-spacing:1.4px}
 .heroStats strong{font-size:17px;color:var(--gold2);margin-right:7px}
 .heroStats i{height:18px;width:1px;background:#ffffff33}
 .heroSideNote{position:absolute;right:5%;bottom:50px;display:flex;gap:18px;writing-mode:vertical-rl;color:#b5a789;font-size:8px;letter-spacing:2px}
@@ -155,7 +155,7 @@ button{color:inherit}
  .heroKicker{font-size:7px;letter-spacing:1.5px}.heroEyebrow{margin-top:35px;font-size:8px;letter-spacing:2.5px}
  .heroContent h1{font-size:clamp(51px,12vw,72px);letter-spacing:-3px;margin:16px 0}
  .heroContent>p{font-size:11px;max-width:335px}.heroButtons{gap:12px;margin-top:25px}.buttonPrimary{padding:13px 14px;min-height:44px;font-size:8px;gap:10px}.buttonGhost{font-size:8px;gap:8px}
- .heroStats{margin-top:54px;gap:12px;font-size:6px;letter-spacing:1px}.heroStats strong{font-size:15px}.heroSideNote{display:none}
+ .heroStats{margin-top:54px;gap:8px 12px;font-size:6px;letter-spacing:.8px}.heroStats strong{font-size:15px}.heroSideNote{display:none}
  .trustStrip{gap:11px;padding:13px 10px;font-size:6px;letter-spacing:1px}
  .contentWrap{width:calc(100% - 36px)}
  .catalogSection{padding:70px 0 75px}.sectionIntro h2,.collectionsCopy h2{font-size:37px;letter-spacing:-1.4px}.sectionIntro p,.collectionsCopy p{font-size:10px}
