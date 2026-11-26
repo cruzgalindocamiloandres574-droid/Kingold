@@ -739,7 +739,7 @@ export default function Home() {
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
                   <div className="externalVideoFooter">
-                    <span>FUENTE OFICIAL · YouTube controla la disponibilidad y los anuncios.</span>
+                    <span>REPRODUCTOR OFICIAL · El proveedor original controla la disponibilidad, las pistas y los anuncios.</span>
                     <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FUENTE OFICIAL ↗</a>
                   </div>
                 </div>
