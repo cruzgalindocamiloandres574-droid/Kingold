@@ -58,34 +58,29 @@ export async function GET(request: NextRequest) {
     if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).not("reader_url", "is", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
+    // Summary counts follow the selected format. Without a type filter they
+    // remain global across the complete NOIR VAULT library.
+    const countByStatus = (status: "available" | "soon") => {
+      let countQuery = db.from("movies")
+        .select("id", { count: "exact", head: true })
+        .eq("published", true)
+        .eq("status", status);
+      if (type && allowedTypes.has(type)) countQuery = countQuery.eq("content_type", type);
+      return countQuery;
+    };
     const [pageResult, availableResult, internalResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       query,
-      db.from("movies")
-        .select("id", { count: "exact", head: true })
-        .eq("published", true)
-        .eq("status", "available")
+      countByStatus("available")
         .or("video_url.not.is.null,audio_url.not.is.null,reader_url.not.is.null"),
-      db.from("movies")
-        .select("id", { count: "exact", head: true })
-        .eq("published", true)
-        .eq("status", "available")
+      countByStatus("available")
         .or("video_url.not.is.null,audio_url.not.is.null"),
-      db.from("movies")
-        .select("id", { count: "exact", head: true })
-        .eq("published", true)
-        .eq("status", "available")
+      countByStatus("available")
         .is("video_url", null)
         .is("audio_url", null)
         .not("reader_url", "is", null),
-      db.from("movies")
-        .select("id", { count: "exact", head: true })
-        .eq("published", true)
-        .eq("status", "soon")
+      countByStatus("soon")
         .contains("content_metadata", { catalog_availability: "upcoming" }),
-      db.from("movies")
-        .select("id", { count: "exact", head: true })
-        .eq("published", true)
-        .eq("status", "soon")
+      countByStatus("soon")
         .contains("content_metadata", { catalog_availability: "source_pending" }),
     ]);
     if (pageResult.error) throw pageResult.error;
