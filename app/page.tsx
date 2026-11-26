@@ -640,7 +640,7 @@ export default function Home() {
         <h2>Tu próxima película<br />está <em>por comenzar.</em></h2>
         <p>Crea tu cuenta y acompaña el crecimiento de una biblioteca dedicada a las buenas historias.</p>
         <div className="membershipPrice"><strong>$20.000</strong><span>COP / MES</span></div>
-        <a className="buttonPrimary membershipButton" href="/registro">CREAR MI CUENTA <span>↗</span></a>
+        <a className="buttonPrimary membershipButton" href="/planes">VER MEMBRESÍA <span>↗</span></a>
         <small>Stripe está conectado en modo de prueba. NOIR VAULT aún no realiza cobros reales; el lanzamiento comercial está pendiente de validar el recorrido de pago y la biblioteca con licencias de distribución.</small>
       </section>
 
