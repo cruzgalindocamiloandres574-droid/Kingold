@@ -144,11 +144,19 @@ async function runCatalogSync(request: NextRequest) {
       if (state.completed) return NextResponse.json({ source: "LibriVox", complete: true, importedSoFar: state.total_imported });
     
       const offset = Math.max(0, Number(state.next_offset) || 0);
-      const query = new URLSearchParams({ format: "json", coverart: "1", limit: String(LIBRIVOX_BATCH_SIZE), offset: String(offset), sort_order: "asc" });
+      const query = new URLSearchParams({
+        format: "json",
+        coverart: "1",
+        extended: "1",
+        fields: "{id,title,description,language,copyright_year,num_sections,url_rss,url_zip_file,url_librivox,totaltime,totaltimesecs,authors,sections}",
+        limit: String(LIBRIVOX_BATCH_SIZE),
+        offset: String(offset),
+        sort_order: "asc",
+      });
       const response = await fetch("https://librivox.org/api/feed/audiobooks/?" + query.toString(), {
         headers: { "User-Agent": "NOIRVAULT/7.0 audiobook catalog importer" },
         cache: "no-store",
-        signal: AbortSignal.timeout(22000),
+        signal: AbortSignal.timeout(35000),
       });
       if (!response.ok) throw new Error("LibriVox API status " + response.status);
       const payload = await response.json();
@@ -165,10 +173,35 @@ async function runCatalogSync(request: NextRequest) {
         const page = cleanUrl(book.url_librivox, "librivox.org");
         const title = safeText(String(book.title || ""));
         if (!id || !page || !title) return [];
-        const authors = Array.isArray(book.authors) ? book.authors.map((a: Record<string, unknown>) => safeText([a.first_name, a.last_name].filter(Boolean).map(String).join(" "))).filter(Boolean).join(", ") : "";
+        const authors = Array.isArray(book.authors)
+          ? book.authors.map((a: Record<string, unknown>) => safeText([a.first_name, a.last_name].filter(Boolean).map(String).join(" "))).filter(Boolean).join(", ")
+          : "";
         const language = safeText(String(book.language || ""));
-        const languageMap: Record<string, string> = { English: "en", Spanish: "es", French: "fr", German: "de", Italian: "it", Portuguese: "pt", Japanese: "ja", Russian: "ru", Dutch: "nl", Multilingual: "mul" };
+        const languageMap: Record<string, string> = {
+          English: "en", Spanish: "es", French: "fr", German: "de", Italian: "it",
+          Portuguese: "pt", Japanese: "ja", Russian: "ru", Dutch: "nl", Danish: "da",
+          Swedish: "sv", Norwegian: "no", Finnish: "fi", Latin: "la", Greek: "el",
+          Chinese: "zh", Arabic: "ar", Polish: "pl", Czech: "cs", Hungarian: "hu",
+          Turkish: "tr", Esperanto: "eo", Multilingual: "mul",
+        };
+        const bookLanguage = languageMap[language] || "";
         const seconds = Number(book.totaltimesecs) || 0;
+        const rawSections = Array.isArray(book.sections) ? book.sections as Record<string, unknown>[] : [];
+        const audioTracks = rawSections.flatMap((section, index) => {
+          const url = cleanUrl(section.listen_url, "archive.org");
+          if (!url) return [];
+          const sectionLanguage = safeText(String(section.language || language));
+          const trackTitle = safeText(String(section.title || ""));
+          const sectionNumber = safeText(String(section.section_number || index + 1));
+          const label = [String(sectionNumber).padStart(2, "0"), trackTitle || ("Capítulo " + sectionNumber)].filter(Boolean).join(" · ");
+          return [{
+            label,
+            language: languageMap[sectionLanguage] || bookLanguage || "und",
+            url,
+            verified: true,
+          }];
+        });
+        const firstAudio = audioTracks[0]?.url || null;
         return [{
           title,
           synopsis: safeText(String(book.description || "")) || "Audiolibro grabado por voluntarios de LibriVox.",
@@ -178,11 +211,13 @@ async function runCatalogSync(request: NextRequest) {
           runtime_minutes: seconds > 0 ? Math.round(seconds / 60) : null,
           poster_url: cleanUrl(book.coverart_thumbnail || book.coverart_jpg, "librivox.org"),
           creator: authors || "LibriVox volunteers",
-          license: "Grabación de dominio público en EE. UU.; verificar situación legal local del texto",
-          credit: "LibriVox · grabaciones de voluntarios",
+          license: "Grabación declarada de dominio público por LibriVox; verificar derechos del texto según el país",
+          credit: "LibriVox · grabaciones de voluntarios. Atribución al lector y al autor cuando figuran en la ficha oficial.",
           catalog_source: page,
           reader_url: page,
-          audio_languages: languageMap[language] ? [languageMap[language]] : [],
+          audio_url: firstAudio,
+          audio_tracks: audioTracks,
+          audio_languages: bookLanguage ? [bookLanguage] : [],
           content_type: "audiobook",
           content_metadata: {
             catalog_provider: "librivox",
@@ -192,13 +227,14 @@ async function runCatalogSync(request: NextRequest) {
             recording_license: "public_domain_us",
             local_rights_review: "required",
             source_language: language || null,
-            number_of_audio_sections: Number(book.num_sections) || null
+            number_of_audio_sections: Number(book.num_sections) || rawSections.length || null,
+            playable_audio_sections: audioTracks.length,
+            playback_mode: audioTracks.length ? "chapter_playlist" : "official_external_page",
           },
           published: true,
-          status: "available"
+          status: "available",
         }];
-      });
-    
+      });    
       const pages = entries.map((row: Record<string, unknown>) => row.catalog_source as string);
       const existing = pages.length
         ? await db.from("movies").select("catalog_source").in("catalog_source", pages)
@@ -225,7 +261,7 @@ async function runCatalogSync(request: NextRequest) {
         offset,
         nextOffset,
         complete,
-        playback: "Ficha oficial externa; RSS y ZIP no se registran como vídeo o audio reproducible en NOIR.",
+        playback: "Los capítulos MP3 con URL HTTPS de Internet Archive se entregan al reproductor de NOIR; los registros sin pistas mantienen acceso a la ficha oficial.",
         rights: "Las grabaciones son de dominio público en EE. UU.; revisar la situación legal del texto en Colombia."
       });
     };
