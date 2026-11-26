@@ -516,7 +516,7 @@ export default function Home() {
                       <span className="posterPlay"><span>{film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
                     </>
                   ) : <span className="soonPill">{film.availability === "upcoming" ? (film.readerUrl ? "PRÓXIMAMENTE · VER FICHA ↗" : "PRÓXIMAMENTE") : "SIN REPRODUCCIÓN"}</span>}
-                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
+                  <span className="posterBottom"><span className="posterGenre">{film.genre} <i>·</i> {film.year}</span><strong>{film.name}</strong><small>{film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} · E${film.episodeNumber} · ` : ""}{film.duration}{film.hasLatinSpanish ? " · AUDIO LATINO" : film.audioLanguages?.some((language) => language.startsWith("es")) ? " · AUDIO ESPAÑOL" : ""}</small></span>
                 </span>
                 <span className="filmCaption"><strong>{film.name}</strong><small>{film.year} <i>·</i> {film.genre} <i>·</i> {film.seasonNumber && film.episodeNumber ? `T${film.seasonNumber} E${film.episodeNumber} · ` : ""}{film.duration}</small></span>
               </button>
@@ -603,6 +603,7 @@ export default function Home() {
                 <div className="readerStage">
                   <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : selected.contentType === "audiobook" ? "NOIR / AUDIOLIBRO EXTERNO" : "NOIR / FUENTE EXTERNA"}</span>
                   <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + (selected.availability === "upcoming" ? " Este título todavía no está disponible para reproducirse." : " Todavía no tiene una fuente multimedia verificada.") : selected.synopsis}</p>
+                  {selected.hasLatinSpanish && <small className="audioTrackNote">Audio en español latino disponible en el proveedor oficial. Selecciona esa pista allí; NOIR VAULT no controla el reproductor externo.</small>}
                   <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : selected.contentType === "audiobook" ? "ABRIR AUDIOLIBRO EN LIBRIVOX ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                   {selected.subtitleDownloadUrl && (
                     <>
