@@ -660,6 +660,24 @@ export default function Home() {
                 <div className="playerLanguageNote">{selected.audioLanguages?.includes("es-AR") ? "Audio latino original (rioplatense); no es doblaje." : selected.hasLatinSpanish ? "Audio latino verificado" : selected.audioLanguages?.some((language) => language.startsWith("es")) ? "Audio en español disponible" : "No hay una pista de español verificada para este título."}</div>
                 {(selected.subtitleTracks || []).length > 0 && <span className="subtitleAvailable">Subtítulos disponibles: {(selected.subtitleTracks || []).map((track) => track.label).join(", ")}</span>}
               </div>}
+              {selected.videoUrl && selected.fallbackVideoUrl && (
+                <div className="playerSourceSwitch">
+                  <div>
+                    <strong>{sourceIndex === 0 ? "¿EL VÍDEO TARDA O SE DETIENE?" : "ESTÁS USANDO LA COPIA DE RESPALDO"}</strong>
+                    <span>{sourceIndex === 0 ? "Prueba una versión de menor resolución si tu conexión o dispositivo tiene dificultades." : "Puedes volver a la fuente principal cuando tengas una conexión más estable."}</span>
+                  </div>
+                  <button type="button" onClick={() => {
+                    const currentSeconds = videoRef.current?.currentTime ?? resumeAt;
+                    if (currentSeconds > 0) setResumeAt(currentSeconds);
+                    setSelectedAudioIndex(0);
+                    setSourceIndex(sourceIndex === 0 ? 1 : 0);
+                    setVideoAttempt((attempt) => attempt + 1);
+                    setVideoState("loading");
+                  }}>
+                    {sourceIndex === 0 ? "PROBAR COPIA LIGERA ↗" : "VOLVER A FUENTE PRINCIPAL ↗"}
+                  </button>
+                </div>
+              )}
               {selected.audioUrl && <p className="playerLanguageNote">Audio disponible · {(selected.audioLanguages || []).join(", ") || "idioma por confirmar"}</p>}
               {selected.readerUrl && <p className="playerLanguageNote"><a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.contentType === "manga" ? "ABRIR LECTOR OFICIAL ↗" : selected.contentType === "podcast" ? "ABRIR PÁGINA DEL PODCAST ↗" : selected.contentType === "audiobook" ? "ABRIR FICHA EN LIBRIVOX ↗" : "VER PÁGINA OFICIAL ↗"}</a>{selected.chapterCount ? " · " + selected.chapterCount + " capítulos registrados" : ""}</p>}
               <div className="attributionBlock"><strong>CRÉDITOS Y LICENCIA</strong><span>{selected.creator} · {selected.credit}</span><span>{selected.license} · Consulta las condiciones de atribución.</span><a href={licenseUrl(selected.license)} target="_blank" rel="noreferrer">LEER LICENCIA ↗</a>{selected.sourcePageUrl && <a href={selected.sourcePageUrl} target="_blank" rel="noreferrer">ARCHIVO Y FUENTE ↗</a>}</div>
