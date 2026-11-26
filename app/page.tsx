@@ -643,7 +643,10 @@ export default function Home() {
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
-                  <small>REPRODUCCIÓN OFICIAL EXTERNA · YouTube controla la disponibilidad, los anuncios y el reproductor.</small>
+                  <div className="externalVideoFooter">
+                    <span>FUENTE OFICIAL · YouTube controla la disponibilidad y los anuncios.</span>
+                    <a href={selected.readerUrl} target="_blank" rel="noreferrer">ABRIR EN YOUTUBE ↗</a>
+                  </div>
                 </div>
               ) : (
                 <div className="readerStage">
