@@ -34,6 +34,8 @@ export async function GET(request: NextRequest) {
     if (type === "series" || type === "anime") {
       query = query
         .order("status", { ascending: true })
+        // Keep each show's episodes together before sorting seasons and episode numbers.
+        .order("title", { ascending: true })
         .order("season_number", { ascending: true, nullsFirst: false })
         .order("episode_number", { ascending: true, nullsFirst: false })
         .order("popularity", { ascending: false, nullsFirst: false });
