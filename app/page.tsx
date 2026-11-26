@@ -414,6 +414,10 @@ export default function Home() {
   }
 
   function handleVideoError() {
+    // Keep the last playable position when changing source after a network/codec error.
+    const currentSeconds = videoRef.current?.currentTime ?? resumeAt;
+    if (currentSeconds > 0) setResumeAt(currentSeconds);
+
     if (selectedAudioIndex > 0) {
       setSelectedAudioIndex(0);
       setSourceIndex(0);
@@ -423,6 +427,7 @@ export default function Home() {
     }
     if (selected?.fallbackVideoUrl && sourceIndex === 0) {
       setSourceIndex(1);
+      setVideoAttempt((attempt) => attempt + 1);
       setVideoState("loading");
       return;
     }
