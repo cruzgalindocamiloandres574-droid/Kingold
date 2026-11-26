@@ -571,6 +571,12 @@ export default function Home() {
                   {(selected.subtitleTracks || []).map((track) => <track key={track.src} kind="subtitles" src={track.src} srcLang={track.language} label={track.label} default={Boolean(track.isDefault)} />)}
                   Tu navegador no puede reproducir este formato de vídeo.
                 </video>
+                {selected.subtitleDownloadUrl && (
+                  <p className="playerLanguageNote">
+                    Subtítulos oficiales en español latinoamericano ·{" "}
+                    <a href={selected.subtitleDownloadUrl} target="_blank" rel="noreferrer">DESCARGAR ARCHIVO SRT ↗</a>
+                  </p>
+                )}
               ) : activeAudioUrl ? (
                 <div className="audioStage">
                   <span className="audioStageMark">NV / AUDIO</span><strong>{selected.name}</strong><p>{selected.synopsis}</p>
