@@ -563,6 +563,11 @@ export default function Home() {
                 onClick={() => openFilm(film)} disabled={film.status !== "available" && !film.readerUrl}
                 aria-label={film.status === "available" ? "Abrir " + film.name : film.readerUrl ? "Consultar ficha oficial de " + film.name : film.name + ", próximamente"}>
                 <span className="filmPoster">
+                  <span className={`posterFallback posterFallback-${film.contentType || "movie"}`} aria-hidden="true">
+                    <span className="posterFallbackOrb" />
+                    <span className="posterFallbackGlyph">{film.name.trim().split(/\s+/).slice(0, 2).map((word) => word.charAt(0)).join("").toUpperCase()}</span>
+                    <span className="posterFallbackLabel">ARTE GRÁFICO DE CATÁLOGO</span>
+                  </span>
                   {film.posterUrl && <Image className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} fill unoptimized sizes="(max-width: 680px) 50vw, 25vw" loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
