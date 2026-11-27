@@ -868,8 +868,8 @@ export default function Home() {
                   {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
                   {selected.contentType === "audiobook" && activeAudioUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith(".m4b") && (
                     <small className="audioTrackNote">
-                      Audiolibro en un solo archivo M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha. Para navegar por capítulos, abre el archivo original en una aplicación compatible con M4B.
-                     <a href={activeAudioUrl} target="_blank" rel="noreferrer">ABRIR ARCHIVO M4B CON CAPÍTULOS ↗</a></small>
+                      Audiolibro M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha; para navegar por capítulos, descarga el archivo y ábrelo en una app compatible.
+                     <a href={activeAudioUrl} target="_blank" rel="noreferrer">DESCARGAR M4B CON CAPÍTULOS ↗</a> · <a href="https://openaudiobooks.org/how-to-listen/" target="_blank" rel="noreferrer">GUÍA PARA ANDROID Y OTRAS APPS ↗</a></small>
                   )}
                   {selected.contentType === "podcast" && selected.audioUrl && selected.readerUrl && (
                     <small className="audioTrackNote">
