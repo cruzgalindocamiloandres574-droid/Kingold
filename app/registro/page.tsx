@@ -28,12 +28,20 @@ export default function Register() {
     setBusy(true);
     setMessage(null);
     try {
+      const params = new URLSearchParams(window.location.search);
+      const requestedNext = params.get("next");
+      const safeNext = requestedNext?.startsWith("/")
+        && !requestedNext.startsWith("//")
+        && !requestedNext.includes("\\")
+        ? requestedNext
+        : "/cuenta";
+
       const supabase = createBrowserClient(url, key);
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: window.location.origin + "/auth/callback?next=/cuenta",
+          emailRedirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(safeNext),
         },
       });
 
@@ -49,7 +57,7 @@ export default function Register() {
       }
 
       if (data.session) {
-        router.replace("/cuenta");
+        router.replace(safeNext);
         router.refresh();
         return;
       }
