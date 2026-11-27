@@ -293,6 +293,7 @@ export default function Home() {
     activeAudioTrackIndexRef.current = initialTrackIndex;
     setSourceIndex(0);
     setSelectedAudioIndex(initialTrackIndex);
+    setActiveAudioChapterIndex(0);
     setSelectedSubtitleIndex(film.subtitleTracks?.findIndex((track) => track.isDefault) ?? -1);
     setResumeAt(0);
     completedProgressMoviesRef.current.delete(film.id);
