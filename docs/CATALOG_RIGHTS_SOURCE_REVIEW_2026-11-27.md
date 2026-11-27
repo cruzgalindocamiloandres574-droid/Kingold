@@ -72,10 +72,22 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 
 ## Casos no modificados por ambigüedad o condiciones especiales
 
-- **Agent 327: Operation Barbershop — Teaser:** Blender Studio publicó el archivo bajo CC BY-ND y una nota del responsable del proyecto dice que no se añadan anuncios, que no se remixe ni se reutilice la música y que se use tal como fue publicado. Como el uso dentro de un servicio de suscripción de pago requiere análisis específico, no se completó una autorización comercial ni se cambió su fecha o disponibilidad. Fuente: https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/
-- **COSMOS LAUNDROMAT:** la ficha de catálogo dice CC BY-SA 3.0; el sitio oficial del proyecto Gooseberry dice CC BY 3.0 y una ficha secundaria IFN declara CC BY-SA 3.0. No se eligió una licencia a ciegas; se requiere conciliación con el titular. Fuentes: https://gooseberry.blender.org/license/ y https://www.theindiefilmnetwork.com/movies/cosmos-laundromat
-- **SPRITE FRIGHT:** el catálogo dice CC BY 4.0, mientras que la página oficial de Blender Studio actualmente indexada declara CC Attribution 1.0. No se trató esa diferencia como un simple error tipográfico y no se modificó el registro. Fuente: https://studio.blender.org/projects/sprite-fright/pages/about/
+- **Agent 327: Operation Barbershop — Teaser:** Blender Studio publicó el archivo bajo CC BY-ND y una nota del responsable del proyecto dice que no se añadan anuncios, que no se remixe ni se reutilice la música y que se use tal como fue publicado. La revisión del 27-11-2026 quedó registrada en `rights_checked_on` y `license_basis`; no se declaró autorización comercial ni se cambió su disponibilidad. El uso dentro de un catálogo de suscripción debe aclararse con el titular, especialmente por la prohibición expresa de publicidad y la condición de usar la película tal como fue publicada. Fuente: https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/
+- **COSMOS LAUNDROMAT:** la ficha específica de Commons declara CC BY-SA 3.0 para este archivo, mientras que la página general del proyecto Gooseberry indica CC BY 3.0 para la obra del proyecto salvo contenidos marcados de otra forma. La condición general admite excepciones por contenido; se conserva la declaración más específica del archivo y el campo actual del catálogo, a falta de confirmación directa del titular sobre cómo se aplica esa excepción. Fuentes: https://gooseberry.blender.org/license/ y https://www.theindiefilmnetwork.com/movies/cosmos-laundromat
+- **SPRITE FRIGHT:** el catálogo dice CC BY 4.0, mientras que la página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto. La revisión del 27-11-2026 se registró en los metadatos, pero no se sustituyó la etiqueta de licencia ni se declaró una versión prevalente. Fuente: https://studio.blender.org/projects/sprite-fright/pages/about/
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
+
+## Tres revisiones con condiciones o versiones de licencia pendientes
+
+El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se registraron `rights_checked_on` y `license_basis` como constancia de la revisión, sin cambiar el campo `license`, la publicación, la disponibilidad ni `commercial_reuse_permitted`.
+
+| Título | Evidencia y condición pendiente | Fuentes |
+| --- | --- | --- |
+| Agent 327: Operation Barbershop — Teaser | Blender Studio declara CC BY-ND para el archivo original. En un comentario de seguimiento, Francesco Siddi indicó que el film debe mostrarse tal como fue realizado, sin añadir publicidad, sin remix y sin reutilizar la música. Esto no resuelve si el acceso dentro de una suscripción de pago queda cubierto; no se ha marcado como uso comercial autorizado. | https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/ |
+| COSMOS LAUNDROMAT | La página específica de Commons declara CC BY-SA 3.0 para el archivo de First Cycle y registra revisión de la fuente original de YouTube el 11-02-2016. La página general de Gooseberry expresa CC BY 3.0 para la obra del proyecto, pero también indica que contenidos concretos pueden señalar licencias distintas. Se conserva el CC BY-SA 3.0 específico del archivo en el catálogo. | https://commons.wikimedia.org/wiki/File:Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm · https://gooseberry.blender.org/license/ |
+| SPRITE FRIGHT | La página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto, aunque el campo actual del catálogo dice CC BY 4.0. Se registró la evidencia y se mantuvo intacta la etiqueta hasta obtener confirmación sobre la versión aplicable a este archivo. | https://studio.blender.org/projects/sprite-fright/pages/about/ |
+
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas filas.
 
 ## Recuento reproducido después de completar 48 fundamentos de licencia y registrar 28 fechas de revisión
 
@@ -84,14 +96,14 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Indicador | Resultado actual |
 | --- | ---: |
 | Videos publicados con URL reproducible | 184 |
-| Sin `content_metadata.rights_checked_on` | 3 |
-| Sin `content_metadata.license_basis` | 3 |
+| Sin `content_metadata.rights_checked_on` | 0 |
+| Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 144 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó 48 fundamentos documentales de licencia (de 51 pendientes iniciales) y registró 28 fechas de revisión (de 31 pendientes iniciales). En las 20 filas complementarias, la fecha de revisión ya existía y solo se completó `license_basis`. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó los 51 fundamentos documentales de licencia y registró las 31 fechas de revisión que estaban pendientes al inicio. Las 48 primeras filas tienen un fundamento individual documentado a partir de sus fuentes; 28 de ellas también recibieron fecha nueva, y 20 ya tenían fecha previa. Los tres registros especiales anteriores recibieron fecha y nota de revisión con sus condiciones todavía abiertas. La medición no convierte una licencia declarada en autorización comercial universal. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
