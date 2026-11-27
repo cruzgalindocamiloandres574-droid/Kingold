@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 14 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
+El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 19 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -24,6 +24,11 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 | BBS: The Documentary — Episodio 6 | `39cb668b-c34f-4ee3-9d3d-cc9875e40406` | La ficha individual atribuye la obra a Jason Scott, señala Internet Archive como fuente y declara CC BY-SA 3.0 Unported. | https://commons.wikimedia.org/wiki/File:BBS_The_Documentary,_Episode_6.webm |
 | BBS: The Documentary — Episodio 7 | `d579daf0-47f7-426c-ba48-7162044a8629` | La ficha individual atribuye la obra a Jason Scott, señala Internet Archive como fuente y declara CC BY-SA 3.0 Unported. | https://commons.wikimedia.org/wiki/File:BBS_The_Documentary,_Episode_7.webm |
 | WIKIMANIA 2015: EL DOCUMENTAL | `d0f9c0a9-29b0-43b0-bc98-75ecf21d54f5` | La ficha atribuye el documental a Wikimedia México A.C. / Isla Producciones y declara CC BY-SA 3.0 salvo indicación contraria. Logos y marcas registradas de Wikimedia Foundation no quedan licenciados. | https://commons.wikimedia.org/wiki/File:Wikimania_2015_documentary.webm |
+| CAMINANDES 3: LLAMIGOS | `ed6177e9-17b0-4ba7-aef9-d04b26fd7b52` | La ficha individual de Commons identifica Blender como autor, declara CC BY 3.0 y registra una revisión de licencia del original de YouTube el 17-10-2016; acredita música y sonido por separado. | https://commons.wikimedia.org/wiki/File:Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm |
+| CAMINANDES: GRAN DILLAMA | `191b6f75-8a89-4f4d-82be-6de18857b2ec` | La ficha individual identifica a los creadores y declara CC BY-SA 3.0; Commons registra revisión de la fuente el 12-08-2015. Atribución y compartir-igual. | https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm |
+| DOMINION (2018) | `6485c873-cf98-4460-b26d-c3497338f333` | La ficha individual identifica Farm Transparency Project como autor, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; revisión de Commons del 10-01-2026. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm |
+| SINTEL | `5322cc1b-1e6a-4b00-ade7-062e7ba70a87` | La página oficial de Durian/Blender Foundation declara CC BY 3.0; para exhibir la película completa se debe conservar el rollo íntegro de créditos. | https://durian.blender.org/about/ |
+| TEARS OF STEEL | `be590690-e1bc-4648-8e2a-a7549b74d10e` | La página oficial de Mango/Blender Foundation declara CC BY 3.0; para compartir o mostrar la película se debe conservar el rollo íntegro de créditos. | https://mango.blender.org/about/ |
 
 Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlace a la licencia y la indicación de cambios que sean aplicables. CC BY-SA impone además compartir adaptaciones bajo la misma licencia o una compatible. La fecha registrada indica que se consultó la ficha fuente ese día; no equivale a una certificación de derechos de todos los componentes.
 
@@ -36,22 +41,22 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
-## Recuento reproducido después de actualizar los 14 registros
+## Recuento reproducido después de actualizar los 19 registros
 
 Consulta ejecutada en producción el 27 de noviembre de 2026:
 
 | Indicador | Resultado actual |
 | --- | ---: |
 | Videos publicados con URL reproducible | 184 |
-| Sin `content_metadata.rights_checked_on` | 17 |
-| Sin `content_metadata.license_basis` | 37 |
+| Sin `content_metadata.rights_checked_on` | 12 |
+| Sin `content_metadata.license_basis` | 32 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 144 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó fechas y bases documentales en 14 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó fechas y bases documentales en 19 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8; continuar después con Caminandes, Charge, Dominion, Hero, Sintel, Tears of Steel, No Way to Say Goodbye, Panopticon, Pasión Oriental y Pendatang.
+Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8 y Caminandes: Llama Drama; continuar con Charge, Hero, No Way to Say Goodbye, Panopticon, Pasión Oriental y Pendatang. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
