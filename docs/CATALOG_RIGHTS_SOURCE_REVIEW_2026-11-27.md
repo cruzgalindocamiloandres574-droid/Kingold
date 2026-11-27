@@ -41,7 +41,7 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 
 ## Fuentes complementarias documentadas en producción
 
-Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). El 27 de noviembre de 2026 se revisó la ficha individual y se completó únicamente `content_metadata.license_basis`; no se cambió su fecha previa ni se modificaron licencias, créditos, URLs, estado de reproducción o `commercial_reuse_permitted`.
+Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). Al volver a consultar sus fichas individuales el 27 de noviembre de 2026, se completó `content_metadata.license_basis` y se actualizó `content_metadata.rights_checked_on` para reflejar la consulta más reciente; no se modificaron licencias, créditos, URLs, estado de reproducción o `commercial_reuse_permitted`.
 
 | Título | ID de catálogo | Declaración y evidencia observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). El 27 de n
 
 Las siete filas con licencias dobles o información extra requieren cautela: ASE IFÁ PIPA, ITAN ORE MEJI, ITAN YEYEMOOLU y KARINDING mantienen su etiqueta más restrictiva en el catálogo sin concluir que el conflicto está resuelto. La documentación de Juang registra explícitamente que la evaluación comunitaria de historias orales no está evaluada. La revisión automatizada de Jan Haarhuis no sustituye una revisión humana de posibles derechos adicionales.
 
-Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlace a la licencia y la indicación de cambios que sean aplicables. CC BY-SA impone además compartir adaptaciones bajo la misma licencia o una compatible. La fecha registrada indica que se consultó la ficha fuente ese día; no equivale a una certificación de derechos de todos los componentes.
+Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlace a la licencia y la indicación de cambios que sean aplicables. CC BY-SA impone además compartir adaptaciones bajo la misma licencia o una compatible. `rights_checked_on` representa la fecha de la consulta más reciente de la fuente. Cuando se vuelve a consultar una fuente, la fecha se actualiza aunque la declaración de licencia no haya cambiado. La fecha no equivale a una certificación de derechos de todos los componentes.
 
 ## Casos no modificados por ambigüedad o condiciones especiales
 
@@ -115,7 +115,7 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó los 51 fundamentos documentales de licencia y registró las 31 fechas de revisión que estaban pendientes al inicio. Las 48 primeras filas tienen un fundamento individual documentado a partir de sus fuentes; 28 de ellas también recibieron fecha nueva, y 20 ya tenían fecha previa. Los tres registros especiales anteriores recibieron fecha y nota de revisión con sus condiciones todavía abiertas. La medición no convierte una licencia declarada en autorización comercial universal. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó los 51 fundamentos documentales de licencia y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 fechas estaban vacías al inicio y se completaron; otras 20 tenían fecha 2026-11-26 y se actualizaron tras volver a consultar sus fuentes. Las 48 filas de la tabla principal y complementaria tienen fundamentos individuales; los tres registros especiales también recibieron fecha y nota con sus condiciones todavía abiertas. La medición no convierte una licencia declarada en autorización comercial universal. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
