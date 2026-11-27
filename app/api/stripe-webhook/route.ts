@@ -52,7 +52,10 @@ async function saveSubscription(subscription:Stripe.Subscription, userId?:string
     stripe_customer_id:customer,
     stripe_subscription_id:subscription.id,
     status:subscription.status,
-    current_period_end:periodEnd ? new Date(periodEnd * 1000).toISOString() : null
+    current_period_end:periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+    cancel_at_period_end:subscription.cancel_at_period_end ?? false,
+    cancel_at:subscription.cancel_at ? new Date(subscription.cancel_at * 1000).toISOString() : null,
+    canceled_at:subscription.canceled_at ? new Date(subscription.canceled_at * 1000).toISOString() : null
   },{onConflict:"stripe_subscription_id"});
   if (error) throw error;
 }
