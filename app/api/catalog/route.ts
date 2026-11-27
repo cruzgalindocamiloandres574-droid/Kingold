@@ -19,7 +19,10 @@ async function catalogClient() {
 
 export async function GET(request: NextRequest) {
   try {
-    const page = Math.max(1, Math.min(5000, Number(request.nextUrl.searchParams.get("page") || 1)));
+    const requestedPage = Number(request.nextUrl.searchParams.get("page") || 1);
+    const page = Number.isFinite(requestedPage)
+      ? Math.max(1, Math.min(5000, Math.floor(requestedPage)))
+      : 1;
     const q = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
     const genre = request.nextUrl.searchParams.get("genre");
     const year = request.nextUrl.searchParams.get("year");
