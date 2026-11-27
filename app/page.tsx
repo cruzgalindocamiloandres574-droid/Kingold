@@ -208,11 +208,13 @@ export default function Home() {
   const [viewerId, setViewerId] = useState<string | null>(null);
   const [resumeAt, setResumeAt] = useState(0);
   const [pendingWatchId, setPendingWatchId] = useState<string | null>(null);
+  const [pendingWatchTrackIndex, setPendingWatchTrackIndex] = useState(0);
   const openFilmRequestRef = useRef(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
-  const pendingProgressRef = useRef<{ userId: string; movieId: string; seconds: number } | null>(null);
+  const activeAudioTrackIndexRef = useRef(0);
+  const lastProgressRef = useRef<{ movieId: string; seconds: number; trackIndex: number }>({ movieId: "", seconds: 0, trackIndex: 0 });
+  const pendingProgressRef = useRef<{ userId: string; movieId: string; seconds: number; trackIndex: number } | null>(null);
   const progressFlushRef = useRef<Promise<void> | null>(null);
   const completedProgressMoviesRef = useRef<Set<string>>(new Set());
   const [catalogFilms, setCatalogFilms] = useState<Film[]>([]);
@@ -241,25 +243,28 @@ export default function Home() {
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(true);
 
-  const openFilm = useCallback(async (film: Film) => {
-    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
+  const openFilm = useCallback(async (film: Film, requestedTrackIndex = 0) => {
+    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.audioTracks?.length && !film.readerUrl)) return;
     // A late progress response must never seek a different title after the
     // viewer has opened another item or closed the player.
     const requestId = ++openFilmRequestRef.current;
+    const hasMultipleAudioTracks = !film.videoUrl && (film.audioTracks?.length ?? 0) > 1;
+    const initialTrackIndex = hasMultipleAudioTracks
+      ? Math.max(0, Math.min(film.audioTracks!.length - 1, Math.floor(requestedTrackIndex) || 0))
+      : 0;
+    activeAudioTrackIndexRef.current = initialTrackIndex;
     setSourceIndex(0);
-    setSelectedAudioIndex(0);
+    setSelectedAudioIndex(initialTrackIndex);
     setSelectedSubtitleIndex(film.subtitleTracks?.findIndex((track) => track.isDefault) ?? -1);
     setResumeAt(0);
     completedProgressMoviesRef.current.delete(film.id);
-    lastProgressRef.current = { movieId: film.id, seconds: 0 };
+    lastProgressRef.current = { movieId: film.id, seconds: 0, trackIndex: initialTrackIndex };
     setVideoState("loading");
     setVideoDiagnostic(null);
     setVideoAttempt(0);
     setContentConsentId(null);
     setSelected(film);
-    // Resume single-file video and audio sources. Multi-track chapter lists
-    // need a persisted track index before they can be resumed accurately.
-    const supportsProgress = Boolean(film.videoUrl || (film.audioUrl && !film.audioTracks?.length));
+    const supportsProgress = Boolean(film.videoUrl || film.audioUrl || film.audioTracks?.length);
     if (!supabase || !supportsProgress) return;
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -268,12 +273,23 @@ export default function Home() {
       if (!user) return;
       const { data, error } = await supabase
         .from("watch_progress")
-        .select("seconds_watched")
+        .select("seconds_watched,track_index")
         .eq("user_id", user.id)
         .eq("movie_id", film.id)
         .maybeSingle();
       if (requestId !== openFilmRequestRef.current || error) return;
       const savedSeconds = Number(data?.seconds_watched || 0);
+      const storedTrackIndex = data?.track_index == null ? initialTrackIndex : Number(data.track_index);
+      const savedTrackIndex = hasMultipleAudioTracks
+        ? Math.max(0, Math.min(film.audioTracks!.length - 1, Number.isInteger(storedTrackIndex) ? storedTrackIndex : 0))
+        : 0;
+      activeAudioTrackIndexRef.current = savedTrackIndex;
+      setSelectedAudioIndex(savedTrackIndex);
+      lastProgressRef.current = {
+        movieId: film.id,
+        seconds: Math.max(0, Math.floor(savedSeconds)),
+        trackIndex: savedTrackIndex,
+      };
       if (savedSeconds > 15) setResumeAt(savedSeconds);
     } catch {
       // Playback remains available even when the progress service is offline.
@@ -308,8 +324,13 @@ export default function Home() {
   }, [resumeAt, selected?.id]);
 
   useEffect(() => {
-    const watchId = new URLSearchParams(window.location.search).get("watch");
-    if (watchId) setPendingWatchId(watchId);
+    const searchParams = new URLSearchParams(window.location.search);
+    const watchId = searchParams.get("watch");
+    const requestedTrackIndex = Number(searchParams.get("track") || 0);
+    if (watchId) {
+      setPendingWatchId(watchId);
+      setPendingWatchTrackIndex(Number.isInteger(requestedTrackIndex) && requestedTrackIndex >= 0 ? requestedTrackIndex : 0);
+    }
   }, []);
 
   useEffect(() => {
@@ -439,12 +460,14 @@ export default function Home() {
     if (!pendingWatchId) return;
     const film = catalogFilms.find((item) => item.id === pendingWatchId);
     if (!film) return;
-    openFilm(film);
+    openFilm(film, pendingWatchTrackIndex);
     setPendingWatchId(null);
+    setPendingWatchTrackIndex(0);
     const url = new URL(window.location.href);
     url.searchParams.delete("watch");
+    url.searchParams.delete("track");
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
-  }, [pendingWatchId, catalogFilms, openFilm]);
+  }, [pendingWatchId, pendingWatchTrackIndex, catalogFilms, openFilm]);
 
   useEffect(() => {
     if (resumeAt <= 0 || !videoRef.current || videoRef.current.readyState < 1) return;
@@ -495,14 +518,15 @@ export default function Home() {
             user_id: next.userId,
             movie_id: next.movieId,
             seconds_watched: next.seconds,
+            track_index: next.trackIndex,
             updated_at: new Date().toISOString(),
           }, { onConflict: "user_id,movie_id" });
 
           if (error && !pendingProgressRef.current) {
-            lastProgressRef.current = { movieId: "", seconds: 0 };
+            lastProgressRef.current = { movieId: "", seconds: 0, trackIndex: 0 };
           }
         } catch {
-          if (!pendingProgressRef.current) lastProgressRef.current = { movieId: "", seconds: 0 };
+          if (!pendingProgressRef.current) lastProgressRef.current = { movieId: "", seconds: 0, trackIndex: 0 };
         }
       }
     })();
@@ -516,18 +540,23 @@ export default function Home() {
     if (pendingProgressRef.current) await flushProgressQueue(db);
   }
 
-  async function saveProgress(seconds: number, force = false) {
+  async function saveProgress(seconds: number, force = false, requestedTrackIndex = activeAudioTrackIndexRef.current) {
     const db = supabase;
     const userId = viewerId;
     const movie = selected;
     if (!db || !userId || !movie || completedProgressMoviesRef.current.has(movie.id)) return;
-    const wholeSeconds = Math.floor(seconds);
-    if (wholeSeconds < 5) return;
+    const hasMultipleAudioTracks = !movie.videoUrl && (movie.audioTracks?.length ?? 0) > 1;
+    const trackIndex = hasMultipleAudioTracks
+      ? Math.max(0, Math.min(movie.audioTracks!.length - 1, Math.floor(requestedTrackIndex) || 0))
+      : 0;
+    const wholeSeconds = Math.max(0, Math.floor(seconds));
+    if (wholeSeconds < 5 && !(force && hasMultipleAudioTracks)) return;
     const previous = lastProgressRef.current;
-    if (previous.movieId === movie.id && !force && wholeSeconds >= previous.seconds && wholeSeconds - previous.seconds < 15) return;
+    if (previous.movieId === movie.id && previous.trackIndex === trackIndex && !force &&
+      wholeSeconds >= previous.seconds && wholeSeconds - previous.seconds < 15) return;
 
-    lastProgressRef.current = { movieId: movie.id, seconds: wholeSeconds };
-    pendingProgressRef.current = { userId, movieId: movie.id, seconds: wholeSeconds };
+    lastProgressRef.current = { movieId: movie.id, seconds: wholeSeconds, trackIndex };
+    pendingProgressRef.current = { userId, movieId: movie.id, seconds: wholeSeconds, trackIndex };
     await flushProgressQueue(db);
   }
 
@@ -544,7 +573,7 @@ export default function Home() {
     await flushProgressQueue(db);
     await db.from("watch_progress").delete()
       .eq("user_id", userId).eq("movie_id", movie.id);
-    lastProgressRef.current = { movieId: movie.id, seconds: 0 };
+    lastProgressRef.current = { movieId: movie.id, seconds: 0, trackIndex: 0 };
   }
 
   function handleVideoError() {
@@ -799,7 +828,7 @@ export default function Home() {
                   {(selected.audioTracks || []).length > 1 && (
                     <label className="audioChapterPicker">
                       <span>CAPÍTULO / PISTA ({selectedAudioIndex + 1} DE {selected.audioTracks?.length})</span>
-                      <select value={String(selectedAudioIndex)} onChange={(event) => { setSelectedAudioIndex(Number(event.target.value)); setVideoState("loading"); }}>
+                      <select value={String(selectedAudioIndex)} onChange={(event) => { const nextIndex = Number(event.target.value); activeAudioTrackIndexRef.current = nextIndex; setResumeAt(0); void saveProgress(0, true, nextIndex); setSelectedAudioIndex(nextIndex); setVideoState("loading"); }}>
                         {(selected.audioTracks || []).map((track, index) => (
                           <option key={track.url} value={String(index)}>{track.label}</option>
                         ))}
@@ -807,16 +836,20 @@ export default function Home() {
                     </label>
                   )}
                   <audio ref={audioRef} key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
-                    onLoadedMetadata={(event) => { if (!selected.audioTracks?.length && resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
-                    onTimeUpdate={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime); }}
-                    onPause={(event) => { if (!selected.audioTracks?.length) void saveProgress(event.currentTarget.currentTime, true); }}
+                    onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
+                    onTimeUpdate={(event) => { if (!selected.audioTracks?.length || selectedAudioIndex === activeAudioTrackIndexRef.current) void saveProgress(event.currentTarget.currentTime, false, selectedAudioIndex); }}
+                    onPause={(event) => { if (!selected.audioTracks?.length || selectedAudioIndex === activeAudioTrackIndexRef.current) void saveProgress(event.currentTarget.currentTime, true, selectedAudioIndex); }}
                     onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")}
                     onPlaying={() => setVideoState("ready")} onError={handleAudioError}
                     onEnded={() => {
                       if (selected.audioTracks?.length && selectedAudioIndex < selected.audioTracks.length - 1) {
-                        setSelectedAudioIndex((index) => index + 1);
+                        const nextIndex = selectedAudioIndex + 1;
+                        activeAudioTrackIndexRef.current = nextIndex;
+                        setResumeAt(0);
+                        void saveProgress(0, true, nextIndex);
+                        setSelectedAudioIndex(nextIndex);
                         setVideoState("loading");
-                      } else if (!selected.audioTracks?.length) {
+                      } else {
                         void clearCompletedProgress();
                       }
                     }}>
