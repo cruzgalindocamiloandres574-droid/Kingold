@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 23 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
+El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 26 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -28,6 +28,9 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 | NO WAY TO SAY GOODBYE | `061b43dd-9b69-4350-a754-a518d7da4a23` | La ficha individual identifica a Jonas M. Jacobs, señala Vimeo como fuente y declara CC BY 3.0; la revisión de la licencia de origen figura el 07-02-2017. | https://commons.wikimedia.org/wiki/File:NO_WAY_TO_SAY_GOODBYE_full_movie.webm |
 | PANOPTICON | `85ec31dd-66a9-4088-8000-659c4170c861` | La ficha individual identifica a Peter Vlemmix, señala YouTube como fuente y declara CC BY 3.0; la revisión de la licencia de origen figura el 21-12-2016. | https://commons.wikimedia.org/wiki/File:FULL_DOCUMENTARY_-_Panopticon_privacy_-_Peter_Vlemmix.webm |
 | PENDATANG (2023) | `9723017f-114c-4aa4-a455-3bc649d6fcde` | La ficha individual identifica a Kuman Pictures, cita el original de YouTube, enumera el reparto y el equipo de producción, declara CC BY 3.0 y registra confirmación de licencia el 20-04-2026. | https://commons.wikimedia.org/wiki/File:PENDATANG_(2023)_full_movie.webm |
+| CHARGE — Blender Open Movie | `a2d96348-c802-432e-9458-7974118a3d3d` | La ficha individual de Commons identifica Blender Studio como autor y declara CC BY 4.0; proporciona además la fuente original de YouTube. | https://commons.wikimedia.org/wiki/File:Charge_-_Blender_Open_Movie-full_movie.webm |
+| HERO — Blender Grease Pencil Showcase | `1a6b7618-72d2-4581-911d-037abc620031` | La ficha individual identifica Blender Foundation como autor, enlaza el vídeo original de YouTube y declara CC BY 4.0. Los créditos de la película incluyen dirección, guion, música y sonido. | https://commons.wikimedia.org/wiki/File:HERO_-_Blender_Open_Movie-full_movie.webm |
+| Pasión Oriental | `f36ccbf4-928e-448c-b3ae-d16c6fbbd696` | La ficha individual identifica a Santi Korovsky como autor, YouTube como fuente y declara CC BY 3.0. La obra fue filmada en 2017; la licencia exige atribución, enlace e indicación de cambios. | https://commons.wikimedia.org/wiki/File:Pasión_Oriental.webm |
 | CAMINANDES 3: LLAMIGOS | `ed6177e9-17b0-4ba7-aef9-d04b26fd7b52` | La ficha individual de Commons identifica Blender como autor, declara CC BY 3.0 y registra una revisión de licencia del original de YouTube el 17-10-2016; acredita música y sonido por separado. | https://commons.wikimedia.org/wiki/File:Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm |
 | CAMINANDES: GRAN DILLAMA | `191b6f75-8a89-4f4d-82be-6de18857b2ec` | La ficha individual identifica a los creadores y declara CC BY-SA 3.0; Commons registra revisión de la fuente el 12-08-2015. Atribución y compartir-igual. | https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm |
 | DOMINION (2018) | `6485c873-cf98-4460-b26d-c3497338f333` | La ficha individual identifica Farm Transparency Project como autor, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; revisión de Commons del 10-01-2026. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm |
@@ -45,22 +48,22 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
-## Recuento reproducido después de actualizar los 23 registros
+## Recuento reproducido después de actualizar los 26 registros
 
 Consulta ejecutada en producción el 27 de noviembre de 2026:
 
 | Indicador | Resultado actual |
 | --- | ---: |
 | Videos publicados con URL reproducible | 184 |
-| Sin `content_metadata.rights_checked_on` | 8 |
-| Sin `content_metadata.license_basis` | 28 |
+| Sin `content_metadata.rights_checked_on` | 5 |
+| Sin `content_metadata.license_basis` | 25 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 144 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó fechas y bases documentales en 23 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó fechas y bases documentales en 26 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8; continuar con Charge, Hero y Pasión Oriental. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
+Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
