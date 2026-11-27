@@ -4,6 +4,15 @@ import {NextResponse} from "next/server";
 
 export const runtime = "nodejs";
 
+const BILLING_IN_PROGRESS = new Set([
+  "active",
+  "trialing",
+  "past_due",
+  "unpaid",
+  "paused",
+  "incomplete",
+]);
+
 export async function POST() {
   try {
     const secret = process.env.STRIPE_SECRET_KEY || process.env.stripe_secret_client;
@@ -16,7 +25,41 @@ export async function POST() {
     const price = process.env.STRIPE_PRICE_ID;
     if (!price) return NextResponse.json({error:"Falta configurar el precio mensual de NOIR PREMIUM."},{status:503});
 
-    const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+    // Reuse the Stripe customer recorded by the signed webhook and avoid
+    // creating another paid subscription for the same NOIR VAULT account.
+    const {data:existingSubscriptions,error:subscriptionError} = await supabase
+      .from("subscriptions")
+      .select("status,stripe_customer_id")
+      .eq("user_id",user.id)
+      .order("created_at",{ascending:false})
+      .limit(25);
+
+    if (subscriptionError) {
+      console.error("NOIR subscription lookup error:",subscriptionError);
+      return NextResponse.json({error:"No pudimos verificar tu suscripción. Inténtalo de nuevo."},{status:503});
+    }
+
+    const currentSubscription = (existingSubscriptions || []).find((item) =>
+      BILLING_IN_PROGRESS.has(item.status)
+    );
+    if (currentSubscription) {
+      return NextResponse.json({
+        error:"Ya tienes una suscripción activa o pendiente. Revísala desde Mi cuenta antes de iniciar otra.",
+        code:"SUBSCRIPTION_ALREADY_EXISTS",
+      },{status:409});
+    }
+
+    const customerId = (existingSubscriptions || []).find((item) => item.stripe_customer_id)?.stripe_customer_id;
+    const configuredBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (!configuredBaseUrl) {
+      return NextResponse.json({error:"Falta configurar la URL pública del sitio."},{status:503});
+    }
+    const baseUrl = new URL(configuredBaseUrl);
+    if (!["https:","http:"].includes(baseUrl.protocol) || (process.env.NODE_ENV === "production" && baseUrl.protocol !== "https:")) {
+      return NextResponse.json({error:"La URL pública de NOIR VAULT no es válida."},{status:503});
+    }
+    const origin = baseUrl.origin;
+
     const stripe = new Stripe(secret);
     const session = await stripe.checkout.sessions.create({
       mode:"subscription",
@@ -24,9 +67,9 @@ export async function POST() {
       client_reference_id:user.id,
       metadata:{user_id:user.id},
       subscription_data:{metadata:{user_id:user.id}},
-      success_url:baseUrl+"/cuenta?checkout=success",
-      cancel_url:baseUrl+"/planes",
-      customer_email:user.email || undefined
+      success_url:origin+"/cuenta?checkout=success",
+      cancel_url:origin+"/planes",
+      ...(customerId ? {customer:customerId} : {customer_email:user.email || undefined}),
     });
     if (!session.url) throw new Error("Stripe no devolvió una URL de pago.");
     return NextResponse.json({url:session.url});
