@@ -336,10 +336,12 @@ button{color:inherit}
 .playerSourceSwitch button:focus-visible{outline:2px solid #d9bc88;outline-offset:3px}
 @media(max-width:600px){.playerSourceSwitch{align-items:stretch;flex-direction:column;gap:10px;padding:12px}.playerSourceSwitch button{width:100%}}
 
-/* Official third-party media embeds (for example, Internet Archive) */
-.externalVideoStage{position:absolute;inset:0;background:#000;overflow:hidden}
-.externalVideoStage iframe{display:block;width:100%;height:100%;border:0;background:#000}
-.externalVideoFooter{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:linear-gradient(90deg,#050605ed,#050605c9);color:#d0c0a4;font-size:7px;letter-spacing:.8px;line-height:1.5}
+/* Official third-party media embeds (for example, Internet Archive).
+   Keep the provider controls unobstructed on touch screens by placing the
+   source note below the iframe rather than overlaying the video. */
+.externalVideoStage{position:absolute;inset:0;display:flex;flex-direction:column;background:#000;overflow:hidden}
+.externalVideoStage iframe{display:block;flex:1 1 auto;min-height:0;width:100%;height:auto;border:0;background:#000}
+.externalVideoFooter{position:static;display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#080908;color:#d0c0a4;font-size:7px;letter-spacing:.8px;line-height:1.5}
 .externalVideoFooter span{min-width:0}
 .externalVideoFooter a{flex:0 0 auto;color:#e1c18b;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .externalVideoFooter a:focus-visible{outline:2px solid #e1c18b;outline-offset:3px}
