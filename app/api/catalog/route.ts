@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const PAGE_SIZE = 20;
+const PRIVATE_CATALOG_HEADERS = {
+  "Cache-Control": "private, no-store",
+  Vary: "Cookie",
+};
 
-function catalogClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("Supabase public credentials are not configured");
-  // Read-only public catalogue requests are protected by the published-movies RLS policy.
-  // Privileged catalogue imports continue to use server-only credentials in their own route.
-  return createClient(url, key, { auth: { persistSession: false } });
+async function catalogClient() {
+  // Keep the request's Supabase session so database RLS can decide whether
+  // this viewer may read premium catalogue records.
+  return createClient();
 }
 
 export async function GET(request: NextRequest) {
@@ -27,9 +29,9 @@ export async function GET(request: NextRequest) {
     const type = request.nextUrl.searchParams.get("type");
     const featureOnly = request.nextUrl.searchParams.get("feature") === "1" && type === "movie";
     const allowedTypes = new Set(["movie","series","anime","manga","podcast","documentary","audiobook","concert","short"]);
-    const db = catalogClient();
+    const db = await catalogClient();
     let query = db.from("movies")
-      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,audio_url,reader_url,content_type,season_number,episode_number,season_count,episode_count,chapter_count,content_metadata,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish,catalog_source", { count: "exact" })
+      .select("id,title,synopsis,genre,release_year,duration,poster_url,backdrop_url,video_url,fallback_video_url,audio_url,reader_url,content_type,season_number,episode_number,season_count,episode_count,chapter_count,content_metadata,creator,license,credit,status,original_language,vote_average,popularity,runtime_minutes,release_date,audio_tracks,subtitle_tracks,audio_languages,has_latin_spanish,catalog_source,requires_premium", { count: "exact" })
       .eq("published", true);
     // Series episodes must follow season and episode numbering, not popularity.
     if (type === "series" || type === "anime") {
@@ -71,8 +73,8 @@ export async function GET(request: NextRequest) {
     if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
-    // Summary counts follow the selected format. Without a type filter they
-    // remain global across the complete NOIR VAULT library.
+    // Summary counts follow the selected format and are filtered by the same RLS
+    // entitlement as results, so anonymous viewers cannot infer premium inventory.
     const countByStatus = (status: "available" | "soon") => {
       let countQuery = db.from("movies")
         .select("id", { count: "exact", head: true })
@@ -120,9 +122,12 @@ export async function GET(request: NextRequest) {
       page,
       pageSize: PAGE_SIZE,
       totalPages: Math.ceil(total / PAGE_SIZE),
-    });
+    }, { headers: PRIVATE_CATALOG_HEADERS });
   } catch (error) {
     console.error("Catalog API error", error);
-    return NextResponse.json({ error: "No se pudo cargar el catálogo" }, { status: 500 });
+    return NextResponse.json(
+      { error: "No se pudo cargar el catálogo" },
+      { status: 500, headers: PRIVATE_CATALOG_HEADERS },
+    );
   }
 }
