@@ -41,12 +41,15 @@ function getInvoiceSubscriptionId(invoice:Stripe.Invoice): string | null {
   return value?.id || null;
 }
 
-async function releaseCheckoutAttempt(userId?:string | null) {
-  if (!userId) return;
+async function releaseCheckoutAttempt(userId?:string | null, attemptId?:string | null) {
+  // Require both identifiers: a delayed webhook from an older attempt must
+  // never release the currently active lock for the same user.
+  if (!userId || !attemptId) return;
   const {error} = await getAdminClient()
     .from("checkout_attempts")
     .delete()
-    .eq("user_id",userId);
+    .eq("user_id",userId)
+    .eq("attempt_id",attemptId);
   if (error) throw error;
 }
 
@@ -109,10 +112,16 @@ export async function POST(request:Request) {
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
       const session = event.data.object as Stripe.Checkout.Session;
       await syncCheckoutSession(stripe,session);
-      await releaseCheckoutAttempt(session.client_reference_id || session.metadata?.user_id);
+      await releaseCheckoutAttempt(
+        session.client_reference_id || session.metadata?.user_id,
+        session.metadata?.checkout_attempt_id
+      );
     } else if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session;
-      await releaseCheckoutAttempt(session.client_reference_id || session.metadata?.user_id);
+      await releaseCheckoutAttempt(
+        session.client_reference_id || session.metadata?.user_id,
+        session.metadata?.checkout_attempt_id
+      );
     } else if (
       event.type === "customer.subscription.created" ||
       event.type === "customer.subscription.updated" ||
