@@ -253,7 +253,7 @@ export default function Home() {
   const [catalogLoading, setCatalogLoading] = useState(true);
 
   const openFilm = useCallback(async (film: Film, requestedTrackIndex = 0) => {
-    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.audioTracks?.length && !film.readerUrl)) return;
+    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.audioTracks?.length && !film.readerUrl && !film.externalEmbedUrl)) return;
     // A late progress response must never seek a different title after the
     // viewer has opened another item or closed the player.
     const requestId = ++openFilmRequestRef.current;
@@ -737,7 +737,7 @@ export default function Home() {
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
                   {film.status === "available" ? (
                     <>
-                      <span className={film.videoUrl || film.audioUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
+                      <span className={film.videoUrl || film.audioUrl || film.externalEmbedUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
                         {film.videoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.externalEmbedUrl ? "EMBED OFICIAL EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
                       </span>
                       <span className="posterPlay"><span>{film.externalEmbedUrl ? "▶" : film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
@@ -884,14 +884,14 @@ export default function Home() {
                     key={selected.id + "-official-embed"}
                     src={selected.externalEmbedUrl}
                     title={selected.name + " · reproductor oficial"}
-                    loading="lazy"
+                    loading="eager"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
                   <div className="externalVideoFooter">
                     <span>REPRODUCTOR OFICIAL · El proveedor original controla la disponibilidad, las pistas y los anuncios.</span>
-                    <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FUENTE OFICIAL ↗</a>
+                    {selected.readerUrl && <a href={selected.readerUrl} target="_blank" rel="noreferrer">VER FUENTE OFICIAL ↗</a>}
                   </div>
                 </div>
               ) : (
