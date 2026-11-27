@@ -20,7 +20,7 @@ export default async function Account() {
   if (!user) redirect("/login");
   const {data:profile} = await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();
   const {data:subscription} = await supabase.from("subscriptions")
-    .select("status,current_period_end,stripe_customer_id").eq("user_id",user.id)
+    .select("status,current_period_end,stripe_customer_id,cancel_at_period_end,cancel_at,canceled_at").eq("user_id",user.id)
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
 
   const {data:progressRows} = await supabase.from("watch_progress")
@@ -45,8 +45,21 @@ export default async function Account() {
     {profile?.role === "admin" && <p><a className="btn" href="/admin">ABRIR ADMINISTRACIÓN</a></p>}
     <section style={{maxWidth:520,marginTop:28,padding:24,border:"1px solid #39332a",borderRadius:12}}>
       <small>NOIR PREMIUM</small>
-      <h2>{subscription ? labels[subscription.status] || subscription.status : "Sin suscripción activa"}</h2>
-      {subscription?.current_period_end && <p>Periodo hasta: {new Date(subscription.current_period_end).toLocaleDateString("es-CO",{dateStyle:"long"})}</p>}
+      <h2>{subscription
+        ? subscription.cancel_at_period_end && ["active","trialing"].includes(subscription.status)
+          ? "Cancelación programada"
+          : labels[subscription.status] || subscription.status
+        : "Sin suscripción activa"}</h2>
+      {subscription?.cancel_at_period_end && ["active","trialing"].includes(subscription.status) ? (
+        <p role="status">
+          La renovación automática está desactivada. Conservas el acceso NOIR PREMIUM hasta{" "}
+          {new Date(subscription.cancel_at || subscription.current_period_end || "").toLocaleDateString("es-CO",{dateStyle:"long"})}.
+        </p>
+      ) : subscription?.current_period_end ? (
+        <p>Periodo hasta: {new Date(subscription.current_period_end).toLocaleDateString("es-CO",{dateStyle:"long"})}</p>
+      ) : null}
+      {subscription?.status === "past_due" && <p role="alert">Hay un pago pendiente. Actualiza tu método de pago desde el portal de facturación para recuperar el acceso Premium.</p>}
+      {subscription?.status === "unpaid" && <p role="alert">El pago no se ha completado. El acceso Premium está suspendido hasta regularizar la suscripción.</p>}
       {!subscription && <p>Elige un plan para acceder al catálogo premium cuando el servicio esté habilitado.</p>}
       <a className="btn" href="/planes">{subscription ? "VER PLANES" : "ELEGIR PLAN"}</a>
       {subscription?.stripe_customer_id && <form action="/api/portal" method="post" style={{marginTop:12}}><button className="btn" type="submit">GESTIONAR MI SUSCRIPCIÓN</button></form>}
