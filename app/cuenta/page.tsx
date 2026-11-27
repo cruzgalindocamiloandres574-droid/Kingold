@@ -24,17 +24,17 @@ export default async function Account() {
     .order("created_at",{ascending:false}).limit(1).maybeSingle();
 
   const {data:progressRows} = await supabase.from("watch_progress")
-    .select("movie_id,seconds_watched,updated_at")
+    .select("movie_id,seconds_watched,track_index,updated_at")
     .eq("user_id",user.id).order("updated_at",{ascending:false}).limit(10);
   const movieIds = [...new Set((progressRows || []).map((item) => item.movie_id))];
   const {data:progressMovies} = movieIds.length
-    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url")
+    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url,audio_tracks")
         .in("id",movieIds).eq("published",true)
     : {data:[]};
   const movieById = new Map((progressMovies || []).map((movie) => [movie.id,movie]));
   const continueWatching = (progressRows || []).flatMap((item) => {
     const movie = movieById.get(item.movie_id);
-    if (!movie || movie.status !== "available" || (!movie.video_url && !movie.audio_url)) return [];
+    if (!movie || movie.status !== "available" || (!movie.video_url && !movie.audio_url && !(Array.isArray(movie.audio_tracks) && movie.audio_tracks.length))) return [];
     return [{ ...item, movie }];
   });
 
@@ -59,10 +59,10 @@ export default async function Account() {
           {item.movie.poster_url && <Image src={item.movie.poster_url} alt="" width={64} height={88} unoptimized style={{width:64,height:88,objectFit:"cover",borderRadius:6}}/>}
           <div style={{flex:1,minWidth:0}}>
             <strong>{item.movie.title}</strong>
-            <p style={{margin:"6px 0",opacity:.75}}>{item.movie.audio_url && !item.movie.video_url ? "Escuchado hasta" : "Visto hasta"} {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
+            <p style={{margin:"6px 0",opacity:.75}}>{!item.movie.video_url && Array.isArray(item.movie.audio_tracks) && item.movie.audio_tracks.length > 1 ? "Capítulo " + (Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1) + 1) + " · " + (item.movie.audio_tracks[Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1)]?.label || "Pista") : item.movie.audio_url && !item.movie.video_url ? "Escuchado hasta" : "Visto hasta"} {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
             <small>{new Date(item.updated_at).toLocaleDateString("es-CO",{dateStyle:"medium"})}</small>
           </div>
-          <a className="btn" href={"/?watch="+encodeURIComponent(item.movie_id)+"#catalogo"}>CONTINUAR</a>
+          <a className="btn" href={"/?watch="+encodeURIComponent(item.movie_id)+"&track="+encodeURIComponent(String(item.track_index || 0))+"#catalogo"}>CONTINUAR</a>
         </div>)}
       </div> : <p style={{opacity:.75}}>Las películas que empieces a ver aparecerán aquí para que puedas continuar después.</p>}
     </section>
