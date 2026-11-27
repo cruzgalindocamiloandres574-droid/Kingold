@@ -1,20 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function Plans() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const autoCheckoutStarted = useRef(false);
 
-  async function checkout() {
+  const checkout = useCallback(async () => {
     setBusy(true);
     setMessage("");
     try {
       const response = await fetch("/api/checkout", { method: "POST" });
       const data = await response.json().catch(() => ({}));
       if (response.status === 401) {
-        setMessage("Para continuar, inicia sesión o crea tu cuenta. Después vuelve a esta página.");
+        setMessage("Para continuar, inicia sesión o crea tu cuenta. Te devolveremos automáticamente al pago.");
+        return;
+      }
+      if (response.status === 409 && data.code === "SUBSCRIPTION_ALREADY_EXISTS") {
+        setMessage("Ya existe una suscripción activa o pendiente en tu cuenta. Revisa su estado desde Mi cuenta.");
         return;
       }
       if (!response.ok || !data.url) {
@@ -27,7 +32,15 @@ export default function Plans() {
     } finally {
       setBusy(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "1" && !autoCheckoutStarted.current) {
+      autoCheckoutStarted.current = true;
+      void checkout();
+    }
+  }, [checkout]);
 
   return (
     <main className="section">
@@ -48,9 +61,9 @@ export default function Plans() {
         </p>
       )}
       <p style={{ marginTop: 18 }}>
-        ¿Aún no tienes cuenta? <Link href="/registro">Crear cuenta</Link>
+        ¿Aún no tienes cuenta? <Link href={"/registro?next=" + encodeURIComponent("/planes?checkout=1")}>Crear cuenta</Link>
         {" · "}
-        <Link href="/login">Iniciar sesión</Link>
+        <Link href={"/login?next=" + encodeURIComponent("/planes?checkout=1")}>Iniciar sesión</Link>
       </p>
       <p className="note">
         Stripe está conectado en modo de prueba. No se realizan cobros reales mientras se completan las pruebas de compra y la preparación del catálogo comercial con licencias de distribución.

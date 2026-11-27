@@ -56,7 +56,14 @@ export default function Login() {
         return;
       }
 
-      router.replace("/cuenta");
+      const params = new URLSearchParams(window.location.search);
+      const requestedNext = params.get("next");
+      const safeNext = requestedNext?.startsWith("/")
+        && !requestedNext.startsWith("//")
+        && !requestedNext.includes("\\")
+        ? requestedNext
+        : "/cuenta";
+      router.replace(safeNext);
       router.refresh();
     } catch {
       setMessage({ kind: "error", text: "No pudimos conectar con el servicio de acceso. Revisa tu conexión e inténtalo otra vez." });
