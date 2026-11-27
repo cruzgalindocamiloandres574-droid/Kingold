@@ -20,7 +20,7 @@ function getSubscriptionPeriodEnd(subscription:Stripe.Subscription): number | nu
   };
   if (typeof compatible.current_period_end === "number") return compatible.current_period_end;
   const itemEnds = (compatible.items?.data || [])
-    .map((item) => item.current_period_end)
+    .map((item) => (item as Stripe.SubscriptionItem & {current_period_end?: number | null}).current_period_end)
     .filter((value): value is number => typeof value === "number");
   return itemEnds.length ? Math.min(...itemEnds) : null;
 }
