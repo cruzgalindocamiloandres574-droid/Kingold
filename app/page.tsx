@@ -524,7 +524,7 @@ export default function Home() {
     const wholeSeconds = Math.floor(seconds);
     if (wholeSeconds < 5) return;
     const previous = lastProgressRef.current;
-    if (previous.movieId === movie.id && !force && wholeSeconds - previous.seconds < 15) return;
+    if (previous.movieId === movie.id && !force && wholeSeconds >= previous.seconds && wholeSeconds - previous.seconds < 15) return;
 
     lastProgressRef.current = { movieId: movie.id, seconds: wholeSeconds };
     pendingProgressRef.current = { userId, movieId: movie.id, seconds: wholeSeconds };
