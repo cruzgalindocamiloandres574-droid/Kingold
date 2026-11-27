@@ -119,4 +119,4 @@ La revisión completó los 51 fundamentos documentales de licencia y registró l
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los conflictos de licencia de Cosmos Laundromat, Sprite Fright y la condición CC BY-ND del teaser Agent 327. Los tres permanecen sin fecha de revisión y sin fundamento documental en producción; no se modificaron por requerir aclaración específica.
+Prioridad: obtener aclaración del titular para Agent 327, Cosmos Laundromat y Sprite Fright antes de decidir si procede marcar la reutilización comercial como permitida o modificar la etiqueta de licencia. Los tres registros ya tienen fecha y fundamento de revisión; lo que permanece pendiente es la resolución de sus condiciones de uso o discrepancias de versión.
