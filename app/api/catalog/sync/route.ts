@@ -427,6 +427,12 @@ async function runCatalogSync(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // GET is reserved for Vercel Cron. Browser/admin-triggered imports must use POST.
+  const secret = process.env.CRON_SECRET;
+  const authorization = request.headers.get("authorization");
+  if (!secret || authorization !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Esta ruta GET está reservada para tareas programadas." }, { status: 401 });
+  }
   return runCatalogSync(request);
 }
 
