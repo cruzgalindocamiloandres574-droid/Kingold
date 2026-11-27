@@ -187,6 +187,15 @@ function videoMimeType(url: string) {
   return undefined;
 }
 
+function audioMimeType(url: string) {
+  const pathname = url.split(/[?#]/, 1)[0].toLowerCase();
+  if (pathname.endsWith(".m4b") || pathname.endsWith(".m4a") || pathname.endsWith(".mp4")) return "audio/mp4";
+  if (pathname.endsWith(".mp3")) return "audio/mpeg";
+  if (pathname.endsWith(".ogg") || pathname.endsWith(".opus")) return "audio/ogg";
+  if (pathname.endsWith(".wav")) return "audio/wav";
+  return undefined;
+}
+
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a className={footer ? "brandLockup brandLockupFooter" : "brandLockup"} href="#" aria-label="NOIR VAULT, inicio">
@@ -853,10 +862,15 @@ export default function Home() {
                         void clearCompletedProgress();
                       }
                     }}>
-                    <source src={activeAudioUrl} type="audio/mpeg" />
+                    <source src={activeAudioUrl} type={audioMimeType(activeAudioUrl)} />
                     Tu navegador no puede reproducir este audio.
                   </audio>
                   {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
+                  {selected.contentType === "audiobook" && activeAudioUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith(".m4b") && (
+                    <small className="audioTrackNote">
+                      Audiolibro en un solo archivo M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha; las marcas de capítulo del archivo se conservan para aplicaciones compatibles con M4B.
+                    </small>
+                  )}
                   {selected.contentType === "podcast" && selected.audioUrl && selected.readerUrl && (
                     <small className="audioTrackNote">
                       Audio transmitido desde el archivo oficial de NASA. NOIR VAULT no aloja ni redistribuye el archivo.{" "}
