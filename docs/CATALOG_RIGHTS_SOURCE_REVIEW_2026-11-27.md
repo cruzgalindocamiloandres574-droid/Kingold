@@ -39,6 +39,35 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 | SINTEL | `5322cc1b-1e6a-4b00-ade7-062e7ba70a87` | La página oficial de Durian/Blender Foundation declara CC BY 3.0; para exhibir la película completa se debe conservar el rollo íntegro de créditos. | https://durian.blender.org/about/ |
 | TEARS OF STEEL | `be590690-e1bc-4648-8e2a-a7549b74d10e` | La página oficial de Mango/Blender Foundation declara CC BY 3.0; para compartir o mostrar la película se debe conservar el rollo íntegro de créditos. | https://mango.blender.org/about/ |
 
+## Fuentes complementarias documentadas en producción
+
+Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). El 27 de noviembre de 2026 se revisó la ficha individual y se completó únicamente `content_metadata.license_basis`; no se cambió su fecha previa ni se modificaron licencias, créditos, URLs, estado de reproducción o `commercial_reuse_permitted`.
+
+| Título | ID de catálogo | Declaración y evidencia observada | Fuente primaria / ficha individual |
+| --- | --- | --- | --- |
+| ABOUT ARCHIVES NEW ZEALAND | `21f0e72f-fb64-4cea-97d7-cb2ba0a3686d` | Archives New Zealand; CC BY 3.0 Unported. Commons registra revisión del original YouTube el 08-09-2024. | https://commons.wikimedia.org/wiki/File:About_Archives_New_Zealand.webm |
+| ASE IFÁ PIPA (2026) | `35d74024-699c-4486-8750-07bcc3a2d1b1` | La página presenta CC BY-SA 4.0 en el panel de reutilización y CC BY 4.0 en la declaración del titular; se conservó la etiqueta más restrictiva del catálogo y se dejó constancia del conflicto. | https://commons.wikimedia.org/wiki/File:ASE_IFA_PIPA.webm |
+| ATORMENTADOS (TORMENTED) | `8d09a541-5dbc-4856-8355-934c2134ea7a` | Renato Rodriguez (Charter); CC BY 3.0 Unported. Commons confirma la licencia fuente el 26-05-2026. | https://commons.wikimedia.org/wiki/File:Renato_Rodriguez_-_Atormentados_(2025).ogv |
+| BISCUIT: FROM STRAY DOG TO SUPERHERO | `8aa68838-689a-4b79-92fe-414a6d818f7c` | The Studio confirma CC BY 4.0 para la película y archivos fuente, incluido uso comercial con atribución; no permite vender los archivos originales sin cambios como biblioteca de stock. | https://www.thestudio.io/osvideo/ y https://github.com/dlaneycreative-design/studio-open/blob/main/LICENSE.md |
+| BUN HUNTING: OVERTURE (2024) | `529472ba-258c-49c3-97a1-6eb005bd4b57` | Piti Yindee; CC0 1.0, con dedicación al dominio público confirmada por la revisión de Commons el 04-10-2024. | https://commons.wikimedia.org/wiki/File:Piti_Yindee_-_Hank_Howell_-_Bun_Hunting_-_Overture_(2024).webm |
+| ITAN ORE MEJI (ASE-SILE, ABO WABA) (2025) | `0b66cd43-9dbb-4403-9c72-7200938e13b1` | Commons muestra declaración CC BY 4.0 del titular y metadatos estructurados que también registran CC BY-SA 4.0; se conserva la etiqueta CC BY-SA del catálogo y se deja el conflicto abierto. | https://commons.wikimedia.org/wiki/File:Itan_Ore_meji_(Ase-sile,_Abo_waba).webm |
+| ITAN YEYEMOOLU TI ILE-IFE (2025) | `5dd21b0d-9a2a-4062-bf6b-9df6e6fe2584` | Panel de reutilización CC BY-SA 4.0; declaración del titular CC BY 4.0 y metadatos estructurados con ambas. Se mantiene la etiqueta CC BY-SA existente, sin resolver la diferencia. | https://commons.wikimedia.org/wiki/File:Itan_Yeyemoolu_ti_Ile-Ife.webm |
+| JEREMY (2024) | `8da12722-a7df-42b1-8e09-6f3934f30496` | Destiny Zukevich et al.; CC BY 3.0 Unported. La licencia del original YouTube fue revisada por Commons el 24-03-2024. | https://commons.wikimedia.org/wiki/File:Destiny_Zukevich_et_al._-_Jeremy_(2024).webm |
+| KARINDING (2020) | `da7dc450-a95e-477f-b74e-55062c881e80` | El panel declara CC BY 4.0, mientras que los datos estructurados de Commons incluyen CC BY-SA 3.0 y CC BY 4.0. Se conserva la licencia CC BY-SA existente en el catálogo hasta aclaración. | https://commons.wikimedia.org/wiki/File:Karinding_(2020)_(short_documentary).webm |
+| LUZ Y LIBERTAD (LIGHT AND FREEDOM) | `84fbd9ed-388d-4f00-8406-3281edbe9050` | William Espada (Cihznat); CC BY 3.0 Unported. Commons registra revisión del original YouTube el 04-10-2024. | https://commons.wikimedia.org/wiki/File:William_Espada_-_Light_and_Freedom_(2024).webm |
+| THE LOCAL FREAK: BRICK & MURDER (2025) | `0f141791-055b-4ecc-9610-07ccfd739e4c` | Areg Savchenko (Regyman); CC BY 3.0 Unported. La versión de Commons excluye segmentos con música y recursos no libres; no deben reinsertarse. | https://commons.wikimedia.org/wiki/File:Areg_Savchenko_-_Local_Freak,_The_-_Brick_and_Murder_(2025).ogv |
+| SEASIDE (2024) | `1166db3f-b371-41db-9bed-0a082a66824f` | Rensaven; CC BY 3.0 Unported. Commons registra revisión del original YouTube el 18-06-2024. | https://commons.wikimedia.org/wiki/File:Rensaven_-_Seaside_(2024).webm |
+| UNDERSTORIES (2025) | `f55ca709-6123-4c6a-8bec-2197e3884704` | ravenRugosa (theCorvidHive); CC BY 3.0 Unported. Commons registra revisión del original YouTube el 22-05-2025. | https://commons.wikimedia.org/wiki/File:RavenRugosa_-_Understories_(2025).ogv |
+| ENTREVISTA A KEN NEWBALL MCGOWAN (2026) | `87b33fd8-3470-48aa-9ab4-fd6d3b76f0a7` | Kriol Narrative; obra propia bajo CC BY-SA 4.0, con fecha 20-11-2026. | https://commons.wikimedia.org/wiki/File:JUV_VID_001_20261109_B.webm |
+| ESTADO DE LA DOCUMENTACIÓN DE LA LENGUA JUANG — OPENSPEAKS (2026) | `c9b1ac6e-69ba-405e-b0a1-0119b2140904` | Subhashish Panigrahi declara CC BY-SA 4.0; Opino Gomango y Kshetrabasi Juanga tienen derechos morales indicados en la ficha. El registro de procedencia/consentimiento está documentado; la evaluación comunitaria de historias orales figura como no evaluada. | https://commons.wikimedia.org/wiki/File:OpenSpeaks-jun-Kshetrabasi_Juanga-OG-State_of_Language_Documentation.webm |
+| IT'S A NEW DAY! (2023) | `7ef660df-021a-407c-b8dd-df791a39c35d` | Nádia Correia (Nixie Lin); CC BY 3.0 Unported. Commons registra revisión del original YouTube el 14-10-2023. | https://commons.wikimedia.org/wiki/File:Nádia_Correia_-_It%27s_a_New_Day!_(2023).webm |
+| JAN HAARHUIS: EL DOCUMENTAL | `4e67f3e6-b701-4794-9f14-e423a1de621e` | BeeScene; CC BY 3.0 Unported. La ficha avisa que la revisión automatizada verificó la licencia, pero no posibles obras derivadas u otros problemas de copyright; exige revisión humana adicional. | https://commons.wikimedia.org/wiki/File:Jan_Haarhuis,_short_documentary.webm |
+| KOJI (2024) | `0ba1897d-e676-49a0-896c-3be996634b07` | Zean; CC BY 3.0 Unported; fuente original YouTube, 14-10-2024. | https://commons.wikimedia.org/wiki/File:Award_Winning_Animated_Short_Film_-_Koji.webm |
+| NOT BROKEN (COMMONS CHALLENGE) | `5721d214-0526-4416-9420-f47c3e2f232b` | MinorMedia; obra propia bajo CC BY 4.0, fechada 11-01-2026. | https://commons.wikimedia.org/wiki/File:Commons_challenge.webm |
+| PARIS: WIKIMANIA 2026 — ANIMATED FILM | `1c22a32f-d600-467e-b30c-1f40ad985090` | Dev Jadiya; obra propia bajo CC BY-SA 4.0, fechada 22-07-2026. | https://commons.wikimedia.org/wiki/File:Animated_video_screening_at_the_Wikimania_2026_opening_ceremony_in_Paris.webm |
+
+Las siete filas con licencias dobles o información extra requieren cautela: ASE IFÁ PIPA, ITAN ORE MEJI, ITAN YEYEMOOLU y KARINDING mantienen su etiqueta más restrictiva en el catálogo sin concluir que el conflicto está resuelto. La documentación de Juang registra explícitamente que la evaluación comunitaria de historias orales no está evaluada. La revisión automatizada de Jan Haarhuis no sustituye una revisión humana de posibles derechos adicionales.
+
 Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlace a la licencia y la indicación de cambios que sean aplicables. CC BY-SA impone además compartir adaptaciones bajo la misma licencia o una compatible. La fecha registrada indica que se consultó la ficha fuente ese día; no equivale a una certificación de derechos de todos los componentes.
 
 ## Casos no modificados por ambigüedad o condiciones especiales
@@ -50,7 +79,7 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
-## Recuento reproducido después de actualizar los 28 registros
+## Recuento reproducido después de completar 48 fundamentos de licencia y registrar 28 fechas de revisión
 
 Consulta ejecutada en producción el 27 de noviembre de 2026:
 
@@ -58,14 +87,14 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | --- | ---: |
 | Videos publicados con URL reproducible | 184 |
 | Sin `content_metadata.rights_checked_on` | 3 |
-| Sin `content_metadata.license_basis` | 23 |
+| Sin `content_metadata.license_basis` | 3 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 144 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó fechas y bases documentales en 28 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 48 fundamentos documentales de licencia (de 51 pendientes iniciales) y registró 28 fechas de revisión (de 31 pendientes iniciales). En las 20 filas complementarias, la fecha de revisión ya existía y solo se completó `license_basis`. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright y revisar las condiciones CC BY-ND del teaser Agent 327. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
+Prioridad: resolver los conflictos de licencia de Cosmos Laundromat, Sprite Fright y la condición CC BY-ND del teaser Agent 327. Los tres permanecen sin fecha de revisión y sin fundamento documental en producción; no se modificaron por requerir aclaración específica.
