@@ -398,8 +398,8 @@ export default function Home() {
           subtitleTracks: Array.isArray(movie.subtitle_tracks) ? movie.subtitle_tracks as Film["subtitleTracks"] : [],
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
           hasLatinSpanish: Boolean(movie.has_latin_spanish),
-          status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url) ? "available" : "soon",
-          availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url)
+          status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0)) ? "available" : "soon",
+          availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0))
             ? "available"
             : movie.content_metadata && typeof movie.content_metadata === "object" && (movie.content_metadata as Record<string, unknown>).catalog_availability === "upcoming"
               ? "upcoming"
@@ -900,7 +900,7 @@ export default function Home() {
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
-              {resumeAt > 15 && <p className="playerLanguageNote">Continuando desde {Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
+              {resumeAt > 15 && <p className="playerLanguageNote">{!selected.videoUrl && (selected.audioTracks?.length ?? 0) > 1 ? "Continuando en el capítulo " + (selectedAudioIndex + 1) + " desde " : "Continuando desde "}{Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
               {selected.videoUrl && <div className="playerLanguageControls">
                 {selected.silentFilm ? (
