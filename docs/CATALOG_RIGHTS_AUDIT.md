@@ -94,13 +94,13 @@ order by title;
 
 ## Criterios operativos
 
-1. Registrar `rights_checked_on` únicamente después de abrir y revisar la página de origen; la fecha significa que hubo revisión, no que se obtuvo una autorización.
+1. `rights_checked_on` registra la fecha de la consulta más reciente de la página de origen. Si se vuelve a consultar la fuente, actualizar la fecha aunque la licencia no cambie. La fecha documenta una revisión, no la obtención de autorización.
 2. Completar `license_basis` con la evidencia concreta: declaración del titular, licencia del archivo, registro oficial o análisis de dominio público, junto con la URL primaria y cualquier limitación relevante. No copiar una frase genérica a registros que no se hayan comprobado individualmente.
 3. Marcar `commercial_reuse_permitted` como verdadero solo cuando la evidencia cubra el uso comercial y los componentes incorporados relevantes. Un campo nulo debe seguir siendo “no verificado”, no convertirse automáticamente en verdadero o falso.
 4. Revisar por separado licencias con condiciones NoDerivatives (ND), ShareAlike (SA), declaraciones de licencia contradictorias y obras que incorporen música, archivos o material de terceros.
 5. Mantener bloqueada la reproducción cuando falte autorización suficiente o exista una restricción no resuelta. Una ficha publicada o un enlace externo pueden servir como referencia, pero no sustituyen el permiso para alojar, retransmitir o monetizar la obra.
-6. No cambiar derechos, licencia, créditos, fecha de revisión ni disponibilidad mediante un backfill masivo. Cada modificación debe conservar la URL de evidencia y una nota específica para esa obra.
+6. No cambiar licencias, créditos, URLs ni disponibilidad mediante un backfill masivo. Al revisar una fuente concreta, actualizar `rights_checked_on` a la fecha de la consulta más reciente y conservar la URL de evidencia y una nota específica para esa obra.
 
 ## Estado de los cambios
 
-Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 51 registros descritos en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se completaron `content_metadata.rights_checked_on` y `content_metadata.license_basis` en 51 registros descritos en el documento de revisión de fuentes. De las 51 fechas registradas en 2026-11-27, 31 estaban vacías inicialmente y 20 se actualizaron desde 2026-11-26 tras volver a consultar sus fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
