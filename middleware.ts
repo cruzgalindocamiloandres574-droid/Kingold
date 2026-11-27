@@ -27,10 +27,25 @@ export async function middleware(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
+      setAll(
+        cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>,
+        cacheHeaders?: Record<string, string>,
+      ) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+
+        // @supabase/ssr 0.6.x does not pass cache headers to setAll.
+        // Never let a CDN cache a response that refreshes or clears an auth cookie.
+        if (cookiesToSet.length > 0) {
+          const headers = {
+            "Cache-Control": "private, no-store",
+            Expires: "Thu, 01 Jan 1970 00:00:00 GMT",
+            Pragma: "no-cache",
+            ...(cacheHeaders || {}),
+          };
+          Object.entries(headers).forEach(([name, value]) => response.headers.set(name, value));
+        }
       },
     },
   });
