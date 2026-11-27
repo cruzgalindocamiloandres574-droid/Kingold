@@ -52,8 +52,10 @@ export default async function Account() {
         : "Sin suscripción activa"}</h2>
       {subscription?.cancel_at_period_end && ["active","trialing"].includes(subscription.status) ? (
         <p role="status">
-          La renovación automática está desactivada. Conservas el acceso NOIR PREMIUM hasta{" "}
-          {new Date(subscription.cancel_at || subscription.current_period_end || "").toLocaleDateString("es-CO",{dateStyle:"long"})}.
+          La renovación automática está desactivada.{" "}
+          {subscription.cancel_at || subscription.current_period_end
+            ? <>Conservas el acceso NOIR PREMIUM hasta {new Date(subscription.cancel_at || subscription.current_period_end).toLocaleDateString("es-CO",{dateStyle:"long"})}.</>
+            : "Conservas el acceso hasta el final del periodo de facturación."}
         </p>
       ) : subscription?.current_period_end ? (
         <p>Periodo hasta: {new Date(subscription.current_period_end).toLocaleDateString("es-CO",{dateStyle:"long"})}</p>
