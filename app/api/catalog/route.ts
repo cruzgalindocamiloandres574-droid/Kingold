@@ -19,8 +19,12 @@ async function catalogClient() {
 
 export async function GET(request: NextRequest) {
   try {
-    const page = Math.max(1, Math.min(5000, Number(request.nextUrl.searchParams.get("page") || 1)));
+    const requestedPage = Number(request.nextUrl.searchParams.get("page") || 1);
+    const page = Number.isFinite(requestedPage)
+      ? Math.max(1, Math.min(5000, Math.floor(requestedPage)))
+      : 1;
     const q = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
+    const searchTerms = q.replace(/[(),.%_*]/g, " ").trim().split(/\s+/).filter(Boolean);
     const genre = request.nextUrl.searchParams.get("genre");
     const year = request.nextUrl.searchParams.get("year");
     const language = request.nextUrl.searchParams.get("language");
@@ -55,14 +59,11 @@ export async function GET(request: NextRequest) {
     query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     if (type && allowedTypes.has(type)) query = query.eq("content_type", type);
     if (featureOnly) query = query.gte("runtime_minutes", 60);
-    if (q) {
+    if (searchTerms.length) {
       // Turn punctuation and spaces into SQL LIKE wildcards so searches can
       // match titles whose stored punctuation differs from the user's query.
-      const terms = q.replace(/[(),.%_*]/g, " ").trim().split(/\s+/).filter(Boolean);
-      if (terms.length) {
-        const pattern = `%${terms.join("%")}%`;
-        query = query.or(`title.ilike.${pattern},synopsis.ilike.${pattern},genre.ilike.${pattern}`);
-      }
+      const pattern = `%${searchTerms.join("%")}%`;
+      query = query.or(`title.ilike.${pattern},synopsis.ilike.${pattern},genre.ilike.${pattern}`);
     }
     if (genre && genre !== "Todo") query = query.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
     if (year && /^\d{4}$/.test(year)) query = query.eq("release_year", Number(year));
@@ -73,6 +74,27 @@ export async function GET(request: NextRequest) {
     if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
+    // Count the filtered result set independently so an out-of-range page can
+    // return an empty list instead of requesting an impossible PostgREST range.
+    let totalQuery = db.from("movies")
+      .select("id", { count: "exact", head: true })
+      .eq("published", true);
+    if (type && allowedTypes.has(type)) totalQuery = totalQuery.eq("content_type", type);
+    if (featureOnly) totalQuery = totalQuery.gte("runtime_minutes", 60);
+    if (searchTerms.length) {
+      const pattern = `%${searchTerms.join("%")}%`;
+      totalQuery = totalQuery.or(`title.ilike.${pattern},synopsis.ilike.${pattern},genre.ilike.${pattern}`);
+    }
+    if (genre && genre !== "Todo") totalQuery = totalQuery.ilike("genre", `%${genre.replace(/[%_,]/g, " ")}%`);
+    if (year && /^\d{4}$/.test(year)) totalQuery = totalQuery.eq("release_year", Number(year));
+    if (language && /^[a-z]{2}$/.test(language)) totalQuery = totalQuery.eq("original_language", language);
+    if (audio === "latin") totalQuery = totalQuery.eq("has_latin_spanish", true);
+    if (audio === "spanish") totalQuery = totalQuery.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
+    if (playback === "internal") totalQuery = totalQuery.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,content_metadata->>external_embed_url.not.is.null");
+    if (playback === "external") totalQuery = totalQuery.eq("status", "available").is("video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
+    if (playback === "soon") totalQuery = totalQuery.contains("content_metadata", { catalog_availability: "upcoming" });
+    if (playback === "pending") totalQuery = totalQuery.contains("content_metadata", { catalog_availability: "source_pending" });
+
     // Summary counts follow the selected format and are filtered by the same RLS
     // entitlement as results, so anonymous viewers cannot infer premium inventory.
     const countByStatus = (status: "available" | "soon") => {
@@ -83,8 +105,9 @@ export async function GET(request: NextRequest) {
       if (type && allowedTypes.has(type)) countQuery = countQuery.eq("content_type", type);
       return countQuery;
     };
-    const [pageResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
+    const [pageResult, totalResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       query,
+      totalQuery,
       countByStatus("available")
         .or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,reader_url.not.is.null"),
       countByStatus("available")
@@ -103,16 +126,18 @@ export async function GET(request: NextRequest) {
       countByStatus("soon")
         .contains("content_metadata", { catalog_availability: "source_pending" }),
     ]);
-    if (pageResult.error) throw pageResult.error;
+    if (totalResult.error) throw totalResult.error;
+    const total = totalResult.count || 0;
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    if (pageResult.error && page <= totalPages) throw pageResult.error;
     if (availableResult.error) throw availableResult.error;
     if (internalResult.error) throw internalResult.error;
     if (embedResult.error) throw embedResult.error;
     if (externalResult.error) throw externalResult.error;
     if (upcomingResult.error) throw upcomingResult.error;
     if (pendingResult.error) throw pendingResult.error;
-    const total = pageResult.count || 0;
     return NextResponse.json({
-      results: pageResult.data || [],
+      results: page > totalPages ? [] : pageResult.data || [],
       total,
       availableTotal: availableResult.count || 0,
       internalTotal: (internalResult.count || 0) + (embedResult.count || 0),
@@ -121,7 +146,7 @@ export async function GET(request: NextRequest) {
       pendingTotal: pendingResult.count || 0,
       page,
       pageSize: PAGE_SIZE,
-      totalPages: Math.ceil(total / PAGE_SIZE),
+      totalPages,
     }, { headers: PRIVATE_CATALOG_HEADERS });
   } catch (error) {
     console.error("Catalog API error", error);
