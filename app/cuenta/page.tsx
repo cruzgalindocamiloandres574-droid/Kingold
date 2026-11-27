@@ -28,7 +28,7 @@ export default async function Account() {
     .eq("user_id",user.id).order("updated_at",{ascending:false}).limit(10);
   const movieIds = [...new Set((progressRows || []).map((item) => item.movie_id))];
   const {data:progressMovies} = movieIds.length
-    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url,audio_tracks")
+    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url,audio_tracks,chapter_count")
         .in("id",movieIds).eq("published",true)
     : {data:[]};
   const movieById = new Map((progressMovies || []).map((movie) => [movie.id,movie]));
@@ -59,7 +59,7 @@ export default async function Account() {
           {item.movie.poster_url && <Image src={item.movie.poster_url} alt="" width={64} height={88} unoptimized style={{width:64,height:88,objectFit:"cover",borderRadius:6}}/>}
           <div style={{flex:1,minWidth:0}}>
             <strong>{item.movie.title}</strong>
-            <p style={{margin:"6px 0",opacity:.75}}>{!item.movie.video_url && Array.isArray(item.movie.audio_tracks) && item.movie.audio_tracks.length > 1 ? "Capítulo " + (Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1) + 1) + " · " + (item.movie.audio_tracks[Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1)]?.label || "Pista") : item.movie.audio_url && !item.movie.video_url ? "Escuchado hasta" : "Visto hasta"} {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
+            <p style={{margin:"6px 0",opacity:.75}}>{!item.movie.video_url && Array.isArray(item.movie.audio_tracks) && item.movie.audio_tracks.length > 1 ? "Capítulo " + (Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1) + 1) + " · " + (item.movie.audio_tracks[Math.min(Number(item.track_index || 0), item.movie.audio_tracks.length - 1)]?.label || "Pista") : item.movie.audio_url && !item.movie.video_url ? "Escuchado hasta" + (item.movie.chapter_count ? " · " + item.movie.chapter_count + " capítulos" : "") : "Visto hasta"} {Math.floor(item.seconds_watched / 60)}:{String(item.seconds_watched % 60).padStart(2,"0")}</p>
             <small>{new Date(item.updated_at).toLocaleDateString("es-CO",{dateStyle:"medium"})}</small>
           </div>
           <a className="btn" href={"/?watch="+encodeURIComponent(item.movie_id)+"&track="+encodeURIComponent(String(item.track_index || 0))+"#catalogo"}>CONTINUAR</a>
