@@ -6,11 +6,14 @@ import { createBrowserClient } from "@supabase/ssr";
 
 
 type ContentType = "movie" | "series" | "anime" | "manga" | "podcast" | "documentary" | "audiobook" | "concert" | "short";
+type AudioChapter = { title: string; startSeconds: number; endSeconds: number };
+
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
   audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; subtitleDownloadUrl?: string; subtitleNote?: string; subtitleCredit?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
+  audioChapters?: AudioChapter[];
   creator: string; license: string; credit: string; sourcePageUrl?: string;
   audioTracks?: { label: string; language: string; url: string; verified?: boolean }[];
   subtitleTracks?: { label: string; language: string; src: string; isDefault?: boolean }[];
@@ -196,6 +199,31 @@ function audioMimeType(url: string) {
   return undefined;
 }
 
+function parseAudioChapters(metadata: unknown): AudioChapter[] {
+  if (!metadata || typeof metadata !== "object") return [];
+  const raw = (metadata as Record<string, unknown>).audio_chapters;
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const chapter = item as Record<string, unknown>;
+    const title = typeof chapter.title === "string" ? chapter.title.trim() : "";
+    const startSeconds = Number(chapter.start_seconds);
+    const endSeconds = Number(chapter.end_seconds);
+    if (!title || !Number.isFinite(startSeconds) || !Number.isFinite(endSeconds) || startSeconds < 0 || endSeconds <= startSeconds) return [];
+    return [{ title, startSeconds, endSeconds }];
+  });
+}
+
+function formatAudioTimestamp(seconds: number) {
+  const safe = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const remainder = safe % 60;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`
+    : `${minutes}:${String(remainder).padStart(2, "0")}`;
+}
+
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a className={footer ? "brandLockup brandLockupFooter" : "brandLockup"} href="#" aria-label="NOIR VAULT, inicio">
@@ -234,6 +262,7 @@ export default function Home() {
   const [contentConsentId, setContentConsentId] = useState<string | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
   const [selectedAudioIndex, setSelectedAudioIndex] = useState(0);
+  const [activeAudioChapterIndex, setActiveAudioChapterIndex] = useState(0);
   const [selectedSubtitleIndex, setSelectedSubtitleIndex] = useState(-1);
   const [audioFilter, setAudioFilter] = useState<"all" | "latin" | "spanish">("all");
   const [playbackFilter, setPlaybackFilter] = useState<"all" | "internal" | "external" | "soon" | "pending">("all");
@@ -406,6 +435,7 @@ export default function Home() {
           audioTracks: Array.isArray(movie.audio_tracks) ? movie.audio_tracks as Film["audioTracks"] : [],
           subtitleTracks: Array.isArray(movie.subtitle_tracks) ? movie.subtitle_tracks as Film["subtitleTracks"] : [],
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
+          audioChapters: parseAudioChapters(movie.content_metadata),
           hasLatinSpanish: Boolean(movie.has_latin_spanish),
           status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0)) ? "available" : "soon",
           availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0))
@@ -846,7 +876,16 @@ export default function Home() {
                   )}
                   <audio ref={audioRef} key={selected.id + "-" + selectedAudioIndex + "-" + videoAttempt} controls autoPlay preload="metadata"
                     onLoadedMetadata={(event) => { if (resumeAt > 15) event.currentTarget.currentTime = resumeAt; }}
-                    onTimeUpdate={(event) => { if (!selected.audioTracks?.length || selectedAudioIndex === activeAudioTrackIndexRef.current) void saveProgress(event.currentTarget.currentTime, false, selectedAudioIndex); }}
+                    onTimeUpdate={(event) => {
+                      if (!selected.audioTracks?.length || selectedAudioIndex === activeAudioTrackIndexRef.current) {
+                        const seconds = event.currentTarget.currentTime;
+                        void saveProgress(seconds, false, selectedAudioIndex);
+                        const chapterIndex = selected.audioChapters?.findIndex((chapter) =>
+                          seconds >= chapter.startSeconds && seconds < chapter.endSeconds
+                        ) ?? -1;
+                        if (chapterIndex >= 0) setActiveAudioChapterIndex(chapterIndex);
+                      }
+                    }}
                     onPause={(event) => { if (!selected.audioTracks?.length || selectedAudioIndex === activeAudioTrackIndexRef.current) void saveProgress(event.currentTarget.currentTime, true, selectedAudioIndex); }}
                     onLoadedData={() => setVideoState("ready")} onCanPlay={() => setVideoState("ready")}
                     onPlaying={() => setVideoState("ready")} onError={handleAudioError}
@@ -868,7 +907,7 @@ export default function Home() {
                   {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
                   {selected.contentType === "audiobook" && activeAudioUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith(".m4b") && (
                     <small className="audioTrackNote">
-                      Audiolibro M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha; para navegar por capítulos, descarga el archivo y ábrelo en una app compatible.
+                      Audiolibro M4B con capítulos navegables dentro de NOIR VAULT. Selecciona un capítulo en la lista inferior; el avance se guarda por posición de escucha.
                      <a href={activeAudioUrl} target="_blank" rel="noreferrer">DESCARGAR M4B CON CAPÍTULOS ↗</a> · <a href="https://openaudiobooks.org/how-to-listen/" target="_blank" rel="noreferrer">GUÍA PARA ANDROID Y OTRAS APPS ↗</a></small>
                   )}
                   {selected.contentType === "podcast" && selected.audioUrl && selected.readerUrl && (
@@ -914,6 +953,39 @@ export default function Home() {
             <div className="playerInfo">
               <div className="playerMeta"><span>{selected.year || "—"}</span><i>·</i><span>{selected.genre}</span><i>·</i><span>{selected.duration}</span>{selected.seasonNumber && selected.episodeNumber ? <><i>·</i><span>T{selected.seasonNumber} · E{selected.episodeNumber}</span></> : null}<span className="licenseTag">{selected.license || "DERECHOS POR VERIFICAR"}</span></div>
               <h2>{selected.name}</h2><p>{selected.synopsis}</p>
+              {selected.contentType === "audiobook" && (selected.audioChapters || []).length > 0 && (
+                <section className="audioChapterNavigation" aria-label="Navegación por capítulos">
+                  <div className="audioChapterNavigationHeader">
+                    <strong>CAPÍTULOS</strong>
+                    <span>
+                      {Math.min(activeAudioChapterIndex + 1, selected.audioChapters!.length)} / {selected.audioChapters!.length}
+                      {" · "}{selected.audioChapters?.[activeAudioChapterIndex]?.title || "Selecciona un capítulo"}
+                    </span>
+                  </div>
+                  <div className="audioChapterList" aria-label="Seleccionar capítulo">
+                    {selected.audioChapters!.map((chapter, index) => (
+                      <button
+                        key={`${selected.id}-audio-chapter-${index}`}
+                        type="button"
+                        className={activeAudioChapterIndex === index ? "audioChapterButton audioChapterButtonActive" : "audioChapterButton"}
+                        aria-current={activeAudioChapterIndex === index ? "true" : undefined}
+                        aria-label={`Ir a ${chapter.title}, ${formatAudioTimestamp(chapter.startSeconds)}`}
+                        onClick={() => {
+                          const audio = audioRef.current;
+                          if (!audio) return;
+                          audio.currentTime = chapter.startSeconds;
+                          setActiveAudioChapterIndex(index);
+                          void audio.play().catch(() => undefined);
+                        }}
+                      >
+                        <span className="audioChapterNumber">{String(index + 1).padStart(2, "0")}</span>
+                        <span className="audioChapterTitle">{chapter.title}</span>
+                        <span className="audioChapterStart">{formatAudioTimestamp(chapter.startSeconds)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
               {resumeAt > 15 && <p className="playerLanguageNote">{!selected.videoUrl && (selected.audioTracks?.length ?? 0) > 1 ? "Continuando en el capítulo " + (selectedAudioIndex + 1) + " desde " : "Continuando desde "}{Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
               {selected.videoUrl && <div className="playerLanguageControls">
