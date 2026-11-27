@@ -868,8 +868,8 @@ export default function Home() {
                   {(selected.audioTracks || []).length > 0 && <small className="audioTrackNote">Reproduciendo {selected.audioTracks?.[selectedAudioIndex]?.label || "audio disponible"} · selección automática del siguiente capítulo al terminar.</small>}
                   {selected.contentType === "audiobook" && activeAudioUrl.toLowerCase().split(/[?#]/, 1)[0].endsWith(".m4b") && (
                     <small className="audioTrackNote">
-                      Audiolibro en un solo archivo M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha; las marcas de capítulo del archivo se conservan para aplicaciones compatibles con M4B.
-                    </small>
+                      Audiolibro en un solo archivo M4B con capítulos integrados. NOIR VAULT guarda el punto exacto de escucha. Para navegar por capítulos, abre el archivo original en una aplicación compatible con M4B.
+                     <a href={activeAudioUrl} target="_blank" rel="noreferrer">ABRIR ARCHIVO M4B CON CAPÍTULOS ↗</a></small>
                   )}
                   {selected.contentType === "podcast" && selected.audioUrl && selected.readerUrl && (
                     <small className="audioTrackNote">
@@ -899,7 +899,7 @@ export default function Home() {
                   <span>{selected.status === "soon" ? (selected.availability === "upcoming" ? "NOIR / PRÓXIMO ESTRENO" : "NOIR / FUENTE PENDIENTE") : selected.contentType === "manga" ? "NOIR / LECTURA OFICIAL" : selected.contentType === "podcast" ? "NOIR / ESCUCHA OFICIAL" : selected.contentType === "audiobook" ? "NOIR / AUDIOLIBRO EXTERNO" : "NOIR / FUENTE EXTERNA"}</span>
                   <strong>{selected.name}</strong><p>{selected.status === "soon" ? selected.synopsis + (selected.availability === "upcoming" ? " Este título todavía no está disponible para reproducirse." : " Todavía no tiene una fuente multimedia verificada.") : selected.synopsis}</p>
                   {selected.hasLatinSpanish && <small className="audioTrackNote">Audio en español latino disponible en el proveedor oficial. Selecciona esa pista allí; NOIR VAULT no controla el reproductor externo.</small>}
-                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : selected.contentType === "audiobook" ? "ABRIR AUDIOLIBRO EN LIBRIVOX ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
+                  <a href={selected.readerUrl} target="_blank" rel="noreferrer">{selected.status === "soon" ? "CONSULTAR FICHA Y ESTRENO ↗" : selected.contentType === "manga" ? "ABRIR MANGA PLUS ↗" : selected.contentType === "podcast" ? "ESCUCHAR EN NASA ↗" : selected.contentType === "audiobook" ? "VER FICHA DEL AUDIOLIBRO ↗" : "ABRIR FUENTE OFICIAL ↗"}</a>
                   {selected.subtitleDownloadUrl && (
                     <>
                       <small className="readerSubtitleNote">El vídeo oficial se descarga en MKV y aún no se reproduce dentro de NOIR. Los subtítulos en español están disponibles como archivo SRT.</small>
