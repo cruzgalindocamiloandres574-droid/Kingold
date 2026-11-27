@@ -15,6 +15,7 @@ Plataforma web de descubrimiento y reproducción de cine, series, anime, manga, 
 - Panel de administración protegido por rol, con altas de catálogo, contadores por sección e importaciones.
 - Importadores de metadatos desde Wikidata/Wikimedia Commons y fichas de audiolibros de LibriVox.
 - Integración de Stripe Checkout, portal de facturación y webhook de sincronización de suscripciones.
+- Bloqueo atómico por usuario para evitar sesiones de Checkout duplicadas; cada intento se identifica por UUID y se libera mediante webhooks firmados cuando termina o expira.
 
 ## Estado y límites importantes
 
@@ -58,7 +59,7 @@ Copia `.env.example` en `.env.local` y completa los valores:
 - `NEXT_PUBLIC_SUPABASE_URL`: URL del proyecto Supabase.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: clave pública/publishable para navegador y sesiones.
 - `SUPABASE_SECRET_KEY` o `SUPABASE_SERVICE_ROLE_KEY`: credencial privada para tareas administrativas del servidor. Configura solo la que corresponda y nunca la expongas con prefijo `NEXT_PUBLIC_`.
-- `STRIPE_SECRET_KEY`: clave secreta de Stripe. Mantén una clave de prueba hasta completar validaciones y aprobar el lanzamiento.
+- `STRIPE_SECRET_KEY`: clave secreta de Stripe. Mantén una clave de prueba hasta completar validaciones y aprobar el lanzamiento. El backend conserva compatibilidad con el nombre heredado `stripe_secret_client`; para instalaciones nuevas usa `STRIPE_SECRET_KEY`.
 - `STRIPE_WEBHOOK_SECRET`: secreto de firma del webhook.
 - `STRIPE_PRICE_ID`: identificador del precio de suscripción.
 - `NEXT_PUBLIC_SITE_URL`: URL pública del sitio.
@@ -71,6 +72,12 @@ Las claves privadas solo deben guardarse en el entorno del servidor (por ejemplo
 El esquema inicial y los cambios versionados están en `supabase/schema.sql` y `supabase/migrations/`. El proyecto desplegado ya contiene cambios posteriores al esquema inicial; **no ejecutes el archivo `schema.sql` sobre la base de datos existente**. Antes de instalar en una base nueva, revisa y aplica las migraciones en el orden correspondiente y comprueba las políticas RLS. La clave privada de Supabase nunca debe usarse en componentes cliente.
 
 La lectura pública del catálogo está limitada a registros publicados por las políticas RLS. Las escrituras de administración requieren el rol `admin`; las importaciones usan una credencial privada del servidor.
+
+El bloqueo anti-duplicados de Checkout se versiona en:
+- `20261127200000_prevent_duplicate_checkout_sessions.sql`: tabla privada con RLS y adquisición atómica del intento.
+- `20261127200500_bind_checkout_lock_to_attempt.sql`: UUID del intento para que un webhook atrasado no libere un bloqueo nuevo.
+
+Ambas migraciones ya están aplicadas al proyecto conectado. En una instalación nueva, aplícalas después del esquema base y las migraciones de autenticación/suscripciones.
 
 ## Tareas programadas
 
@@ -85,11 +92,24 @@ Las rutas de sincronización exigen una sesión administradora o un encabezado `
 
 Rutas implementadas:
 
-- `POST /api/checkout`: crea una sesión de Checkout para el usuario autenticado.
+- `POST /api/checkout`: crea una sesión de Checkout para el usuario autenticado y bloquea intentos simultáneos duplicados.
 - `POST /api/portal`: abre el portal de facturación del cliente autenticado.
-- `POST /api/stripe-webhook`: valida la firma del webhook y sincroniza el estado de suscripción.
+- `POST /api/stripe-webhook`: valida la firma del webhook, sincroniza el estado de suscripción y libera únicamente el intento de Checkout asociado.
 
-Configura en Stripe los eventos utilizados por el webhook, entre ellos `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid` e `invoice.payment_failed`. Prueba el flujo completo en modo test antes de activar cobros reales.
+El webhook debe escuchar estos eventos:
+
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+- `checkout.session.expired`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `customer.subscription.paused`
+- `customer.subscription.resumed`
+- `invoice.paid`
+- `invoice.payment_failed`
+
+Prueba el flujo completo en modo test antes de activar cobros reales. El bloqueo de Checkout expira automáticamente; no borres manualmente registros de intentos para resolver una sesión todavía abierta.
 
 ## Repositorio
 
