@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 19 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
+El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 23 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -24,6 +24,10 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 | BBS: The Documentary — Episodio 6 | `39cb668b-c34f-4ee3-9d3d-cc9875e40406` | La ficha individual atribuye la obra a Jason Scott, señala Internet Archive como fuente y declara CC BY-SA 3.0 Unported. | https://commons.wikimedia.org/wiki/File:BBS_The_Documentary,_Episode_6.webm |
 | BBS: The Documentary — Episodio 7 | `d579daf0-47f7-426c-ba48-7162044a8629` | La ficha individual atribuye la obra a Jason Scott, señala Internet Archive como fuente y declara CC BY-SA 3.0 Unported. | https://commons.wikimedia.org/wiki/File:BBS_The_Documentary,_Episode_7.webm |
 | WIKIMANIA 2015: EL DOCUMENTAL | `d0f9c0a9-29b0-43b0-bc98-75ecf21d54f5` | La ficha atribuye el documental a Wikimedia México A.C. / Isla Producciones y declara CC BY-SA 3.0 salvo indicación contraria. Logos y marcas registradas de Wikimedia Foundation no quedan licenciados. | https://commons.wikimedia.org/wiki/File:Wikimania_2015_documentary.webm |
+| CAMINANDES 1: LLAMA DRAMA | `ce4f9d72-3eed-466b-9e3d-b64b3f537284` | La ficha individual identifica a Pablo Vazquez, Beorn Leonard y Francesco Siddi; acredita música y sonido a Jan Morgenstern; declara CC BY 3.0 y registra revisión del original de YouTube el 17-11-2013. | https://commons.wikimedia.org/wiki/File:Caminandes-_Llama_Drama_-_Short_Movie.ogv |
+| NO WAY TO SAY GOODBYE | `061b43dd-9b69-4350-a754-a518d7da4a23` | La ficha individual identifica a Jonas M. Jacobs, señala Vimeo como fuente y declara CC BY 3.0; la revisión de la licencia de origen figura el 07-02-2017. | https://commons.wikimedia.org/wiki/File:NO_WAY_TO_SAY_GOODBYE_full_movie.webm |
+| PANOPTICON | `85ec31dd-66a9-4088-8000-659c4170c861` | La ficha individual identifica a Peter Vlemmix, señala YouTube como fuente y declara CC BY 3.0; la revisión de la licencia de origen figura el 21-12-2016. | https://commons.wikimedia.org/wiki/File:FULL_DOCUMENTARY_-_Panopticon_privacy_-_Peter_Vlemmix.webm |
+| PENDATANG (2023) | `9723017f-114c-4aa4-a455-3bc649d6fcde` | La ficha individual identifica a Kuman Pictures, cita el original de YouTube, enumera el reparto y el equipo de producción, declara CC BY 3.0 y registra confirmación de licencia el 20-04-2026. | https://commons.wikimedia.org/wiki/File:PENDATANG_(2023)_full_movie.webm |
 | CAMINANDES 3: LLAMIGOS | `ed6177e9-17b0-4ba7-aef9-d04b26fd7b52` | La ficha individual de Commons identifica Blender como autor, declara CC BY 3.0 y registra una revisión de licencia del original de YouTube el 17-10-2016; acredita música y sonido por separado. | https://commons.wikimedia.org/wiki/File:Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm |
 | CAMINANDES: GRAN DILLAMA | `191b6f75-8a89-4f4d-82be-6de18857b2ec` | La ficha individual identifica a los creadores y declara CC BY-SA 3.0; Commons registra revisión de la fuente el 12-08-2015. Atribución y compartir-igual. | https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm |
 | DOMINION (2018) | `6485c873-cf98-4460-b26d-c3497338f333` | La ficha individual identifica Farm Transparency Project como autor, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; revisión de Commons del 10-01-2026. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm |
@@ -41,21 +45,21 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
-## Recuento reproducido después de actualizar los 19 registros
+## Recuento reproducido después de actualizar los 23 registros
 
 Consulta ejecutada en producción el 27 de noviembre de 2026:
 
 | Indicador | Resultado actual |
 | --- | ---: |
 | Videos publicados con URL reproducible | 184 |
-| Sin `content_metadata.rights_checked_on` | 12 |
-| Sin `content_metadata.license_basis` | 32 |
+| Sin `content_metadata.rights_checked_on` | 8 |
+| Sin `content_metadata.license_basis` | 28 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 144 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 40 |
 
-La revisión completó fechas y bases documentales en 19 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó fechas y bases documentales en 23 filas (la medición inicial tenía 31 fechas y 51 bases ausentes). No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
