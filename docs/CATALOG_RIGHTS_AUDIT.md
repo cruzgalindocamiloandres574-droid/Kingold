@@ -4,17 +4,19 @@
 **Entorno:** proyecto Supabase de producción de NOIR VAULT  
 **Alcance:** filas publicadas con `status = 'available'` y `video_url IS NOT NULL`.
 
-## Resultado de la medición
+## Resultado actual de la medición
 
-| Indicador | Resultado |
-| --- | ---: |
-| Videos publicados con URL reproducible | 184 |
-| Sin `content_metadata.rights_checked_on` | 31 |
-| Sin `content_metadata.license_basis` | 51 |
-| Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 |
-| Con `commercial_reuse_permitted = 'true'` | 144 |
-| Sin valor explícito para reutilización comercial | 40 |
-| Con valor explícito `commercial_reuse_permitted = 'false'` | 0 |
+| Indicador | Resultado actual | Medición inicial del 2026-11-27 |
+| --- | ---: | ---: |
+| Videos publicados con URL reproducible | 184 | 184 |
+| Sin `content_metadata.rights_checked_on` | 17 | 31 |
+| Sin `content_metadata.license_basis` | 37 | 51 |
+| Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 | 0 |
+| Con `commercial_reuse_permitted = 'true'` | 144 | 144 |
+| Sin valor explícito para reutilización comercial | 40 | 40 |
+| Con valor explícito `commercial_reuse_permitted = 'false'` | 0 | 0 |
+
+El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron fecha y fundamento documental a 14 registros. La descripción por título, las URLs de evidencia, las restricciones y los casos ambiguos están en [CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md](./CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md).
 
 Estos indicadores miden la **completitud de los metadatos**, no una conclusión jurídica. Una licencia escrita en la ficha, un enlace a una licencia o una URL reproducible no bastan por sí solos para demostrar que NOIR VAULT puede ofrecer cada obra en streaming comercial. También pueden existir derechos independientes sobre música, imágenes, intérpretes, restauraciones, materiales incorporados y otros componentes.
 
@@ -91,4 +93,4 @@ order by title;
 
 ## Estado de los cambios
 
-Esta medición no modificó filas, licencias, fechas ni estados del catálogo. La auditoría deja constancia de los pendientes y una consulta reproducible para que las siguientes revisiones sean trazables. Tampoco constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 14 registros enumerados en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
