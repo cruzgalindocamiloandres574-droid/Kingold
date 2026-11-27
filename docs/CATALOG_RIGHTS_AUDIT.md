@@ -22,6 +22,16 @@ Estos indicadores miden la **completitud de los metadatos**, no una conclusión 
 
 Los 8 recursos con `audio_url` y los 158 con `reader_url` son campos que pueden coexistir con un vídeo en la misma fila; por eso no se suman como si fueran títulos únicos ni forman parte de las cifras de esta auditoría específica de vídeo.
 
+## Uso comercial todavía sin determinar
+
+40 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 40 infracciones ni como 40 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
+
+La revisión del inventario agrupó estos 40 registros en 12 películas de 1904–1908 marcadas con Public Domain Mark de Wikimedia Commons, 8 episodios de `BBS: The Documentary` y 20 títulos adicionales con licencias abiertas o condiciones que requieren revisar música, intérpretes, material de archivo, versiones de archivo, restricciones ND o declaraciones de licencia discrepantes.
+
+Public Domain Mark 1.0 es un indicador, no una licencia. Para una determinación en Colombia deben verificarse los artículos 26 y 27 de la Ley 23 de 1982 (artículo 27 modificado por la Ley 1915 de 2018): plazo cinematográfico general de 80 años desde terminación/primera comunicación pública; si el titular es persona jurídica, 70 años desde el final del año de primera publicación autorizada. También deben verificarse titular/productor, fecha de primera comunicación/publicación, bandas sonoras añadidas, restauraciones y derechos complementarios. Fuentes: [Ley 23 de 1982, compilación oficial de Cancillería](https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm) y [Ley 1915 de 2018, Gestor Normativo](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419).
+
+Los campos se mantienen nulos hasta completar la revisión. No se han convertido en verdaderos por la sola presencia de una etiqueta CC o PDM.
+
 ## Consulta de verificación
 
 Ejecutar en Supabase SQL Editor. Es una consulta de solo lectura y permite reproducir los indicadores:
