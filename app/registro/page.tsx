@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
@@ -13,6 +13,18 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [nextPath, setNextPath] = useState("/cuenta");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedNext = params.get("next");
+    const safeNext = requestedNext?.startsWith("/")
+      && !requestedNext.startsWith("//")
+      && !requestedNext.includes("\\")
+      ? requestedNext
+      : "/cuenta";
+    setNextPath(safeNext);
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -93,7 +105,7 @@ export default function Register() {
           {message && <p role={message.kind === "error" ? "alert" : "status"} style={{ margin: "4px 0", color: message.kind === "error" ? "#ffb0a8" : "#c7d9b2", lineHeight: 1.6 }}>{message.text}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ width: "100%", minHeight: 48, opacity: busy ? .65 : 1 }}>{busy ? "CREANDO CUENTA…" : "CREAR MI CUENTA"}</button>
         </form>
-        <p style={{ color: "#aaa", marginTop: 24 }}>¿Ya tienes una cuenta? <Link href="/login" style={{ color: "#e6cea9" }}>Iniciar sesión</Link></p>
+        <p style={{ color: "#aaa", marginTop: 24 }}>¿Ya tienes una cuenta? <Link href={"/login?next=" + encodeURIComponent(nextPath)} style={{ color: "#e6cea9" }}>Iniciar sesión</Link></p>
       </div>
     </main>
   );

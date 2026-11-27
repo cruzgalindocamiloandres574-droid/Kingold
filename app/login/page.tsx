@@ -13,9 +13,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [nextPath, setNextPath] = useState("/cuenta");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const requestedNext = params.get("next");
+    const safeNext = requestedNext?.startsWith("/")
+      && !requestedNext.startsWith("//")
+      && !requestedNext.includes("\\")
+      ? requestedNext
+      : "/cuenta";
+    setNextPath(safeNext);
     if (params.get("error") === "confirmation") {
       setMessage({ kind: "error", text: "No pudimos confirmar el correo. Solicita un enlace nuevo o vuelve a registrarte." });
     } else if (params.get("error") === "auth") {
@@ -92,7 +100,7 @@ export default function Login() {
           <button className="btn" type="submit" disabled={busy} style={{ width: "100%", minHeight: 48, opacity: busy ? .65 : 1 }}>{busy ? "CONECTANDO…" : "INICIAR SESIÓN"}</button>
         </form>
         <p style={{ margin: "16px 0 0", fontSize: 13 }}><Link href="/recuperar" style={{ color: "#c7a675" }}>¿Olvidaste tu contraseña?</Link></p>
-        <p style={{ color: "#aaa", marginTop: 24 }}>¿Aún no tienes cuenta? <Link href="/registro" style={{ color: "#e6cea9" }}>Crear cuenta</Link></p>
+        <p style={{ color: "#aaa", marginTop: 24 }}>¿Aún no tienes cuenta? <Link href={"/registro?next=" + encodeURIComponent(nextPath)} style={{ color: "#e6cea9" }}>Crear cuenta</Link></p>
       </div>
     </main>
   );
