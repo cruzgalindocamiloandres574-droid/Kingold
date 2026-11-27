@@ -75,8 +75,6 @@ Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlac
 - **Agent 327: Operation Barbershop — Teaser:** Blender Studio publicó el archivo bajo CC BY-ND y una nota del responsable del proyecto dice que no se añadan anuncios, que no se remixe ni se reutilice la música y que se use tal como fue publicado. Como el uso dentro de un servicio de suscripción de pago requiere análisis específico, no se completó una autorización comercial ni se cambió su fecha o disponibilidad. Fuente: https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/
 - **COSMOS LAUNDROMAT:** la ficha de catálogo dice CC BY-SA 3.0; el sitio oficial del proyecto Gooseberry dice CC BY 3.0 y una ficha secundaria IFN declara CC BY-SA 3.0. No se eligió una licencia a ciegas; se requiere conciliación con el titular. Fuentes: https://gooseberry.blender.org/license/ y https://www.theindiefilmnetwork.com/movies/cosmos-laundromat
 - **SPRITE FRIGHT:** el catálogo dice CC BY 4.0, mientras que la página oficial de Blender Studio actualmente indexada declara CC Attribution 1.0. No se trató esa diferencia como un simple error tipográfico y no se modificó el registro. Fuente: https://studio.blender.org/projects/sprite-fright/pages/about/
-- **BBS episodios 5 y 8:** quedaron pendientes; no se actualizó por inferencia a partir de otras entregas de la serie.
-
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
 ## Recuento reproducido después de completar 48 fundamentos de licencia y registrar 28 fechas de revisión
