@@ -11,7 +11,7 @@ type AudioChapter = { title: string; startSeconds: number; endSeconds: number };
 type Film = {
   id: string; name: string; genre: string; year: number; duration: string;
   synopsis: string; posterUrl: string; videoUrl?: string; fallbackVideoUrl?: string;
-  audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; subtitleDownloadUrl?: string; subtitleNote?: string; subtitleCredit?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
+  audioUrl?: string; readerUrl?: string; externalEmbedUrl?: string; requiresPremium?: boolean; subtitleDownloadUrl?: string; subtitleNote?: string; subtitleCredit?: string; contentAdvisory?: string; ageGuidance?: string; contentType?: ContentType;
   seasonNumber?: number; episodeNumber?: number; seasonCount?: number; episodeCount?: number; chapterCount?: number;
   audioChapters?: AudioChapter[];
   creator: string; license: string; credit: string; sourcePageUrl?: string;
@@ -389,6 +389,7 @@ export default function Home() {
         if (!active) return;
         const databaseFilms: Film[] = (result.results || []).map((movie: Record<string, unknown>) => ({
           id: String(movie.id), name: String(movie.title || "Sin título"), genre: String(movie.genre || "Cine"),
+          requiresPremium: movie.requires_premium === true,
           year: Number(movie.release_year || 0), duration: movie.duration ? String(movie.duration) : movie.runtime_minutes ? String(movie.runtime_minutes) + " min" : "—",
           synopsis: String(movie.synopsis || ""), posterUrl: String(movie.poster_url || ""),
           videoUrl: movie.video_url ? String(movie.video_url) : undefined,
@@ -756,7 +757,7 @@ export default function Home() {
             {visibleFilms.map((film, index) => (
               <button key={film.id} className={film.status === "soon" ? "filmCard filmSoon" : "filmCard"}
                 onClick={() => openFilm(film)} disabled={film.status !== "available" && !film.readerUrl}
-                aria-label={film.status === "available" ? "Abrir " + film.name : film.readerUrl ? "Consultar ficha oficial de " + film.name : film.name + ", próximamente"}>
+                aria-label={(film.requiresPremium ? "NOIR PREMIUM · " : "") + (film.status === "available" ? "Abrir " + film.name : film.readerUrl ? "Consultar ficha oficial de " + film.name : film.name + ", próximamente")}>
                 <span className="filmPoster">
                   <span className={`posterFallback posterFallback-${film.contentType || "movie"}`} aria-hidden="true">
                     <span className="posterFallbackOrb" />
@@ -766,6 +767,7 @@ export default function Home() {
                   {film.posterUrl && <Image className="posterImage" src={film.posterUrl} alt={"Póster de " + film.name} fill unoptimized sizes="(max-width: 680px) 50vw, 25vw" loading={index > 3 ? "lazy" : "eager"} onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                   <span className="posterVignette" />
                   <span className="posterTop"><span>NOIR / OPEN CINEMA</span><span>{String(index + 1).padStart(2, "0")}</span></span>
+                  {film.requiresPremium && <span className="premiumContentBadge">NOIR PREMIUM</span>}
                   {film.status === "available" ? (
                     <>
                       <span className={film.videoUrl || film.audioUrl || film.externalEmbedUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
