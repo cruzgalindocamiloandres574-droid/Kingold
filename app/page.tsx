@@ -208,6 +208,7 @@ export default function Home() {
   const [viewerId, setViewerId] = useState<string | null>(null);
   const [resumeAt, setResumeAt] = useState(0);
   const [pendingWatchId, setPendingWatchId] = useState<string | null>(null);
+  const openFilmRequestRef = useRef(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastProgressRef = useRef<{ movieId: string; seconds: number }>({ movieId: "", seconds: 0 });
@@ -242,6 +243,9 @@ export default function Home() {
 
   const openFilm = useCallback(async (film: Film) => {
     if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.readerUrl)) return;
+    // A late progress response must never seek a different title after the
+    // viewer has opened another item or closed the player.
+    const requestId = ++openFilmRequestRef.current;
     setSourceIndex(0);
     setSelectedAudioIndex(0);
     setSelectedSubtitleIndex(film.subtitleTracks?.findIndex((track) => track.isDefault) ?? -1);
@@ -257,18 +261,30 @@ export default function Home() {
     // need a persisted track index before they can be resumed accurately.
     const supportsProgress = Boolean(film.videoUrl || (film.audioUrl && !film.audioTracks?.length));
     if (!supabase || !supportsProgress) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    setViewerId(user?.id ?? null);
-    if (!user) return;
-    const { data } = await supabase
-      .from("watch_progress")
-      .select("seconds_watched")
-      .eq("user_id", user.id)
-      .eq("movie_id", film.id)
-      .maybeSingle();
-    const savedSeconds = Number(data?.seconds_watched || 0);
-    if (savedSeconds > 15) setResumeAt(savedSeconds);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (requestId !== openFilmRequestRef.current) return;
+      setViewerId(user?.id ?? null);
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("watch_progress")
+        .select("seconds_watched")
+        .eq("user_id", user.id)
+        .eq("movie_id", film.id)
+        .maybeSingle();
+      if (requestId !== openFilmRequestRef.current || error) return;
+      const savedSeconds = Number(data?.seconds_watched || 0);
+      if (savedSeconds > 15) setResumeAt(savedSeconds);
+    } catch {
+      // Playback remains available even when the progress service is offline.
+    }
   }, [supabase]);
+
+  function closePlayer() {
+    openFilmRequestRef.current += 1;
+    setSelected(null);
+    setResumeAt(0);
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -439,7 +455,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!selected) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setSelected(null); };
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closePlayer(); };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selected]);
@@ -729,9 +745,9 @@ export default function Home() {
       </footer>
 
       {selected && (activeVideoUrl || activeAudioUrl || selected.readerUrl) && (
-        <div className="playerOverlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
+        <div className="playerOverlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closePlayer(); }}>
           <section className="playerDialog" role="dialog" aria-modal="true" aria-label={"Reproductor " + selected.name}>
-            <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => setSelected(null)} aria-label="Cerrar reproductor">×</button></div>
+            <div className="playerHeader"><div><span className="playerBrandDot">N</span><span>NOIR VAULT <i>/</i> OPEN CINEMA</span></div><button onClick={() => closePlayer()} aria-label="Cerrar reproductor">×</button></div>
             <div className="videoStage">
               {activeVideoUrl ? (
                 selected.contentAdvisory && contentConsentId !== selected.id ? (
