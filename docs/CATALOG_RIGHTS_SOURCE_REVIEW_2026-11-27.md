@@ -63,4 +63,4 @@ La revisión completó fechas y bases documentales en 23 filas (la medición ini
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8 y Caminandes: Llama Drama; continuar con Charge, Hero, No Way to Say Goodbye, Panopticon, Pasión Oriental y Pendatang. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
+Prioridad: resolver los conflictos de licencia de Cosmos Laundromat y Sprite Fright; revisar las condiciones CC BY-ND del teaser Agent 327; comprobar individualmente BBS episodios 5 y 8; continuar con Charge, Hero y Pasión Oriental. También quedan registros con `license_basis` incompleto aunque su fecha de revisión ya conste.
