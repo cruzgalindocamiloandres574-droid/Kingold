@@ -92,6 +92,7 @@ button{color:inherit}
 .posterImage{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center;z-index:0;transition:transform .65s,filter .35s}
 .posterVignette{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,#070807ac 0%,transparent 26%,#08090825 45%,#050605ed 100%),linear-gradient(90deg,#05060533,transparent 30%,transparent 70%,#05060522)}
 .posterTop{position:absolute;z-index:1;left:14px;right:14px;top:13px;display:flex;justify-content:space-between;gap:8px;color:#e2d4b9;font-size:7px;letter-spacing:1.5px;text-shadow:0 1px 8px #000}
+.premiumContentBadge{position:absolute;z-index:3;top:70px;right:12px;padding:6px 8px;border:1px solid #c7a675;background:#100f0de8;color:#e5c892;font-size:7px;font-weight:900;letter-spacing:1.25px;text-shadow:0 1px 8px #000;backdrop-filter:blur(8px)}
 .posterPlay{position:absolute;z-index:2;left:50%;top:50%;width:53px;height:53px;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:50%;border:1px solid #ffffffb0;background:#0809097d;color:white;backdrop-filter:blur(8px);opacity:0;transition:opacity .25s,transform .25s}
 .posterPlay span{padding-left:3px;font-size:14px}
 .filmCard:not(:disabled):hover .filmPoster{transform:translateY(-5px);border-color:#c7a675aa;box-shadow:0 19px 36px #000b}
