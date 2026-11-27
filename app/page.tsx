@@ -280,11 +280,11 @@ export default function Home() {
     }
   }, [supabase]);
 
-  function closePlayer() {
+  const closePlayer = useCallback(() => {
     openFilmRequestRef.current += 1;
     setSelected(null);
     setResumeAt(0);
-  }
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
@@ -458,7 +458,7 @@ export default function Home() {
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closePlayer(); };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selected]);
+  }, [selected, closePlayer]);
 
   const genres = useMemo(
     () => ["Todo", ...Array.from(new Set([
