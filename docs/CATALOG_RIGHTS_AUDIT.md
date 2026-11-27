@@ -9,14 +9,14 @@
 | Indicador | Resultado actual | Medición inicial del 2026-11-27 |
 | --- | ---: | ---: |
 | Videos publicados con URL reproducible | 184 | 184 |
-| Sin `content_metadata.rights_checked_on` | 3 | 31 |
-| Sin `content_metadata.license_basis` | 3 | 51 |
+| Sin `content_metadata.rights_checked_on` | 0 | 31 |
+| Sin `content_metadata.license_basis` | 0 | 51 |
 | Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 | 0 |
 | Con `commercial_reuse_permitted = 'true'` | 144 | 144 |
 | Sin valor explícito para reutilización comercial | 40 | 40 |
 | Con valor explícito `commercial_reuse_permitted = 'false'` | 0 | 0 |
 
-El 27 de noviembre de 2026 se revisaron fuentes individuales y se completaron 48 fundamentos de licencia y se añadieron 28 fechas de revisión. La descripción por título, las URLs de evidencia, las restricciones y los casos ambiguos están en [CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md](./CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md).
+El 27 de noviembre de 2026 se revisaron fuentes individuales: se completaron 51 fundamentos documentales y 31 fechas de revisión. La descripción por título, las URLs de evidencia, las restricciones y los casos ambiguos están en [CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md](./CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md).
 
 Estos indicadores miden la **completitud de los metadatos**, no una conclusión jurídica. Una licencia escrita en la ficha, un enlace a una licencia o una URL reproducible no bastan por sí solos para demostrar que NOIR VAULT puede ofrecer cada obra en streaming comercial. También pueden existir derechos independientes sobre música, imágenes, intérpretes, restauraciones, materiales incorporados y otros componentes.
 
@@ -93,4 +93,4 @@ order by title;
 
 ## Estado de los cambios
 
-Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 48 registros con fundamento actualizado; las fechas se añadieron únicamente a los 28 que carecían de ellas en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 51 registros descritos en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
