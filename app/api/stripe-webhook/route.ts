@@ -11,19 +11,68 @@ function getAdminClient() {
   return createSupabaseClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
 }
 
+function getSubscriptionPeriodEnd(subscription:Stripe.Subscription): number | null {
+  // Stripe API versions before 2025-03-31 expose the billing period on the
+  // subscription; newer Basil versions expose it on each subscription item.
+  const compatible = subscription as Stripe.Subscription & {
+    current_period_end?: number | null;
+    items?: {data?: Array<{current_period_end?: number | null}>};
+  };
+  if (typeof compatible.current_period_end === "number") return compatible.current_period_end;
+  const itemEnds = (compatible.items?.data || [])
+    .map((item) => (item as Stripe.SubscriptionItem & {current_period_end?: number | null}).current_period_end)
+    .filter((value): value is number => typeof value === "number");
+  return itemEnds.length ? Math.min(...itemEnds) : null;
+}
+
+function getInvoiceSubscriptionId(invoice:Stripe.Invoice): string | null {
+  // The invoice.subscription field is used by older API versions. Basil
+  // moves the reference under parent.subscription_details.subscription.
+  const compatible = invoice as Stripe.Invoice & {
+    subscription?: string | Stripe.Subscription | null;
+    parent?: {
+      subscription_details?: {
+        subscription?: string | Stripe.Subscription | null;
+      } | null;
+    } | null;
+  };
+  const value = compatible.parent?.subscription_details?.subscription ?? compatible.subscription;
+  if (typeof value === "string") return value;
+  return value?.id || null;
+}
+
 async function saveSubscription(subscription:Stripe.Subscription, userId?:string, customerId?:string) {
   const ownerId = userId || subscription.metadata?.user_id;
   if (!ownerId) throw new Error("La suscripción no contiene user_id.");
   const supabase = getAdminClient();
   const customer = customerId || (typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id);
+  const periodEnd = getSubscriptionPeriodEnd(subscription);
   const {error} = await supabase.from("subscriptions").upsert({
     user_id:ownerId,
     stripe_customer_id:customer,
     stripe_subscription_id:subscription.id,
     status:subscription.status,
-    current_period_end:new Date(subscription.current_period_end * 1000).toISOString()
+    current_period_end:periodEnd ? new Date(periodEnd * 1000).toISOString() : null
   },{onConflict:"stripe_subscription_id"});
   if (error) throw error;
+}
+
+async function syncCheckoutSession(stripe:Stripe, session:Stripe.Checkout.Session) {
+  if (session.mode !== "subscription" || !session.subscription) return;
+  const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  await saveSubscription(
+    subscription,
+    session.client_reference_id || session.metadata?.user_id || undefined,
+    typeof session.customer === "string" ? session.customer : session.customer?.id
+  );
+}
+
+async function syncLatestSubscription(stripe:Stripe, subscriptionId:string) {
+  // Fetch the canonical current state instead of trusting the event snapshot:
+  // Stripe does not guarantee webhook delivery order.
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  await saveSubscription(subscription);
 }
 
 export async function POST(request:Request) {
@@ -45,27 +94,20 @@ export async function POST(request:Request) {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      if (session.mode === "subscription" && session.subscription) {
-        const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        await saveSubscription(subscription,session.client_reference_id || session.metadata?.user_id || undefined,
-          typeof session.customer === "string" ? session.customer : session.customer?.id);
-      }
-    } else if (event.type === "customer.subscription.created" ||
-               event.type === "customer.subscription.updated" ||
-               event.type === "customer.subscription.deleted") {
-      await saveSubscription(event.data.object as Stripe.Subscription);
+    if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+      await syncCheckoutSession(stripe,event.data.object as Stripe.Checkout.Session);
+    } else if (
+      event.type === "customer.subscription.created" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted" ||
+      event.type === "customer.subscription.paused" ||
+      event.type === "customer.subscription.resumed"
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+      await syncLatestSubscription(stripe,subscription.id);
     } else if (event.type === "invoice.paid" || event.type === "invoice.payment_failed") {
-      const invoice = event.data.object as Stripe.Invoice;
-      const subscriptionId = typeof invoice.subscription === "string"
-        ? invoice.subscription
-        : invoice.subscription?.id;
-      if (subscriptionId) {
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        await saveSubscription(subscription);
-      }
+      const subscriptionId = getInvoiceSubscriptionId(event.data.object as Stripe.Invoice);
+      if (subscriptionId) await syncLatestSubscription(stripe,subscriptionId);
     }
     return NextResponse.json({received:true});
   } catch (error) {
