@@ -59,7 +59,7 @@ export async function POST() {
     });
 
     return NextResponse.redirect(session.url, 303);
-  } catch (error) {
+  } catch {
     console.error("NOIR billing portal session could not be created.");
     return NextResponse.json({ error: "No se pudo abrir el portal de facturación. Inténtalo de nuevo." }, { status: 502 });
   }
