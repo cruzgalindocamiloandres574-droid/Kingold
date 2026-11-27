@@ -61,12 +61,13 @@ export async function POST() {
     const origin = baseUrl.origin;
 
     // Atomically allow only one in-flight Checkout Session per user.
-    const {data:lockAcquired,error:lockError} = await supabase.rpc("acquire_checkout_attempt");
+    // The returned attempt ID also binds later webhooks to this exact attempt.
+    const {data:lockAttemptId,error:lockError} = await supabase.rpc("acquire_checkout_attempt");
     if (lockError) {
       console.error("NOIR checkout lock error:",lockError);
       return NextResponse.json({error:"No pudimos proteger el inicio de pago. Inténtalo de nuevo."},{status:503});
     }
-    if (lockAcquired !== true) {
+    if (typeof lockAttemptId !== "string" || !lockAttemptId) {
       return NextResponse.json({
         error:"Ya hay un intento de pago abierto para tu cuenta. Termina ese proceso o espera a que expire antes de intentarlo de nuevo.",
         code:"CHECKOUT_IN_PROGRESS",
@@ -79,8 +80,8 @@ export async function POST() {
         mode:"subscription",
         line_items:[{price,quantity:1}],
         client_reference_id:user.id,
-        metadata:{user_id:user.id},
-        subscription_data:{metadata:{user_id:user.id}},
+        metadata:{user_id:user.id,checkout_attempt_id:lockAttemptId},
+        subscription_data:{metadata:{user_id:user.id,checkout_attempt_id:lockAttemptId}},
         success_url:origin+"/cuenta?checkout=success",
         cancel_url:origin+"/planes",
         expires_at:Math.floor(Date.now()/1000)+31*60,
@@ -91,11 +92,15 @@ export async function POST() {
       return NextResponse.json({url:session.url});
     } catch (error) {
       // A definitive Stripe 4xx (except rate limiting) means no session was
-      // created, so release the lock. Network/5xx errors remain locked until
-      // TTL expiry because Stripe may have created the session before timeout.
+      // created, so release this attempt. Network/5xx errors remain locked
+      // until TTL expiry because Stripe may have created a session before timeout.
       const statusCode = (error as {statusCode?:number})?.statusCode;
       if (typeof statusCode === "number" && statusCode >= 400 && statusCode < 500 && statusCode !== 429) {
-        const {error:releaseError} = await supabase.from("checkout_attempts").delete().eq("user_id",user.id);
+        const {error:releaseError} = await supabase
+          .from("checkout_attempts")
+          .delete()
+          .eq("user_id",user.id)
+          .eq("attempt_id",lockAttemptId);
         if (releaseError) console.error("NOIR checkout lock release error:",releaseError);
       }
       throw error;
