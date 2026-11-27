@@ -103,4 +103,4 @@ order by title;
 
 ## Estado de los cambios
 
-Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 51 registros descritos en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se actualizaron únicamente `content_metadata.rights_checked_on` y `content_metadata.license_basis` en los 51 registros descritos en el documento de revisión de fuentes. No se modificaron licencias declaradas, créditos, URLs, estados, ni la indicación `commercial_reuse_permitted`. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
