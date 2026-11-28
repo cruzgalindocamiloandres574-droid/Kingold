@@ -55,11 +55,13 @@ La URL y la clave publicable de Supabase se usan también en el cliente. Nunca p
 ## Stripe en el entorno conectado
 - El webhook de Stripe Test del proyecto apunta a `https://noir-vault-psi.vercel.app/api/stripe-webhook`.
 - El precio de prueba configurado es mensual en COP por 20.000. Mantén Stripe en modo test hasta completar la validación del flujo y aprobar expresamente el lanzamiento.
-- Mantén habilitados los eventos `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `customer.subscription.paused`, `customer.subscription.resumed`, `invoice.paid` y `invoice.payment_failed`.
+- Mantén habilitados los eventos `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `customer.subscription.paused`, `customer.subscription.resumed`, `invoice.paid` y `invoice.payment_failed`.
+- El handler solo sincroniza la suscripción cuando `payment_status` es `paid` o `no_payment_required`; sesiones `unpaid` no conceden acceso ni liberan prematuramente el bloqueo. Firma y modo de entorno se validan antes de procesar eventos.
+- El Checkout, el portal y el webhook aceptan únicamente claves Stripe de prueba (`sk_test_` o `rk_test_`); el webhook rechaza además eventos marcados `livemode=true`. No quites estos bloqueos para una activación comercial sin revisar y aprobar todo el proceso.
 - Guarda el secreto de firma en `STRIPE_WEBHOOK_SECRET`. No copies claves ni secretos de prueba a documentación o Git.
 
 ## Bloqueo de Checkout
-Las migraciones `20261127200000_prevent_duplicate_checkout_sessions.sql` y `20261127200500_bind_checkout_lock_to_attempt.sql` crean un bloqueo de corta duración por usuario. Impiden dos sesiones simultáneas y asocian cada bloqueo con un UUID único. Los webhooks completado/expirado liberan solo el intento que les corresponde; la caducidad de respaldo es automática.
+Las migraciones `20261127200000_prevent_duplicate_checkout_sessions.sql` y `20261127200500_bind_checkout_lock_to_attempt.sql` crean un bloqueo de corta duración por usuario. Impiden dos sesiones simultáneas y asocian cada bloqueo con un UUID único. El webhook libera solo el intento exacto cuando la sesión expira, el pago diferido falla o se confirma la finalización pagada; la caducidad de respaldo es automática.
 
 Estas migraciones ya están aplicadas al proyecto Supabase conectado. En una base nueva, aplícalas después del esquema base y de las migraciones de autenticación y suscripciones.
 
@@ -71,7 +73,7 @@ La migración `supabase/migrations/20261128164047_grant_own_checkout_attempt_rea
 
 El rol `authenticated` recibe `SELECT` únicamente sobre las columnas `user_id`, `expires_at` y `attempt_id`, acompañado de una política RLS que limita las filas a `user_id = auth.uid()`. No puede leer `created_at` ni usar un `SELECT` de tabla completa. El rol `anon` no recibe lectura ni ejecución de la función. La migración quedó registrada en Supabase como versión `20261128164203`.
 
-Verificación: la función ya no falla por permisos al ejecutar su limpieza; una invocación de prueba con un UUID que no existe avanzó hasta la restricción de clave foránea de `auth.users`, y la tabla sigue con cero intentos almacenados. Como aún no existe una cuenta real, falta validar el recorrido exitoso de Checkout con la primera sesión del propietario. No se creó una cuenta de prueba ni una sesión de Stripe.
+Verificación: la función ya no falla por permisos al ejecutar su limpieza; una invocación de prueba con un UUID que no existe avanzó hasta la restricción de clave foránea de `auth.users`. La cuenta propietaria ya está confirmada; queda validar un recorrido de Checkout en modo test con una sesión expresamente iniciada por el usuario. No se creó una nueva sesión de Stripe ni se efectuó un pago para esta validación.
 
 ## Derechos y reproducción
 Solo habilitar reproducción para películas con derechos y fuentes autorizadas. El catálogo incluye fuentes reproducibles y fichas de referencia/enlaces externos; no supongas que una ficha publicada equivale a autorización de exhibición. El host de vídeo externo no es un CDN de producción.
@@ -86,6 +88,12 @@ Solo habilitar reproducción para películas con derechos y fuentes autorizadas.
 - El bloqueo de paginación fuera de rango está desplegado. La página 999 de `/api/catalog` devuelve HTTP 200 y una lista vacía en lugar de consultar un rango inválido a PostgREST.
 - El despliegue de producción y el CI de GitHub están aprobados. Stripe permanece en modo de prueba; no habilitar cobros reales sin autorización expresa.
 
+
+## Puerta de seguridad de pagos — 2026-11-28
+
+El commit `d16023e175f75a409868e10146304458e35048ed` endurece el flujo de suscripción: Checkout y el portal rechazan claves que no sean de test; el webhook rechaza eventos `livemode`; y una suscripción solo se registra a partir de una sesión con pago confirmado (`paid`) o sin importe pendiente (`no_payment_required`). Los pagos asíncronos fallidos liberan únicamente el `checkout_attempt_id` que les corresponde. La corrección pasó build, lint y tipos en Vercel Preview, y el despliegue de producción quedó `READY` con CI `success`.
+
+**Antes de habilitar Stripe Live:** revisar y añadir tratamiento operativo para `charge.dispute.created`, `charge.refunded` y `radar.early_fraud_warning.created`; verificar impuestos y registros aplicables en las jurisdicciones donde se cobre; y completar revisión de derechos del catálogo. No activar `automatic_tax` sin registros tributarios activos. No sustituir las claves de prueba ni retirar las guardas live sin autorización expresa y pruebas end-to-end aprobadas.
 
 ## Corrección de inicio automático de Checkout — 2026-11-28
 
