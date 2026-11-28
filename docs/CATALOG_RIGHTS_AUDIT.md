@@ -13,8 +13,8 @@
 | Sin `content_metadata.license_basis` | 0 | 51 |
 | Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 | 0 |
 | Con `commercial_reuse_permitted = 'true'` | 167 | 144 |
-| Con `true` y `commercial_reuse_basis` explícito | 101 | 0 |
-| Con `true` sin `commercial_reuse_basis` explícito (heredado) | 66 | 144 |
+| Con `true` y `commercial_reuse_basis` explícito | 101 | — |
+| Con `true` sin `commercial_reuse_basis` explícito (heredado) | 66 | — |
 | Sin valor explícito para reutilización comercial | 17 | 40 |
 | Con valor explícito `commercial_reuse_permitted = 'false'` | 0 | 0 |
 
@@ -23,6 +23,8 @@ El 27 de noviembre de 2026 se revisaron fuentes individuales: se completaron 51 
 Estos indicadores miden la **completitud de los metadatos**, no una conclusión jurídica. Una licencia escrita en la ficha, un enlace a una licencia o una URL reproducible no bastan por sí solos para demostrar que NOIR VAULT puede ofrecer cada obra en streaming comercial. También pueden existir derechos independientes sobre música, imágenes, intérpretes, restauraciones, materiales incorporados y otros componentes.
 
 **Lectura correcta de los 167 valores `true`:** solo 101 tienen una nota `commercial_reuse_basis` explícita. Los otros 66 son valores heredados sin esa nota; su licencia declarada es PDM/dominio público y el fundamento existente advierte que deben verificarse titular, fecha de publicación/comunicación, restauraciones y bandas sonoras añadidas. No se deben contar como 66 autorizaciones comerciales plenamente comprobadas. Los 17 valores nulos siguen pendientes de determinación.
+
+Los 66 valores heredados sin nota comercial se distribuyen en 62 filas con Wikimedia Commons PDM 1.0, 3 con Public Domain Mark 1.0 y 1 con una etiqueta de dominio público de EE. UU. Aunque las 66 tienen `license_basis` y `source_page_url`, la evidencia existente no sustituye la comprobación por copia de titular, plazo, restauración y banda sonora. Deben revisarse antes de considerarlas autorizadas para monetización.
 
 Los 8 recursos con `audio_url` y los 158 con `reader_url` son campos que pueden coexistir con un vídeo en la misma fila; por eso no se suman como si fueran títulos únicos ni forman parte de las cifras de esta auditoría específica de vídeo.
 
