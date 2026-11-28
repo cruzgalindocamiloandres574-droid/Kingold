@@ -1,0 +1,34 @@
+name: NOIR VAULT media source audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Deployment URL to audit"
+        required: false
+        default: "https://noir-vault-psi.vercel.app"
+        type: string
+  schedule:
+    - cron: "17 8 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Check direct media sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NOIR_VAULT_BASE_URL: ${{ inputs.base_url || 'https://noir-vault-psi.vercel.app' }}
+      MEDIA_AUDIT_CONCURRENCY: "6"
+      MEDIA_AUDIT_TIMEOUT_MS: "10000"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Audit public catalogue media URLs
+        run: node scripts/audit-media-sources.mjs
