@@ -63,6 +63,16 @@ Las migraciones `20261127200000_prevent_duplicate_checkout_sessions.sql` y `2026
 
 Estas migraciones ya están aplicadas al proyecto Supabase conectado. En una base nueva, aplícalas después del esquema base y de las migraciones de autenticación y suscripciones.
 
+
+
+### Alcance de lectura del bloqueo de Checkout (2026-11-28)
+
+La migración `supabase/migrations/20261128164047_grant_own_checkout_attempt_read_scope.sql` corrige los privilegios que necesita `public.acquire_checkout_attempt()` para limpiar intentos vencidos y devolver el UUID del intento recién creado. La función conserva `SECURITY INVOKER`; no se convirtió en una función privilegiada.
+
+El rol `authenticated` recibe `SELECT` únicamente sobre las columnas `user_id`, `expires_at` y `attempt_id`, acompañado de una política RLS que limita las filas a `user_id = auth.uid()`. No puede leer `created_at` ni usar un `SELECT` de tabla completa. El rol `anon` no recibe lectura ni ejecución de la función. La migración quedó registrada en Supabase como versión `20261128164203`.
+
+Verificación: la función ya no falla por permisos al ejecutar su limpieza; una invocación de prueba con un UUID que no existe avanzó hasta la restricción de clave foránea de `auth.users`, y la tabla sigue con cero intentos almacenados. Como aún no existe una cuenta real, falta validar el recorrido exitoso de Checkout con la primera sesión del propietario. No se creó una cuenta de prueba ni una sesión de Stripe.
+
 ## Derechos y reproducción
 Solo habilitar reproducción para películas con derechos y fuentes autorizadas. El catálogo incluye fuentes reproducibles y fichas de referencia/enlaces externos; no supongas que una ficha publicada equivale a autorización de exhibición. El host de vídeo externo no es un CDN de producción.
 
