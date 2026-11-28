@@ -80,7 +80,10 @@ export default function AdminPage(){
    contentMetadata.commercial_reuse_permitted=true;
    contentMetadata.rights_checked_on=new Date().toISOString().slice(0,10);
    contentMetadata.license_basis=form.license.trim();
-   contentMetadata.commercial_reuse_basis="Verificación manual del administrador; evidencia registrada en rights_evidence_url.";
+   contentMetadata.license_url=rightsEvidenceUrl;
+   contentMetadata.source_page_url=rightsEvidenceUrl;
+   contentMetadata.commercial_reuse_basis="Licencia declarada: "+form.license.trim()+". Evidencia consultada: "+rightsEvidenceUrl+". Revisión manual del administrador sobre reproducción y uso comercial en Colombia.";
+
   }
 
   const hasSource=Boolean(form.video_url||form.audio_url||form.reader_url||embedUrl||hasPlayableAudioTrack);
@@ -101,6 +104,7 @@ export default function AdminPage(){
    subtitle_tracks:subtitleTracks,
    audio_languages:form.audio_languages_text.split(",").map((v)=>v.trim()).filter(Boolean),
    content_metadata:contentMetadata,
+   catalog_source:rightsEvidenceUrl||null,
   };
 
   const {error}=await supabase.from("movies").insert(payload);
