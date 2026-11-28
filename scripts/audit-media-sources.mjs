@@ -210,7 +210,7 @@ async function main() {
     limitations: [
       "La API pública aplica RLS: el inventario premium que requiere sesión no aparece en esta auditoría.",
       "HTTP 200/206 y una respuesta parcial no garantizan decodificación ni reproducción real en Android.",
-      "Los reproductores externos y enlaces de lectura se contabilizan, pero no se prueban como medios directos.",
+      "Los reproductores externos se contabilizan, pero no se prueban. Los registros que solo tienen enlaces de lectura no entran en la consulta playback=internal.",
     ],
     failures: failures.map((result) => ({
       title: result.title,
