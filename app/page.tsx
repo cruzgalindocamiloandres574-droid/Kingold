@@ -214,6 +214,12 @@ function parseAudioChapters(metadata: unknown): AudioChapter[] {
   });
 }
 
+function hasPlayableExternalEmbed(metadata: unknown) {
+  if (!metadata || typeof metadata !== "object") return false;
+  const url = (metadata as Record<string, unknown>).external_embed_url;
+  return typeof url === "string" && /^https:\/\//i.test(url.trim());
+}
+
 function formatAudioTimestamp(seconds: number) {
   const safe = Math.max(0, Math.floor(seconds));
   const hours = Math.floor(safe / 3600);
@@ -439,8 +445,8 @@ export default function Home() {
           audioLanguages: Array.isArray(movie.audio_languages) ? movie.audio_languages as string[] : [],
           audioChapters: parseAudioChapters(movie.content_metadata),
           hasLatinSpanish: Boolean(movie.has_latin_spanish),
-          status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0)) ? "available" : "soon",
-          availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0))
+          status: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || hasPlayableExternalEmbed(movie.content_metadata) || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0)) ? "available" : "soon",
+          availability: movie.status === "available" && (movie.video_url || movie.audio_url || movie.reader_url || hasPlayableExternalEmbed(movie.content_metadata) || (Array.isArray(movie.audio_tracks) && movie.audio_tracks.length > 0))
             ? "available"
             : movie.content_metadata && typeof movie.content_metadata === "object" && (movie.content_metadata as Record<string, unknown>).catalog_availability === "upcoming"
               ? "upcoming"
