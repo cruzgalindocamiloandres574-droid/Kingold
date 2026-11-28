@@ -24,7 +24,7 @@ Los 8 recursos con `audio_url` y los 158 con `reader_url` son campos que pueden 
 
 ## Uso comercial todavía sin determinar
 
-30 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 40 infracciones ni como 40 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
+29 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 29 infracciones ni como 29 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
 
 La revisión del inventario agrupó los 29 registros aún sin determinar en 11 películas de 1904–1908 marcadas con Public Domain Mark de Wikimedia Commons, 8 episodios de `BBS: The Documentary` y 10 títulos con condiciones o evidencias adicionales pendientes: Agent 327, Charge, Cosmos Laundromat, Dominion, Jan Haarhuis, Karinding, Luz y Libertad, Mage Porob, The Daily Dweebs y Wikimania 2015.
 
