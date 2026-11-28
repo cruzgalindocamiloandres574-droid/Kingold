@@ -214,4 +214,4 @@ La revisión completó 51 fundamentos documentales y dejó las 51 fechas de cons
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los ocho valores nulos, empezando por aclarar con los titulares las condiciones de Agent 327 y Jan Haarhuis y obtener evidencia de licencias de música/restauración para las seis copias históricas. Karinding mantiene la discrepancia entre CC BY 4.0 y CC BY-SA 3.0 en sus copias distintas; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
+Prioridad: resolver los ocho valores nulos, empezando por aclarar con los titulares las condiciones de Agent 327 y Jan Haarhuis y obtener evidencia de licencias de música/restauración para las seis copias históricas. Para KARINDING, conservar la distinción entre el WebM del catálogo (CC BY 4.0) y la copia MP4 de respaldo de Internet Archive (CC BY-SA 4.0); no mezclar sus licencias. Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
