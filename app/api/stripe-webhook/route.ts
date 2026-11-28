@@ -6,8 +6,13 @@ export const runtime = "nodejs";
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Falta configurar Supabase en el servidor.");
+  // Prefer the modern server-only Supabase secret key. Keep the legacy
+  // service_role variable as a fallback while older environments migrate.
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Falta configurar la clave secreta de Supabase en el servidor.");
+  if (key.startsWith("sb_publishable_")) {
+    throw new Error("La clave de Supabase del webhook es pública; configura una clave secreta de servidor.");
+  }
   return createSupabaseClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
 }
 
