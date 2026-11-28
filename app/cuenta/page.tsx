@@ -28,13 +28,13 @@ export default async function Account() {
     .eq("user_id",user.id).order("updated_at",{ascending:false}).limit(10);
   const movieIds = [...new Set((progressRows || []).map((item) => item.movie_id))];
   const {data:progressMovies} = movieIds.length
-    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,audio_url,audio_tracks,chapter_count")
+    ? await supabase.from("movies").select("id,title,poster_url,status,video_url,fallback_video_url,audio_url,audio_tracks,chapter_count")
         .in("id",movieIds).eq("published",true)
     : {data:[]};
   const movieById = new Map((progressMovies || []).map((movie) => [movie.id,movie]));
   const continueWatching = (progressRows || []).flatMap((item) => {
     const movie = movieById.get(item.movie_id);
-    if (!movie || movie.status !== "available" || (!movie.video_url && !movie.audio_url && !(Array.isArray(movie.audio_tracks) && movie.audio_tracks.length))) return [];
+    if (!movie || movie.status !== "available" || (!movie.video_url && !movie.fallback_video_url && !movie.audio_url && !(Array.isArray(movie.audio_tracks) && movie.audio_tracks.length))) return [];
     return [{ ...item, movie }];
   });
 
