@@ -4,7 +4,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 type Movie={id:string;title:string;synopsis:string|null;genre:string|null;release_year:number|null;status:string;published:boolean;content_type:string;requires_premium:boolean};
 const PAGE_SIZE=50;
-const empty={title:"",content_type:"movie",synopsis:"",genre:"Drama",release_year:"2026",duration:"",art:"bunny",video_url:"",audio_url:"",reader_url:"",season_number:"",episode_number:"",season_count:"",episode_count:"",chapter_count:"",creator:"",license:"",credit:"",status:"soon",published:true,requires_premium:false,audio_tracks_json:"[]",subtitle_tracks_json:"[]",audio_languages_text:"",has_latin_spanish:false};
+const empty={title:"",content_type:"movie",synopsis:"",genre:"Drama",release_year:"2026",duration:"",art:"bunny",video_url:"",audio_url:"",reader_url:"",external_embed_url:"",rights_evidence_url:"",commercial_reuse_permitted:false,season_number:"",episode_number:"",season_count:"",episode_count:"",chapter_count:"",creator:"",license:"",credit:"",status:"soon",published:true,requires_premium:false,audio_tracks_json:"[]",subtitle_tracks_json:"[]",audio_languages_text:"",has_latin_spanish:false};
 const sectionTargets=[{value:"movie",label:"Películas"},{value:"series",label:"Series"},{value:"anime",label:"Anime"},{value:"manga",label:"Manga"},{value:"podcast",label:"Podcasts"},{value:"documentary",label:"Documentales"},{value:"audiobook",label:"Audiolibros"},{value:"concert",label:"Conciertos"},{value:"short",label:"Cortometrajes"}];
 export default function AdminPage(){
  const [supabase]=useState(()=>{const u=process.env.NEXT_PUBLIC_SUPABASE_URL,k=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;return u&&k?createBrowserClient(u,k):null});
@@ -13,12 +13,107 @@ export default function AdminPage(){
  const [catalogPage,setCatalogPage]=useState(1),[catalogTotal,setCatalogTotal]=useState(0),[premiumUpdatingId,setPremiumUpdatingId]=useState<string|null>(null);
  const load=useCallback(async()=>{if(!supabase){setMessage("Falta conexión con Supabase.");return}const {data:{user}}=await supabase.auth.getUser();if(!user){setAllowed(false);setMessage("Inicia sesión con una cuenta administradora.");return}const {data:p,error:pe}=await supabase.from("profiles").select("role").eq("id",user.id).maybeSingle();if(pe||p?.role!=="admin"){setAllowed(false);setMessage("Esta cuenta no tiene permisos de administración.");return}setAllowed(true);const [listResult,countResults]=await Promise.all([supabase.from("movies").select("id,title,synopsis,genre,release_year,status,published,content_type,requires_premium",{count:"exact"}).order("created_at",{ascending:false}).range((catalogPage-1)*PAGE_SIZE,catalogPage*PAGE_SIZE-1),Promise.all(sectionTargets.map((section)=>supabase.from("movies").select("id",{count:"exact",head:true}).eq("published",true).eq("content_type",section.value)))]);if(listResult.error){setMessage(listResult.error.message);return}const countError=countResults.find((result)=>result.error);if(countError?.error){setMessage("No se pudieron actualizar las metas por sección: "+countError.error.message);return}setMovies(listResult.data||[]);setCatalogTotal(listResult.count||0);setSectionCounts(sectionTargets.map((section,index)=>({...section,count:countResults[index].count||0})));setMessage("Panel conectado. Los cambios y los contadores se consultan directamente en Supabase.")},[supabase,catalogPage]);
  useEffect(()=>{void load()},[load]);
- async function save(e:React.FormEvent){e.preventDefault();if(!supabase)return;let audioTracks:unknown,subtitleTracks:unknown;try{audioTracks=JSON.parse(form.audio_tracks_json);subtitleTracks=JSON.parse(form.subtitle_tracks_json);if(!Array.isArray(audioTracks)||!Array.isArray(subtitleTracks))throw new Error("Las pistas deben ser listas JSON.");}catch{setMessage("Revisa el JSON de las pistas de audio y subtítulos.");return}setBusy(true);setMessage("Guardando…");const base:Record<string,unknown>={...form};delete base.audio_tracks_json;delete base.subtitle_tracks_json;delete base.audio_languages_text;const playableAudioTracks=Array.isArray(audioTracks)?audioTracks.filter((track:unknown)=>{
- if(!track||typeof track!=="object"||!("url" in track)||typeof track.url!=="string")return false;
- try{return new URL(track.url).protocol==="https:";}catch{return false;}
-}):[];
- const hasPlayableAudioTrack=playableAudioTracks.length>0;
- const hasSource=Boolean(form.video_url||form.audio_url||form.reader_url||hasPlayableAudioTrack);const savedStatus=form.status==="available"&&!hasSource?"soon":form.status;const payload={...base,status:savedStatus,release_year:form.release_year?Number(form.release_year):null,video_url:form.video_url||null,audio_url:form.audio_url||null,reader_url:form.reader_url||null,season_number:form.season_number?Number(form.season_number):null,episode_number:form.episode_number?Number(form.episode_number):null,season_count:form.season_count?Number(form.season_count):null,episode_count:form.episode_count?Number(form.episode_count):null,chapter_count:form.chapter_count?Number(form.chapter_count):null,audio_tracks:playableAudioTracks,subtitle_tracks:subtitleTracks,audio_languages:form.audio_languages_text.split(",").map((v)=>v.trim()).filter(Boolean)};const {error}=await supabase.from("movies").insert(payload);setBusy(false);if(error){setMessage(error.message);return}setForm(empty);setMessage(savedStatus==="soon"&&form.status==="available"?"Contenido guardado como en preparación: falta registrar una fuente multimedia o lectora.":"Contenido guardado.");await load()}
+ async function save(e:React.FormEvent){
+  e.preventDefault();
+  if(!supabase||busy)return;
+
+  const mediaSources=[
+   ["vídeo",form.video_url],
+   ["audio",form.audio_url],
+   ["lector",form.reader_url],
+   ["reproductor embebido",form.external_embed_url],
+  ] as const;
+  for(const [label,value] of mediaSources){
+   if(!value.trim())continue;
+   try{
+    if(new URL(value.trim()).protocol!=="https:")throw new Error("HTTPS requerido");
+   }catch{
+    setMessage("La fuente de "+label+" debe ser una URL HTTPS válida.");
+    return;
+   }
+  }
+
+  const rightsEvidenceUrl=form.rights_evidence_url.trim();
+  if(form.commercial_reuse_permitted){
+   if(!form.license.trim()||!rightsEvidenceUrl){
+    setMessage("Para autorizar la reproducción debes indicar la licencia y la URL oficial de evidencia.");
+    return;
+   }
+   try{
+    if(new URL(rightsEvidenceUrl).protocol!=="https:")throw new Error("HTTPS requerido");
+   }catch{
+    setMessage("La evidencia de derechos debe ser una URL HTTPS válida.");
+    return;
+   }
+  }
+
+  let audioTracks:unknown,subtitleTracks:unknown;
+  try{
+   audioTracks=JSON.parse(form.audio_tracks_json);
+   subtitleTracks=JSON.parse(form.subtitle_tracks_json);
+   if(!Array.isArray(audioTracks)||!Array.isArray(subtitleTracks))throw new Error("Las pistas deben ser listas JSON.");
+  }catch{
+   setMessage("Revisa el JSON de las pistas de audio y subtítulos.");
+   return;
+  }
+
+  setBusy(true);
+  setMessage("Guardando…");
+  const base:Record<string,unknown>={...form};
+  delete base.audio_tracks_json;
+  delete base.subtitle_tracks_json;
+  delete base.audio_languages_text;
+  delete base.external_embed_url;
+  delete base.rights_evidence_url;
+  delete base.commercial_reuse_permitted;
+
+  const playableAudioTracks=Array.isArray(audioTracks)?audioTracks.filter((track:unknown)=>{
+   if(!track||typeof track!=="object"||!("url" in track)||typeof track.url!=="string")return false;
+   try{return new URL(track.url).protocol==="https:";}catch{return false;}
+  }):[];
+  const hasPlayableAudioTrack=playableAudioTracks.length>0;
+  const embedUrl=form.external_embed_url.trim();
+  const contentMetadata:Record<string,unknown>={};
+  if(embedUrl)contentMetadata.external_embed_url=embedUrl;
+  if(rightsEvidenceUrl)contentMetadata.rights_evidence_url=rightsEvidenceUrl;
+  if(form.commercial_reuse_permitted){
+   contentMetadata.commercial_reuse_permitted=true;
+   contentMetadata.rights_checked_on=new Date().toISOString().slice(0,10);
+   contentMetadata.license_basis=form.license.trim();
+   contentMetadata.commercial_reuse_basis="Verificación manual del administrador; evidencia registrada en rights_evidence_url.";
+  }
+
+  const hasSource=Boolean(form.video_url||form.audio_url||form.reader_url||embedUrl||hasPlayableAudioTrack);
+  const savedStatus=form.status==="available"&&!hasSource?"soon":form.status;
+  const payload={
+   ...base,
+   status:savedStatus,
+   release_year:form.release_year?Number(form.release_year):null,
+   video_url:form.video_url.trim()||null,
+   audio_url:form.audio_url.trim()||null,
+   reader_url:form.reader_url.trim()||null,
+   season_number:form.season_number?Number(form.season_number):null,
+   episode_number:form.episode_number?Number(form.episode_number):null,
+   season_count:form.season_count?Number(form.season_count):null,
+   episode_count:form.episode_count?Number(form.episode_count):null,
+   chapter_count:form.chapter_count?Number(form.chapter_count):null,
+   audio_tracks:playableAudioTracks,
+   subtitle_tracks:subtitleTracks,
+   audio_languages:form.audio_languages_text.split(",").map((v)=>v.trim()).filter(Boolean),
+   content_metadata:contentMetadata,
+  };
+
+  const {error}=await supabase.from("movies").insert(payload);
+  setBusy(false);
+  if(error){setMessage(error.message);return}
+  setForm(empty);
+  setMessage(form.commercial_reuse_permitted
+   ? "Contenido guardado. La revisión de derechos y su evidencia quedaron registradas."
+   : savedStatus==="soon"&&form.status==="available"
+    ? "Contenido guardado como en preparación: falta registrar una fuente multimedia o lectora."
+    : "Contenido guardado sin habilitar reproducción pública; los derechos siguen pendientes de verificación.");
+  await load();
+ }
  async function togglePremium(movie:Movie){
   if(!supabase||premiumUpdatingId)return;
   const next=!movie.requires_premium;
@@ -105,6 +200,10 @@ export default function AdminPage(){
  <input placeholder="Género" value={form.genre} onChange={e=>setForm({...form,genre:e.target.value})}/><input placeholder="Año" type="number" value={form.release_year} onChange={e=>setForm({...form,release_year:e.target.value})}/><input placeholder="Duración" value={form.duration} onChange={e=>setForm({...form,duration:e.target.value})}/><input placeholder="Arte / clase visual" value={form.art} onChange={e=>setForm({...form,art:e.target.value})}/><input placeholder="URL de vídeo / episodio autorizado" type="url" value={form.video_url} onChange={e=>setForm({...form,video_url:e.target.value})}/>
  <input placeholder="URL de audio (podcast / audiolibro)" type="url" value={form.audio_url} onChange={e=>setForm({...form,audio_url:e.target.value})}/>
  <input placeholder="URL de lector / capítulos autorizados" type="url" value={form.reader_url} onChange={e=>setForm({...form,reader_url:e.target.value})}/>
+ <input placeholder="URL HTTPS del reproductor oficial embebido" type="url" value={form.external_embed_url} onChange={e=>setForm({...form,external_embed_url:e.target.value})}/>
+ <input placeholder="URL HTTPS de licencia / autorización (evidencia)" type="url" value={form.rights_evidence_url} onChange={e=>setForm({...form,rights_evidence_url:e.target.value})}/>
+ <label style={{display:"flex",alignItems:"center",gap:8,gridColumn:"1 / -1"}}><input type="checkbox" checked={form.commercial_reuse_permitted} onChange={e=>setForm({...form,commercial_reuse_permitted:e.target.checked})}/> Confirmo que revisé y verifiqué los derechos de reproducción y uso comercial</label>
+ <small style={{gridColumn:"1 / -1",opacity:.75}}>Marca esta opción solo después de comprobar la licencia o autorización aplicable en Colombia y los componentes de terceros. Se exige licencia y una URL HTTPS de evidencia. Si no se marca, la ficha queda guardada pero la reproducción pública permanece bloqueada.</small>
  <input placeholder="Temporada (si aplica)" type="number" min="1" value={form.season_number} onChange={e=>setForm({...form,season_number:e.target.value})}/>
  <input placeholder="Episodio (si aplica)" type="number" min="1" value={form.episode_number} onChange={e=>setForm({...form,episode_number:e.target.value})}/>
  <input placeholder="N.º de temporadas" type="number" min="1" value={form.season_count} onChange={e=>setForm({...form,season_count:e.target.value})}/>
