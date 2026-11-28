@@ -105,8 +105,7 @@ export async function GET(request: NextRequest) {
       if (type && allowedTypes.has(type)) countQuery = countQuery.eq("content_type", type);
       return countQuery;
     };
-    const [pageResult, totalResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
-      query,
+    const [totalResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       totalQuery,
       countByStatus("available")
         .or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,reader_url.not.is.null"),
@@ -129,7 +128,15 @@ export async function GET(request: NextRequest) {
     if (totalResult.error) throw totalResult.error;
     const total = totalResult.count || 0;
     const totalPages = Math.ceil(total / PAGE_SIZE);
-    if (pageResult.error && page <= totalPages) throw pageResult.error;
+
+    // Avoid sending an out-of-range PostgREST request when a client asks for
+    // a page beyond the filtered total (for example, after catalog changes).
+    let pageRows: NonNullable<Awaited<typeof query>["data"]> = [];
+    if (page <= totalPages) {
+      const pageResult = await query;
+      if (pageResult.error) throw pageResult.error;
+      pageRows = pageResult.data || [];
+    }
     if (availableResult.error) throw availableResult.error;
     if (internalResult.error) throw internalResult.error;
     if (embedResult.error) throw embedResult.error;
@@ -137,7 +144,7 @@ export async function GET(request: NextRequest) {
     if (upcomingResult.error) throw upcomingResult.error;
     if (pendingResult.error) throw pendingResult.error;
     return NextResponse.json({
-      results: page > totalPages ? [] : pageResult.data || [],
+      results: pageRows,
       total,
       availableTotal: availableResult.count || 0,
       internalTotal: (internalResult.count || 0) + (embedResult.count || 0),
