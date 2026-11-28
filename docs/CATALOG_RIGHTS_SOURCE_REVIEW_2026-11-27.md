@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior documentó 22 registros como permitidos, cada uno con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
+El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior documentó 23 determinaciones específicas con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -97,12 +97,12 @@ Los demás títulos con campos incompletos continúan pendientes de revisión in
 
 ## Dos revisiones con condiciones o versiones de licencia pendientes
 
-El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se registraron `rights_checked_on` y `license_basis` como constancia de la revisión, sin cambiar el campo `license`, la publicación, la disponibilidad ni `commercial_reuse_permitted` en estos dos casos.
+El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se registraron `rights_checked_on` y `license_basis` como constancia de la revisión. Agent 327 conserva `commercial_reuse_permitted = null` por sus condiciones; Sprite Fright conserva `true` con una nota comercial que documenta que CC BY 1.0 y CC BY 4.0 permiten uso comercial, aunque la versión exacta de la licencia sigue pendiente de limpieza.
 
 | Título | Evidencia y condición pendiente | Fuentes |
 | --- | --- | --- |
 | Agent 327: Operation Barbershop — Teaser | Blender Studio declara CC BY-ND para el archivo original. En un comentario de seguimiento, Francesco Siddi indicó que el film debe mostrarse tal como fue realizado, sin añadir publicidad, sin remix y sin reutilizar la música. Esto no resuelve si el acceso dentro de una suscripción de pago queda cubierto; no se ha marcado como uso comercial autorizado. | https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/ |
-| SPRITE FRIGHT | La página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto, aunque el campo actual del catálogo dice CC BY 4.0. Se registró la evidencia y se mantuvo intacta la etiqueta hasta obtener confirmación sobre la versión aplicable a este archivo. | https://studio.blender.org/projects/sprite-fright/pages/about/ |
+| SPRITE FRIGHT | La página del titular declara CC BY 1.0 y la ficha de la copia de Commons CC BY 4.0. Ambas versiones permiten uso comercial con atribución; se registró `commercial_reuse_permitted = true` con una nota que limita el permiso al film y materiales producidos por el proyecto. La discrepancia de versión sigue abierta para limpiar el metadato `license`; logos, marcas y materiales externos quedan excluidos. | https://studio.blender.org/projects/sprite-fright/pages/about/ · https://commons.wikimedia.org/wiki/File:Sprite_Fright_-_Blender_Open_Movie-full_movie.webm |
 
 ## Tres determinaciones adicionales CC BY 4.0 confirmadas (27-11-2026)
 
@@ -135,6 +135,10 @@ La consulta individual de las ocho filas del catálogo y sus fuentes confirma la
 Se registró `commercial_reuse_permitted = true` y una nota individual `commercial_reuse_basis` en los ocho episodios. Se deben conservar la atribución a Jason Scott, el enlace a CC BY-SA 3.0 y la indicación de cambios; si se distribuye una adaptación, debe compartirse bajo la misma licencia o una compatible. La determinación se limita a la película licenciada por el autor y no concede derechos independientes sobre materiales de terceros que no estén cubiertos por su licencia.
 
 Fuentes primarias y de archivo: https://ascii.textfiles.com/archives/870 · https://archive.org/details/BBS.The.Documentary · https://commons.wikimedia.org/wiki/Category:BBS:The_Documentary
+
+## 66 valores `true` heredados sin fundamento comercial específico
+
+La consulta directa de producción identificó 66 filas con `commercial_reuse_permitted = true` pero sin `commercial_reuse_basis`. Se distribuyen en 62 fichas con Wikimedia Commons PDM 1.0, 3 con Public Domain Mark 1.0 y 1 con etiqueta de dominio público de EE. UU. Las 66 ya tienen `license_basis` y `source_page_url`, pero esos fundamentos advierten que PDM no es una licencia y que deben verificarse titular, primera comunicación/publicación, plazo aplicable, restauraciones y bandas sonoras añadidas. Los valores `true` son heredados y no se deben presentar como autorización comercial final hasta revisar cada copia. No se cambiaron en este lote para evitar una modificación masiva sin análisis individual.
 
 ## Uso comercial: 17 registros todavía sin determinación explícita
 
@@ -175,4 +179,4 @@ La revisión completó 51 fundamentos documentales y dejó las 51 fechas de cons
 
 ## Siguiente lote de revisión
 
-Prioridad: obtener aclaración del titular para Agent 327 y Sprite Fright antes de decidir si procede marcar la reutilización comercial como permitida o modificar la etiqueta de licencia. Los dos registros ya tienen fecha y fundamento de revisión; lo que permanece pendiente es la resolución de sus condiciones de uso o discrepancias de versión.
+Prioridad: revisar individualmente los 66 valores `true` heredados con PDM/dominio público y sin nota comercial, empezando por copias con restauraciones o sonido añadido. En paralelo, Agent 327 permanece nulo hasta resolver sus condiciones; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
