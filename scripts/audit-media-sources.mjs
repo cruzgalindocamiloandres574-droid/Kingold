@@ -60,6 +60,7 @@ async function fetchCatalogPage(page) {
   url.searchParams.set("page", String(page));
   url.searchParams.set("playback", "internal");
   const response = await fetchWithTimeout(url, {
+    redirect: "error",
     headers: { Accept: "application/json", "Cache-Control": "no-cache" },
   });
   if (!response.ok) throw new Error(`Catálogo página ${page}: HTTP ${response.status}`);
@@ -81,7 +82,6 @@ function addCandidate(map, record, kind, rawUrl) {
 function collectCandidates(records) {
   const candidates = new Map();
   let externalEmbeds = 0;
-  let readerLinks = 0;
 
   for (const record of records) {
     addCandidate(candidates, record, "video", record.video_url);
@@ -98,10 +98,9 @@ function collectCandidates(records) {
     }
 
     if (record.content_metadata?.external_embed_url) externalEmbeds += 1;
-    if (record.reader_url) readerLinks += 1;
   }
 
-  return { candidates: [...candidates.values()], externalEmbeds, readerLinks };
+  return { candidates: [...candidates.values()], externalEmbeds };
 }
 
 async function checkMedia(candidate) {
@@ -173,11 +172,13 @@ async function mapWithConcurrency(items, limit, worker) {
 }
 
 async function main() {
+  validatePublicHttps(baseUrl);
   const firstPage = await fetchCatalogPage(1);
   const totalPages = Number(firstPage.totalPages || 0);
   if (!Array.isArray(firstPage.results) || totalPages < 1) {
     throw new Error("El catálogo público no devolvió páginas reproducibles para playback=internal.");
   }
+  if (totalPages > 100) throw new Error(`La consulta devolvió ${totalPages} páginas; se detiene para evitar una auditoría excesiva.`);
 
   const records = [...firstPage.results];
   for (let page = 2; page <= totalPages; page += 1) {
@@ -186,20 +187,19 @@ async function main() {
     records.push(...payload.results);
   }
 
-  const { candidates, externalEmbeds, readerLinks } = collectCandidates(records);
+  const { candidates, externalEmbeds } = collectCandidates(records);
   const results = await mapWithConcurrency(candidates, concurrency, checkMedia);
   const failures = results.filter((result) => !result.ok);
   const summary = {
     checkedAt: new Date().toISOString(),
     baseUrl,
-    publicCatalogItems: records.length,
-    reportedCatalogTotal: firstPage.total,
+    publicInternalPlaybackRecords: records.length,
+    reportedInternalPlaybackTotal: firstPage.total,
     pages: totalPages,
     uniqueDirectMediaUrls: candidates.length,
     reachable: results.length - failures.length,
     failed: failures.length,
     externalEmbedsNotProbed: externalEmbeds,
-    readerLinksNotProbed: readerLinks,
     limitations: [
       "La API pública aplica RLS: el inventario premium que requiere sesión no aparece en esta auditoría.",
       "HTTP 200/206 y una respuesta parcial no garantizan decodificación ni reproducción real en Android.",
@@ -221,10 +221,10 @@ async function main() {
     const lines = [
       "## NOIR VAULT — auditoría de fuentes multimedia",
       "",
-      `- Elementos públicos consultados: **${summary.publicCatalogItems}** (API informa ${summary.reportedCatalogTotal}).`,
+      `- Registros públicos con reproducción interna consultados: **${summary.publicInternalPlaybackRecords}** (API informa ${summary.reportedInternalPlaybackTotal}).`,
       `- URLs directas únicas probadas: **${summary.uniqueDirectMediaUrls}**.`,
       `- Accesibles: **${summary.reachable}** · Fallidas: **${summary.failed}**.`,
-      `- Reproductores externos no probados: **${summary.externalEmbedsNotProbed}** · Enlaces de lectura no probados: **${summary.readerLinksNotProbed}**.`,
+      `- Reproductores externos detectados pero no probados: **${summary.externalEmbedsNotProbed}**.`,
       "",
       "La API pública aplica RLS; el contenido premium que requiere sesión no está incluido. HTTP 200/206 no garantiza reproducción real en un dispositivo.",
     ];
