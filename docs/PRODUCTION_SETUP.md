@@ -2,7 +2,7 @@
 
 ## Dar acceso de administrador
 
-El proyecto Supabase conectado no tiene todavía usuarios en Auth ni perfiles creados (comprobación del 2026-11-28). Por seguridad, NOIR VAULT no asciende automáticamente al primer usuario que se registre: el rol de administrador debe asignarse a una dirección de correo elegida y verificada por el propietario.
+El proyecto Supabase conectado tiene una cuenta propietaria con correo confirmado y perfil `admin` (verificación del 2026-11-28). El ascenso se hizo de forma explícita sobre el UUID de esa cuenta, después de comprobar `email_confirmed_at`; NOIR VAULT no asciende automáticamente al primer usuario que se registre.
 
 1. Abre [NOIR VAULT](https://noir-vault-psi.vercel.app/registro) y registra la cuenta que será propietaria.
 2. Confirma el correo desde el mensaje que envíe Supabase. El disparador `on_auth_user_created` crea el perfil al insertar el usuario.
@@ -79,9 +79,16 @@ Solo habilitar reproducción para películas con derechos y fuentes autorizadas.
 
 ## Estado comprobado de producción — 2026-11-28
 
-- No hay cuentas en `auth.users`, perfiles, administradores, suscripciones ni bloqueos de Checkout todavía. El disparador de creación automática de perfiles está habilitado.
+- Hay una cuenta propietaria confirmada y un perfil con rol `admin`; el disparador de creación automática de perfiles está habilitado. En la última verificación no había suscripciones ni bloqueos de Checkout.
 - La tabla `profiles` tiene RLS activo. Los usuarios autenticados solo reciben permiso de actualización para `display_name`; no tienen privilegio de actualización de tabla ni de columna sobre `role`.
 - Las políticas de lectura de contenido exigen `commercial_reuse_permitted = true` para fuentes de reproducción y conservan acceso de revisión para administradores.
 - Pruebas sin sesión contra producción: `POST /api/checkout` devuelve 401, `POST /api/portal` devuelve 401 y `POST /api/stripe-webhook` sin firma devuelve 400. El webhook reconoce su configuración de Stripe/Supabase y rechaza la petición sin una firma Stripe válida. Estas pruebas no crean sesiones de pago ni cobran.
 - El bloqueo de paginación fuera de rango está desplegado. La página 999 de `/api/catalog` devuelve HTTP 200 y una lista vacía en lugar de consultar un rango inválido a PostgREST.
 - El despliegue de producción y el CI de GitHub están aprobados. Stripe permanece en modo de prueba; no habilitar cobros reales sin autorización expresa.
+
+
+## Corrección de inicio automático de Checkout — 2026-11-28
+
+La página `/planes` ya no crea una sesión de Stripe automáticamente al regresar de `/login` o `/registro`. El visitante debe pulsar expresamente **SUSCRIBIRME**. Esto evita que una redirección de autenticación o una navegación automática cree una sesión de pago que el usuario no solicitó. La sesión de prueba que se detectó durante la auditoría quedó sin pago; se eliminó exclusivamente el bloqueo de base de datos asociado a su `checkout_attempt_id`.
+
+La corrección está en el commit `de8cf31bfe811dad5fea5ef027b9b0b47e739ca6`. Vercel producción: `READY`; comprobación CI: `success`. Stripe continúa en modo test. No se han habilitado cobros reales.
