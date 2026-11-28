@@ -110,3 +110,19 @@ order by title;
 ## Estado de los cambios
 
 Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Se documentaron 29 determinaciones comerciales específicas, se añadieron notas a 82 filas CC BY/CC BY-SA/CC0, se revisaron 70 copias PDM adicionales y una copia estadounidense (Enchantment), y se asignó `commercial_reuse_permitted = true` con base específica a 11 películas mudas PDM y 4 películas CC BY/CC BY-SA tras revisar sus copias y fuentes. Resultado: 176 filas con `commercial_reuse_basis`, 0 valores `true` heredados sin base y 8 valores nulos. El 28-11-2026 se reclasificaron seis permisos heredados sin fundamento como `null` y se registraron notas individuales de revisión; no se modificaron licencias, URLs, créditos ni disponibilidad. Se corrigió un campo `license` para KARINDING: la URL WebM exacta de Commons está bajo CC BY 4.0 y la copia MP4 distinta de Internet Archive está bajo CC BY-SA 4.0. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+
+## Protección de reproducción aplicada en producción (2026-11-28)
+
+La migración `supabase/migrations/20261128161156_require_explicit_commercial_rights_for_playback.sql` añade políticas RLS restrictivas de lectura para visitantes y usuarios autenticados. Una fila con fuente reproducible (vídeo principal o alternativo, audio, pistas de audio o reproductor embebido) solo se entrega a usuarios no administradores cuando `content_metadata.commercial_reuse_permitted = true`.
+
+Los administradores conservan la excepción de revisión mediante `private.is_admin()`. La política no elimina ni reescribe fichas, licencias, créditos o URLs; mantiene los recursos sin autorización explícita en la base para su revisión y evita que sus fuentes se entreguen al catálogo público o a cuentas de suscriptor mientras el permiso siga sin verificarse.
+
+Medición al aplicar la protección:
+- 213 registros publicados con estado disponible y fuente directa o embebida.
+- 190 con permiso comercial explícito.
+- 23 sin permiso explícito: 8 vídeos, 6 audios y 9 reproductores embebidos.
+- Los 23 se excluyen de la lectura de usuarios no administradores; no se borraron.
+
+Verificación posterior: `/api/catalog?playback=internal` respondió HTTP 200 en sus 10 páginas, con 190 registros reproducibles y cero filas devueltas sin `commercial_reuse_permitted = true`. Las consultas RLS como `anon` y `authenticated` también devolvieron cero recursos reproducibles no verificados.
+
+La habilitación futura de cada recurso requiere revisar la copia y sus componentes, documentar evidencia concreta en `commercial_reuse_basis`, registrar `rights_checked_on` y establecer `commercial_reuse_permitted = true` solo después de confirmar el permiso. La auditoría sigue sin ser asesoría jurídica ni una certificación territorial.
