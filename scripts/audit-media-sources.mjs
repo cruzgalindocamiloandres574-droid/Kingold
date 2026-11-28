@@ -6,8 +6,6 @@ import { appendFile } from "node:fs/promises";
 const baseUrl = (process.env.NOIR_VAULT_BASE_URL || "https://noir-vault-psi.vercel.app").replace(/\/$/, "");
 const timeoutMs = Number(process.env.MEDIA_AUDIT_TIMEOUT_MS || 10000);
 const concurrency = Math.max(1, Math.min(6, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 2)));
-const minIntervalMs = Math.max(0, Number(process.env.MEDIA_AUDIT_MIN_INTERVAL_MS || 0));
-let lastMediaRequestAt = 0;
 const maxRedirects = 3;
 
 function isPrivateAddress(hostname) {
@@ -111,9 +109,6 @@ async function checkMedia(candidate) {
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
     try {
       validatePublicHttps(currentUrl);
-      const waitMs = Math.max(0, minIntervalMs - (Date.now() - lastMediaRequestAt));
-      if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
-      lastMediaRequestAt = Date.now();
       const response = await fetchWithTimeout(currentUrl, {
         method: "GET",
         redirect: "manual",
