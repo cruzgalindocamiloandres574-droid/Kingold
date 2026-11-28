@@ -288,7 +288,7 @@ export default function Home() {
   const [catalogLoading, setCatalogLoading] = useState(true);
 
   const openFilm = useCallback(async (film: Film, requestedTrackIndex = 0) => {
-    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.audioUrl && !film.audioTracks?.length && !film.readerUrl && !film.externalEmbedUrl)) return;
+    if ((film.status !== "available" && !film.readerUrl) || (!film.videoUrl && !film.fallbackVideoUrl && !film.audioUrl && !film.audioTracks?.length && !film.readerUrl && !film.externalEmbedUrl)) return;
     // A late progress response must never seek a different title after the
     // viewer has opened another item or closed the player.
     const requestId = ++openFilmRequestRef.current;
@@ -309,7 +309,7 @@ export default function Home() {
     setVideoAttempt(0);
     setContentConsentId(null);
     setSelected(film);
-    const supportsProgress = Boolean(film.videoUrl || film.audioUrl || film.audioTracks?.length);
+    const supportsProgress = Boolean(film.videoUrl || film.fallbackVideoUrl || film.audioUrl || film.audioTracks?.length);
     if (!supabase || !supportsProgress) return;
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -472,8 +472,8 @@ export default function Home() {
           setCatalogTotal(initialFilms.length);
           setCatalogTotalPages(1);
           setCatalogAvailableTotal(availableFallback.length);
-          setInternalTotal(availableFallback.filter((film) => film.videoUrl || film.audioUrl).length);
-          setExternalTotal(availableFallback.filter((film) => !film.videoUrl && !film.audioUrl && film.readerUrl).length);
+          setInternalTotal(availableFallback.filter((film) => film.videoUrl || film.fallbackVideoUrl || film.audioUrl).length);
+          setExternalTotal(availableFallback.filter((film) => !film.videoUrl && !film.fallbackVideoUrl && !film.audioUrl && film.readerUrl).length);
           setUpcomingTotal(initialFilms.filter((film) => film.availability === "upcoming").length);
           setPendingTotal(initialFilms.filter((film) => film.status === "soon" && film.availability !== "upcoming").length);
         } else {
@@ -545,7 +545,7 @@ export default function Home() {
   function changeCatalogFilter(value: string) { setGenre(value); setCatalogPage(1); }
   function changeContentType(value: ContentType | "all") { setContentType(value); setCatalogPage(1); setGenre("Todo"); }
   function changeCatalogSearch(value: string) { setQuery(value); setCatalogPage(1); }
-  const featured = catalogFilms.find((film) => film.status === "available" && film.videoUrl) || initialFilms[0];
+  const featured = catalogFilms.find((film) => film.status === "available" && (film.videoUrl || film.fallbackVideoUrl)) || initialFilms[0];
 
   async function flushProgressQueue(db: NonNullable<typeof supabase>) {
     const activeFlush = progressFlushRef.current;
@@ -635,7 +635,7 @@ export default function Home() {
       setVideoState("loading");
       return;
     }
-    if (selected?.fallbackVideoUrl && sourceIndex === 0) {
+    if (selected?.videoUrl && selected.fallbackVideoUrl && sourceIndex === 0) {
       setSourceIndex(1);
       setVideoAttempt((attempt) => attempt + 1);
       setVideoState("loading");
@@ -646,7 +646,7 @@ export default function Home() {
     setVideoDiagnostic({
       code: mediaError?.code ?? 0,
       message: mediaError?.message || "El navegador no proporcionó más detalles.",
-      source: failedElement?.currentSrc || (sourceIndex === 1 ? selected?.fallbackVideoUrl : selected?.videoUrl) || "Fuente no identificada",
+      source: failedElement?.currentSrc || (sourceIndex === 1 ? selected?.fallbackVideoUrl : selected?.videoUrl || selected?.fallbackVideoUrl) || "Fuente no identificada",
     });
     setVideoState("error");
   }
@@ -662,10 +662,12 @@ export default function Home() {
     setVideoState("error");
   }
 
-  const activeVideoUrl = selected?.videoUrl
+  const activeVideoUrl = selected
     ? selectedAudioIndex > 0 && selected.audioTracks?.[selectedAudioIndex - 1]?.url
       ? selected.audioTracks[selectedAudioIndex - 1].url
-      : sourceIndex === 1 && selected.fallbackVideoUrl ? selected.fallbackVideoUrl : selected.videoUrl
+      : sourceIndex === 1 && selected.videoUrl && selected.fallbackVideoUrl
+        ? selected.fallbackVideoUrl
+        : selected.videoUrl || selected.fallbackVideoUrl
     : undefined;
   const activeAudioUrl = selected?.audioTracks?.[selectedAudioIndex]?.url || selected?.audioUrl;
 
@@ -776,8 +778,8 @@ export default function Home() {
                   {film.requiresPremium && <span className="premiumContentBadge">NOIR PREMIUM</span>}
                   {film.status === "available" ? (
                     <>
-                      <span className={film.videoUrl || film.audioUrl || film.externalEmbedUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
-                        {film.videoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.externalEmbedUrl ? "EMBED OFICIAL EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
+                      <span className={film.videoUrl || film.fallbackVideoUrl || film.audioUrl || film.externalEmbedUrl ? "sourceTypeBadge sourceTypeInternal" : "sourceTypeBadge sourceTypeExternal"}>
+                        {film.videoUrl || film.fallbackVideoUrl || film.audioUrl ? "REPRODUCCIÓN EN NOIR" : film.externalEmbedUrl ? "EMBED OFICIAL EN NOIR" : film.contentType === "manga" ? "LECTOR OFICIAL EXTERNO" : "FUENTE OFICIAL EXTERNA"}
                       </span>
                       <span className="posterPlay"><span>{film.externalEmbedUrl ? "▶" : film.readerUrl ? (film.contentType === "manga" ? "LEER" : "↗") : "▶"}</span></span>
                     </>
@@ -997,7 +999,7 @@ export default function Home() {
               )}
               {resumeAt > 15 && <p className="playerLanguageNote">{!selected.videoUrl && (selected.audioTracks?.length ?? 0) > 1 ? "Continuando en el capítulo " + (selectedAudioIndex + 1) + " desde " : "Continuando desde "}{Math.floor(resumeAt / 60)}:{String(Math.floor(resumeAt % 60)).padStart(2, "0")}.</p>}
               {!viewerId && <p className="playerLanguageNote">Inicia sesión para guardar tu avance y continuar después desde Mi cuenta.</p>}
-              {selected.videoUrl && <div className="playerLanguageControls">
+              {(selected.videoUrl || selected.fallbackVideoUrl) && <div className="playerLanguageControls">
                 {selected.silentFilm ? (
                   <div className="playerLanguageNote">PELÍCULA MUDA · Esta versión no contiene una pista de audio.</div>
                 ) : (
