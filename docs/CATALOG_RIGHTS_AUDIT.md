@@ -1,6 +1,6 @@
 # Auditoría de derechos y reproducción del catálogo
 
-**Última medición:** 2026-11-27  
+**Última medición:** 2026-11-28  
 **Entorno:** proyecto Supabase de producción de NOIR VAULT  
 **Alcance:** filas publicadas con `status = 'available'` y `video_url IS NOT NULL`.
 
