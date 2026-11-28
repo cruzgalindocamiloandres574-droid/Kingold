@@ -114,7 +114,13 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 | THE DAILY DWEEBS | La URL de vídeo del catálogo está alojada en `video.blender.org`. IFN identifica la película como open movie de Blender Studio, enlaza el proyecto de Blender Foundation y declara CC BY 4.0. La página lista dirección, producción, voces, música y sonido; la copia de streaming conserva los créditos originales y solo se re-encodifica. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no incluye marcas ni materiales ajenos. | https://www.theindiefilmnetwork.com/movies/the-daily-dweebs · https://studio.blender.org/projects/dailydweebs/ |
 | DOMINION (2018) | La copia exacta del catálogo es una transcodificación de Wikimedia Commons. La ficha atribuye la obra a Farm Transparency Project, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; la revisión de licencia de Commons figura el 10-01-2026. La FAQ del titular también declara CC BY 4.0. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm · https://dominionmovement.com/faq |
 
-Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 permisos positivos y 17 registros sin determinación.
+Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 valores `true`: 101 con fundamento comercial explícito y 66 heredados con PDM/dominio público sin nota comercial específica; además, hay 17 registros nulos.
+
+## 78 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
+
+Se añadieron notas `commercial_reuse_basis` a 78 filas que ya tenían `license_basis`, `source_page_url` y fecha de revisión. La distribución de las licencias declaradas es: **44 CC BY-SA**, **30 CC BY** y **4 CC0 1.0**. Las notas incluyen la página fuente, el fundamento individual que ya constaba en el registro y las condiciones aplicables: atribución/enlace/indicación de cambios para CC BY; además, ShareAlike para CC BY-SA; CC0 permite uso comercial sin obligación de atribución, aunque se recomienda conservar el crédito.
+
+Este paso documenta el permiso comercial derivado de la licencia declarada para la copia concreta; no constituye una nueva verificación de todos los componentes incorporados ni otorga derechos independientes sobre música, material de terceros, marcas o derechos de imagen/privacidad. Cuando el fundamento previo describe exclusiones, discrepancias o condiciones, estas se conservan en la nota y deben respetarse. No se cambiaron licencias, créditos, URLs ni estado de reproducción.
 
 ## COSMOS LAUNDROMAT — CC BY-SA 3.0 y uso comercial
 
@@ -160,10 +166,12 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 167 |
+| `true` con `commercial_reuse_basis` explícito | 101 |
+| `true` sin `commercial_reuse_basis` explícito (heredado, PDM/dominio público) | 66 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 17 |
 
-La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones positivas adicionales (diez CC BY/CC BY-SA, una copia histórica de dominio público, tres copias CC BY 4.0, ocho episodios BBS CC BY-SA y Cosmos Laundromat CC BY-SA); las otras 17 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones comerciales específicas y se añadieron notas a 78 copias CC BY/CC BY-SA/CC0 con fuente y fundamento de licencia ya existentes. Hay 101 filas con base comercial explícita; 66 valores `true` heredados con PDM/dominio público siguen sin nota comercial específica y requieren revisión por copia; las otras 17 filas mantienen el valor nulo. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
