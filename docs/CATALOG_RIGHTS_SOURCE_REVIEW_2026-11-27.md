@@ -114,7 +114,7 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 | THE DAILY DWEEBS | La URL de vídeo del catálogo está alojada en `video.blender.org`. IFN identifica la película como open movie de Blender Studio, enlaza el proyecto de Blender Foundation y declara CC BY 4.0. La página lista dirección, producción, voces, música y sonido; la copia de streaming conserva los créditos originales y solo se re-encodifica. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no incluye marcas ni materiales ajenos. | https://www.theindiefilmnetwork.com/movies/the-daily-dweebs · https://studio.blender.org/projects/dailydweebs/ |
 | DOMINION (2018) | La copia exacta del catálogo es una transcodificación de Wikimedia Commons. La ficha atribuye la obra a Farm Transparency Project, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; la revisión de licencia de Commons figura el 10-01-2026. La FAQ del titular también declara CC BY 4.0. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm · https://dominionmovement.com/faq |
 
-Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 valores `true`: 101 con fundamento comercial explícito y 66 heredados con PDM/dominio público sin nota comercial específica; además, hay 17 registros nulos.
+Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 valores `true`: 161 con fundamento comercial explícito y 6 heredados con PDM/dominio público sin nota comercial específica; además, hay 17 registros nulos.
 
 ## 78 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
 
@@ -136,9 +136,16 @@ Se registró `commercial_reuse_permitted = true` y una nota individual `commerci
 
 Fuentes primarias y de archivo: https://ascii.textfiles.com/archives/870 · https://archive.org/details/BBS.The.Documentary · https://commons.wikimedia.org/wiki/Category:BBS:The_Documentary
 
-## 66 valores `true` heredados sin fundamento comercial específico
+## 59 copias PDM adicionales y una copia estadounidense revisadas individualmente
 
-La consulta directa de producción identificó 66 filas con `commercial_reuse_permitted = true` pero sin `commercial_reuse_basis`. Se distribuyen en 62 fichas con Wikimedia Commons PDM 1.0, 3 con Public Domain Mark 1.0 y 1 con etiqueta de dominio público de EE. UU. Las 66 ya tienen `license_basis` y `source_page_url`, pero esos fundamentos advierten que PDM no es una licencia y que deben verificarse titular, primera comunicación/publicación, plazo aplicable, restauraciones y bandas sonoras añadidas. Los valores `true` son heredados y no se deben presentar como autorización comercial final hasta revisar cada copia. No se cambiaron en este lote para evitar una modificación masiva sin análisis individual.
+Se añadieron fundamentos comerciales por copia a **59 archivos históricos con PDM/dominio público** y a **ENCHANTMENT (1921)**, cuya ficha documenta dominio público estadounidense. Sumados a la determinación previa de **LILIPUTIAN DANCE (1906)**, el catálogo cuenta ahora con 61 copias históricas PDM/PD con fundamento comercial explícito. Las notas identifican archivo, fuente, autor/productor y fecha cuando constan; limitan la conclusión a la copia silenciosa identificada y excluyen restauraciones posteriores, bandas sonoras añadidas, marcas y derechos de imagen/privacidad independientes.
+
+Las 59 copias PDM adicionales son: **1902–1905:** Le Voyage dans la Lune; The Great Train Robbery; Barcelone, parc au crépuscule; La Table magique; Le Plongeur fantastique. **1906:** Electric Current (Le Courant électrique); L’Écrin du Raja; La Grève des bonnes; Le Fils du diable; Le Matelas de la mariée; Le Tour du monde d’un policier; Un Jour de paye. **1907:** Chrysanthemums; Fantaisies endiablées; La Maison ensorcelée; Le Charmeur; Les Kiriki; Les Tulipes; The Enchanted Glasses. **1908:** Les Cocottes en papier; Les Ombres chinoises; Magie moderne; The Hotel of Silence; The Modern Sculptor; Un Drame chez les Fantoches. **1909:** A Corner in Wheat; Le Voyage sur Jupiter; Les Chaussures matrimoniales; Les Générations comiques; Les Lunettes féeriques; Lines of White on a Sullen Sea; Symphonie bizarre; Transfigurations. **1910:** En route; Faust; L’Enfance de l’art; Le Champion du jeu à la mode; Le Peintre néo-impressioniste; Le Petit Chantecler; Le Placier est tenace; Le Retapeur de cervelles; Le Songe du garçon de café; Le Tout petit Faust; Les Aventures du baron du Crac; Les Beaux-arts mystérieux; Les Débuts de Max au cinéma; Les Douze travaux d’Hercule; Matrimonio interplanetario. **1911:** A Tale of Two Cities; Les Exploits de Feu Follet; Une Nuit agitée. **1912:** Entente cordiale; Gérone, la Venise espagnole; La Hantise; Le Nain; Le Roman de Max; Métamorphoses; Superstition andalouse; The Burglar’s Dilemma.
+
+
+## 6 valores `true` heredados sin fundamento comercial específico
+
+La consulta de producción mantiene seis valores `commercial_reuse_permitted = true` sin `commercial_reuse_basis`: **LE ROI DES DOLLARS (1905)**, **A MIX-UP IN THE GALLERY (1906)**, **GOOD GLUE STICKS (1907)**, **FANTASMAGORIE (1908)**, **LES DÉS MAGIQUES (1908)** y **EL GABINETE DEL DOCTOR CALIGARI (1920)**. Los cinco primeros requieren confirmar que la copia concreta no contiene música añadida o una restauración con derechos independientes; Caligari usa una restauración de 2014 cuyos derechos específicos no se han despejado. Los valores `true` son heredados y no deben presentarse como autorizaciones comerciales finales hasta completar esa verificación.
 
 ## Uso comercial: 17 registros todavía sin determinación explícita
 
@@ -170,13 +177,13 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 167 |
-| `true` con `commercial_reuse_basis` explícito | 101 |
-| `true` sin `commercial_reuse_basis` explícito (heredado, PDM/dominio público) | 66 |
+| `true` con `commercial_reuse_basis` explícito | 161 |
+| `true` sin `commercial_reuse_basis` explícito (heredado, PDM/dominio público) | 6 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 17 |
 
-La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones comerciales específicas y se añadieron notas a 78 copias CC BY/CC BY-SA/CC0 con fuente y fundamento de licencia ya existentes. Hay 101 filas con base comercial explícita; 66 valores `true` heredados con PDM/dominio público siguen sin nota comercial específica y requieren revisión por copia; las otras 17 filas mantienen el valor nulo. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones comerciales específicas, se añadieron notas a 78 copias CC BY/CC BY-SA/CC0, se revisaron 59 copias PDM adicionales y se documentó ENCHANTMENT (1921) como dominio público estadounidense. Hay 161 filas con base comercial explícita; 6 valores `true` heredados siguen sin nota comercial específica y las otras 17 filas mantienen el valor nulo. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
-Prioridad: revisar individualmente los 66 valores `true` heredados con PDM/dominio público y sin nota comercial, empezando por copias con restauraciones o sonido añadido. En paralelo, Agent 327 permanece nulo hasta resolver sus condiciones; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
+Prioridad: resolver los seis valores `true` heredados sin base comercial (especialmente música/restauración) y los 17 valores nulos. Agent 327 permanece nulo hasta resolver sus condiciones; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
