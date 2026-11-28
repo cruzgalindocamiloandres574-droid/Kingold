@@ -1,19 +1,46 @@
 # Configuración final de NOIR VAULT
 
 ## Dar acceso de administrador
-1. Registra y confirma la cuenta que será propietaria de NOIR VAULT.
-2. En Supabase SQL Editor ejecuta la consulta siguiente, reemplazando el correo por el correo exacto de esa cuenta:
+
+El proyecto Supabase conectado no tiene todavía usuarios en Auth ni perfiles creados (comprobación del 2026-11-28). Por seguridad, NOIR VAULT no asciende automáticamente al primer usuario que se registre: el rol de administrador debe asignarse a una dirección de correo elegida y verificada por el propietario.
+
+1. Abre [NOIR VAULT](https://noir-vault-psi.vercel.app/registro) y registra la cuenta que será propietaria.
+2. Confirma el correo desde el mensaje que envíe Supabase. El disparador `on_auth_user_created` crea el perfil al insertar el usuario.
+3. En Supabase → SQL Editor ejecuta este bloque, sustituyendo `PON_AQUI_EL_CORREO_CONFIRMADO` por el correo exacto que acabas de verificar:
 
 ```sql
-update public.profiles
-set role = 'admin'
-where id = (
-  select id from auth.users
-  where lower(email) = lower('TU_CORREO_ADMIN')
-);
+do $
+declare
+  v_email text := lower(btrim('PON_AQUI_EL_CORREO_CONFIRMADO'));
+  v_user_id uuid;
+begin
+  if v_email = '' or v_email = 'pon_aqui_el_correo_confirmado' then
+    raise exception 'Indica el correo exacto de la cuenta propietaria.';
+  end if;
+
+  select id
+    into v_user_id
+    from auth.users
+   where lower(email) = v_email
+     and email_confirmed_at is not null;
+
+  if v_user_id is null then
+    raise exception 'No existe una cuenta confirmada con ese correo.';
+  end if;
+
+  update public.profiles
+     set role = 'admin'
+   where id = v_user_id;
+
+  if not found then
+    raise exception 'No se encontró el perfil creado para esa cuenta.';
+  end if;
+end $;
 ```
 
-3. Inicia sesión con esa cuenta y abre `/admin`. El panel permite agregar y eliminar contenido. La base de datos impone las políticas RLS; no basta con ocultar el enlace. Los permisos de usuario no permiten cambiar la columna `role` del perfil desde el navegador.
+4. Cierra sesión, vuelve a entrar con esa cuenta y abre `/admin`. La comprobación del rol se hace desde el perfil en Supabase; el navegador no puede actualizar la columna `role`.
+
+No pegues contraseñas, claves API ni tokens en el SQL Editor o en el repositorio. No otorgues el rol a una cuenta que no controles.
 
 ## Variables privadas de Vercel
 Configura las credenciales en Project Settings → Environment Variables y limita los secretos al servidor:
@@ -38,3 +65,13 @@ Estas migraciones ya están aplicadas al proyecto Supabase conectado. En una bas
 
 ## Derechos y reproducción
 Solo habilitar reproducción para películas con derechos y fuentes autorizadas. El catálogo incluye fuentes reproducibles y fichas de referencia/enlaces externos; no supongas que una ficha publicada equivale a autorización de exhibición. El host de vídeo externo no es un CDN de producción.
+
+
+## Estado comprobado de producción — 2026-11-28
+
+- No hay cuentas en `auth.users`, perfiles, administradores, suscripciones ni bloqueos de Checkout todavía. El disparador de creación automática de perfiles está habilitado.
+- La tabla `profiles` tiene RLS activo. Los usuarios autenticados solo reciben permiso de actualización para `display_name`; no tienen privilegio de actualización de tabla ni de columna sobre `role`.
+- Las políticas de lectura de contenido exigen `commercial_reuse_permitted = true` para fuentes de reproducción y conservan acceso de revisión para administradores.
+- Pruebas sin sesión contra producción: `POST /api/checkout` devuelve 401, `POST /api/portal` devuelve 401 y `POST /api/stripe-webhook` sin firma devuelve 400. El webhook reconoce su configuración de Stripe/Supabase y rechaza la petición sin una firma Stripe válida. Estas pruebas no crean sesiones de pago ni cobran.
+- El bloqueo de paginación fuera de rango está desplegado. La página 999 de `/api/catalog` devuelve HTTP 200 y una lista vacía en lugar de consultar un rango inválido a PostgREST.
+- El despliegue de producción y el CI de GitHub están aprobados. Stripe permanece en modo de prueba; no habilitar cobros reales sin autorización expresa.
