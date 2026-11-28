@@ -5,8 +5,8 @@ import { appendFile } from "node:fs/promises";
 
 const baseUrl = (process.env.NOIR_VAULT_BASE_URL || "https://noir-vault-psi.vercel.app").replace(/\/$/, "");
 const timeoutMs = Number(process.env.MEDIA_AUDIT_TIMEOUT_MS || 10000);
-const concurrency = Math.max(1, Math.min(6, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 1)));
-const minIntervalMs = Math.max(0, Number(process.env.MEDIA_AUDIT_MIN_INTERVAL_MS || 1000));
+const concurrency = Math.max(1, Math.min(6, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 2)));
+const minIntervalMs = Math.max(0, Number(process.env.MEDIA_AUDIT_MIN_INTERVAL_MS || 0));
 let lastMediaRequestAt = 0;
 const maxRedirects = 3;
 
