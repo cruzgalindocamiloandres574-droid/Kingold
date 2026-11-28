@@ -4,7 +4,7 @@ NOIR VAULT incluye una comprobación periódica de accesibilidad HTTP para las f
 
 ## Ejecución
 
-- Automática: cada lunes a las 08:17 UTC mediante GitHub Actions.
+- Automática: cada lunes a las 08:17 UTC mediante GitHub Actions. Los eventos de push y pull request solo validan la sintaxis del script; no disparan una auditoría en vivo contra producción.
 - Manual: GitHub → Actions → **NOIR VAULT media source audit** → Run workflow. Se puede indicar la URL de una vista previa o dejar la URL de producción predeterminada.
 - Local: `node scripts/audit-media-sources.mjs` con Node.js 20 o superior.
 
@@ -12,11 +12,11 @@ NOIR VAULT incluye una comprobación periódica de accesibilidad HTTP para las f
 
 1. Lee las páginas de `/api/catalog?playback=internal` del despliegue elegido, respetando la paginación de 20 registros.
 2. Reúne y deduplica `video_url`, `fallback_video_url`, `audio_url` y las URL de `audio_tracks`.
-3. Envía una petición HTTP con `Range: bytes=0-0`; no descarga el archivo completo. Por defecto usa concurrencia limitada (2 solicitudes simultáneas). Los proveedores pueden devolver HTTP 429; esas respuestas se informan como inconclusas y no como enlaces rotos.
+3. Envía una petición HTTP con `Range: bytes=0-0`; no descarga el archivo completo. Por defecto usa concurrencia limitada (2 solicitudes simultáneas) y serializa la admisión de solicitudes con un intervalo mínimo de 1 segundo. Los proveedores pueden devolver HTTP 429; esas respuestas se informan como inconclusas y no como enlaces rotos.
 4. Acepta respuestas HTTP 200/206 con un tipo de contenido de medio o playlist, y registra fallos, códigos, tipo de contenido y títulos afectados.
 5. Sigue como máximo tres redirecciones HTTPS y bloquea hosts locales o direcciones IP privadas. Los informes muestran la ruta de la URL, no sus parámetros de consulta.
 
-El resultado aparece en los logs y en el resumen de la ejecución de GitHub Actions. Las respuestas HTTP 429 se clasifican como **inconclusas por límite del origen**, no como enlaces rotos. Si hay otros fallos confirmados, el trabajo termina con error para que se revisen las fuentes.
+El resultado de una auditoría manual o programada aparece en los logs y en el resumen de la ejecución de GitHub Actions. Los eventos de push y pull request ejecutan únicamente la validación sintáctica. Las respuestas HTTP 429 se clasifican como **inconclusas por límite del origen**, no como enlaces rotos. Si hay otros fallos confirmados, el trabajo termina con error para que se revisen las fuentes.
 
 ## Límites importantes
 
