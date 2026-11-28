@@ -70,8 +70,8 @@ export async function GET(request: NextRequest) {
     if (language && /^[a-z]{2}$/.test(language)) query = query.eq("original_language", language);
     if (audio === "latin") query = query.eq("has_latin_spanish", true);
     if (audio === "spanish") query = query.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
-    if (playback === "internal") query = query.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,content_metadata->>external_embed_url.not.is.null");
-    if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
+    if (playback === "internal") query = query.eq("status", "available").or("video_url.not.is.null,fallback_video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,content_metadata->>external_embed_url.not.is.null");
+    if (playback === "external") query = query.eq("status", "available").is("video_url", null).is("fallback_video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
     if (playback === "soon") query = query.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") query = query.contains("content_metadata", { catalog_availability: "source_pending" });
     // Count the filtered result set independently so an out-of-range page can
@@ -90,8 +90,8 @@ export async function GET(request: NextRequest) {
     if (language && /^[a-z]{2}$/.test(language)) totalQuery = totalQuery.eq("original_language", language);
     if (audio === "latin") totalQuery = totalQuery.eq("has_latin_spanish", true);
     if (audio === "spanish") totalQuery = totalQuery.overlaps("audio_languages", ["es", "es-ES", "es-419", "es-MX", "es-CO", "es-AR", "es-CL", "es-PE", "es-BO", "es-UY", "es-EC", "es-VE", "es-PY", "es-DO", "es-CR", "es-GT", "es-HN", "es-NI", "es-PA", "es-SV"]);
-    if (playback === "internal") totalQuery = totalQuery.eq("status", "available").or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,content_metadata->>external_embed_url.not.is.null");
-    if (playback === "external") totalQuery = totalQuery.eq("status", "available").is("video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
+    if (playback === "internal") totalQuery = totalQuery.eq("status", "available").or("video_url.not.is.null,fallback_video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,content_metadata->>external_embed_url.not.is.null");
+    if (playback === "external") totalQuery = totalQuery.eq("status", "available").is("video_url", null).is("fallback_video_url", null).is("audio_url", null).is("audio_tracks->0->>url", null).not("reader_url", "is", null).is("content_metadata->>external_embed_url", null);
     if (playback === "soon") totalQuery = totalQuery.contains("content_metadata", { catalog_availability: "upcoming" });
     if (playback === "pending") totalQuery = totalQuery.contains("content_metadata", { catalog_availability: "source_pending" });
 
@@ -108,16 +108,20 @@ export async function GET(request: NextRequest) {
     const [totalResult, availableResult, internalResult, embedResult, externalResult, upcomingResult, pendingResult] = await Promise.all([
       totalQuery,
       countByStatus("available")
-        .or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,reader_url.not.is.null"),
+        .or("video_url.not.is.null,fallback_video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null,reader_url.not.is.null,content_metadata->>external_embed_url.not.is.null"),
       countByStatus("available")
-        .or("video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null"),
+        .or("video_url.not.is.null,fallback_video_url.not.is.null,audio_url.not.is.null,audio_tracks->0->>url.not.is.null"),
       countByStatus("available")
         .is("video_url", null)
+        .is("fallback_video_url", null)
         .is("audio_url", null)
+        .is("audio_tracks->0->>url", null)
         .not("content_metadata->external_embed_url", "is", null),
       countByStatus("available")
         .is("video_url", null)
+        .is("fallback_video_url", null)
         .is("audio_url", null)
+        .is("audio_tracks->0->>url", null)
         .not("reader_url", "is", null)
         .is("content_metadata->>external_embed_url", null),
       countByStatus("soon")
