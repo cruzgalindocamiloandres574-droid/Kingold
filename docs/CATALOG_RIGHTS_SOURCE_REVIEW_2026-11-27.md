@@ -116,7 +116,7 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 
 Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 179 valores `true`: 173 con fundamento comercial explícito y 6 heredados con PDM/dominio público sin nota comercial específica; además, hay 5 registros nulos.
 
-## 78 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
+## 81 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
 
 Se añadieron notas `commercial_reuse_basis` a 81 filas que ya tenían `license_basis`, `source_page_url` y fecha de revisión. La distribución de las licencias declaradas es: **46 CC BY-SA**, **31 CC BY** y **4 CC0 1.0**. Las notas incluyen la página fuente, el fundamento individual que ya constaba en el registro y las condiciones aplicables: atribución/enlace/indicación de cambios para CC BY; además, ShareAlike para CC BY-SA; CC0 permite uso comercial sin obligación de atribución, aunque se recomienda conservar el crédito.
 
@@ -165,7 +165,7 @@ La revisión de licencia fuente por fuente completó el fundamento documental, p
 El inventario pendiente actual se agrupa así:
 
 1. **2 películas con Public Domain Mark en Commons:** **La Boîte à cigares (1907)**, cuya ficha no permite verificar suficientemente autor/productor y procedencia de la copia; y **La Peine du talion (1906)**, cuya copia disponible aparece coloreada en 2011 y requiere aclarar derechos de esa versión. PDM 1.0 es un indicador de estado, no una licencia ni una garantía universal. Antes de marcar uso comercial deben verificarse titular/productor, primera comunicación o publicación autorizada, restauraciones y derechos de otros componentes.
-2. **Otros 3 títulos con licencia abierta o condición particular:** Agent 327; Jan Haarhuis; Karinding. Se requieren comprobaciones complementarias de música, intérpretes, material de archivo, condiciones por copia (Mage Porob), restricciones ND, marcas y declaraciones de licencia discrepantes.
+2. **Otros 3 títulos con licencia abierta o condición particular:** Agent 327; Jan Haarhuis; Karinding. Agent 327 requiere aclaración escrita sobre la limitación de exhibición libre y la distribución por suscripción; Jan Haarhuis requiere revisión humana de posibles obras derivadas/material de terceros; Karinding mantiene discrepancia entre CC BY 4.0 y CC BY-SA 3.0 y debe aclarar derechos de intérpretes/música.
 
 Para Colombia, la Ley 23 de 1982, artículo 26, establece 80 años para obras cinematográficas desde la terminación de la producción, entendida desde la primera comunicación pública; cuando el titular es persona jurídica, el plazo remite al artículo 27, modificado por la Ley 1915 de 2018, que prevé 70 años desde el final del año calendario de la primera publicación autorizada. Fuentes legales oficiales: https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm y https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419.
 
