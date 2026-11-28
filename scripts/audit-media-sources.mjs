@@ -5,7 +5,7 @@ import { appendFile } from "node:fs/promises";
 
 const baseUrl = (process.env.NOIR_VAULT_BASE_URL || "https://noir-vault-psi.vercel.app").replace(/\/$/, "");
 const timeoutMs = Number(process.env.MEDIA_AUDIT_TIMEOUT_MS || 10000);
-const concurrency = Math.max(1, Math.min(12, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 6)));
+const concurrency = Math.max(1, Math.min(6, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 2)));
 const maxRedirects = 3;
 
 function isPrivateAddress(hostname) {
@@ -130,6 +130,10 @@ async function checkMedia(candidate) {
 
       const contentType = response.headers.get("content-type") || "";
       const finalUrl = displayUrl(currentUrl);
+      if (response.status === 429) {
+        await response.body?.cancel().catch(() => {});
+        return { ...candidate, ok: false, rateLimited: true, status: 429, contentType, checkedUrl: finalUrl, error: "El origen limitó la auditoría (HTTP 429); resultado inconcluso, no es prueba de que el medio esté roto." };
+      }
       const playlist = /\.(m3u8?|mpd)(?:$|\?)/i.test(new URL(currentUrl).pathname);
       const html = /text\/html/i.test(contentType);
       const acceptableType = !contentType || /video\/|audio\/|application\/(octet-stream|vnd\.apple\.mpegurl|x-mpegurl|dash\+xml)/i.test(contentType) || playlist;
@@ -189,7 +193,8 @@ async function main() {
 
   const { candidates, externalEmbeds } = collectCandidates(records);
   const results = await mapWithConcurrency(candidates, concurrency, checkMedia);
-  const failures = results.filter((result) => !result.ok);
+  const rateLimitedResults = results.filter((result) => result.rateLimited);
+  const failures = results.filter((result) => !result.ok && !result.rateLimited);
   const summary = {
     checkedAt: new Date().toISOString(),
     baseUrl,
@@ -197,13 +202,16 @@ async function main() {
     reportedInternalPlaybackTotal: firstPage.total,
     pages: totalPages,
     uniqueDirectMediaUrls: candidates.length,
-    reachable: results.length - failures.length,
+    checked: results.length,
+    reachable: results.filter((result) => result.ok).length,
     failed: failures.length,
+    rateLimited: rateLimitedResults.length,
+    rateLimitedSample: rateLimitedResults.slice(0, 10).map((result) => ({ title: result.title, kinds: result.kinds, url: result.checkedUrl })),
     externalEmbedsNotProbed: externalEmbeds,
     limitations: [
       "La API pública aplica RLS: el inventario premium que requiere sesión no aparece en esta auditoría.",
       "HTTP 200/206 y una respuesta parcial no garantizan decodificación ni reproducción real en Android.",
-      "Los reproductores externos y enlaces de lectura se contabilizan, pero no se prueban como medios directos.",
+      "Los reproductores externos se contabilizan, pero no se prueban. Los registros que solo tienen enlaces de lectura no entran en la consulta playback=internal.",
     ],
     failures: failures.map((result) => ({
       title: result.title,
@@ -223,11 +231,15 @@ async function main() {
       "",
       `- Registros públicos con reproducción interna consultados: **${summary.publicInternalPlaybackRecords}** (API informa ${summary.reportedInternalPlaybackTotal}).`,
       `- URLs directas únicas probadas: **${summary.uniqueDirectMediaUrls}**.`,
-      `- Accesibles: **${summary.reachable}** · Fallidas: **${summary.failed}**.`,
+      `- Comprobadas: **${summary.checked}** · Accesibles: **${summary.reachable}** · Fallos confirmados: **${summary.failed}** · Limitadas por el origen (inconcluso): **${summary.rateLimited}**.`,
       `- Reproductores externos detectados pero no probados: **${summary.externalEmbedsNotProbed}**.`,
       "",
       "La API pública aplica RLS; el contenido premium que requiere sesión no está incluido. HTTP 200/206 no garantiza reproducción real en un dispositivo.",
     ];
+    if (rateLimitedResults.length) {
+      lines.push("", `### Respuestas limitadas por el origen (HTTP 429): ${rateLimitedResults.length}`, "Se consideran inconclusas y no se reportan como fuentes rotas. Muestra:");
+      for (const result of summary.rateLimitedSample) lines.push(`- ${result.title} — ${result.kinds.join(", ")} — ${result.url}`);
+    }
     if (failures.length) {
       lines.push("", "### Fuentes que requieren revisión", "", "| Título | Tipo | Estado | Error |", "|---|---|---:|---|");
       for (const failure of failures) {

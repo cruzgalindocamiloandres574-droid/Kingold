@@ -1,6 +1,18 @@
 name: NOIR VAULT media source audit
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/media-source-audit.yml"
+      - "scripts/audit-media-sources.mjs"
+      - "docs/MEDIA_SOURCE_AUDIT.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/media-source-audit.yml"
+      - "scripts/audit-media-sources.mjs"
+      - "docs/MEDIA_SOURCE_AUDIT.md"
   workflow_dispatch:
     inputs:
       base_url:
@@ -21,7 +33,7 @@ jobs:
     timeout-minutes: 15
     env:
       NOIR_VAULT_BASE_URL: ${{ inputs.base_url || 'https://noir-vault-psi.vercel.app' }}
-      MEDIA_AUDIT_CONCURRENCY: "6"
+      MEDIA_AUDIT_CONCURRENCY: "2"
       MEDIA_AUDIT_TIMEOUT_MS: "10000"
     steps:
       - name: Checkout
