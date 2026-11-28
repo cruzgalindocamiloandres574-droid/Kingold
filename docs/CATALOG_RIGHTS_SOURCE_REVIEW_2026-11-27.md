@@ -114,17 +114,21 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 | THE DAILY DWEEBS | La URL de vídeo del catálogo está alojada en `video.blender.org`. IFN identifica la película como open movie de Blender Studio, enlaza el proyecto de Blender Foundation y declara CC BY 4.0. La página lista dirección, producción, voces, música y sonido; la copia de streaming conserva los créditos originales y solo se re-encodifica. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no incluye marcas ni materiales ajenos. | https://www.theindiefilmnetwork.com/movies/the-daily-dweebs · https://studio.blender.org/projects/dailydweebs/ |
 | DOMINION (2018) | La copia exacta del catálogo es una transcodificación de Wikimedia Commons. La ficha atribuye la obra a Farm Transparency Project, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; la revisión de licencia de Commons figura el 10-01-2026. La FAQ del titular también declara CC BY 4.0. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm · https://dominionmovement.com/faq |
 
-Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 179 valores `true`: 173 con fundamento comercial explícito y 6 heredados con PDM/dominio público sin nota comercial específica; además, hay 5 registros nulos.
+Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 180 valores `true`: 174 con fundamento comercial explícito y 6 heredados con PDM/dominio público sin nota comercial específica; además, hay 4 registros nulos.
 
-## 81 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
+## 82 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
 
-Se añadieron notas `commercial_reuse_basis` a 81 filas que ya tenían `license_basis`, `source_page_url` y fecha de revisión. La distribución de las licencias declaradas es: **46 CC BY-SA**, **31 CC BY** y **4 CC0 1.0**. Las notas incluyen la página fuente, el fundamento individual que ya constaba en el registro y las condiciones aplicables: atribución/enlace/indicación de cambios para CC BY; además, ShareAlike para CC BY-SA; CC0 permite uso comercial sin obligación de atribución, aunque se recomienda conservar el crédito.
+Se añadieron notas `commercial_reuse_basis` a 82 filas que ya tenían `license_basis`, `source_page_url` y fecha de revisión. Las familias declaradas incluyen CC BY-SA, CC BY y CC0 1.0; hay filas con doble declaración, por lo que los subtotales por familia se superponen. Las notas incluyen la página fuente, el fundamento individual que ya constaba en el registro y las condiciones aplicables: atribución/enlace/indicación de cambios para CC BY; además, ShareAlike para CC BY-SA; CC0 permite uso comercial sin obligación de atribución, aunque se recomienda conservar el crédito.
 
 Este paso documenta el permiso comercial derivado de la licencia declarada para la copia concreta; no constituye una nueva verificación de todos los componentes incorporados ni otorga derechos independientes sobre música, material de terceros, marcas o derechos de imagen/privacidad. Cuando el fundamento previo describe exclusiones, discrepancias o condiciones, estas se conservan en la nota y deben respetarse. No se cambiaron licencias, créditos, URLs ni estado de reproducción.
 
-## LUZ Y LIBERTAD, MAGE POROB y WIKIMANIA 2015 — tres copias con CC BY/CC BY-SA confirmadas
+## LUZ Y LIBERTAD, MAGE POROB, WIKIMANIA 2015 y KARINDING — cuatro copias CC BY/CC BY-SA confirmadas
 
 **LUZ Y LIBERTAD (LIGHT AND FREEDOM)** es un corto animado híbrido 2D/3D creado y dirigido por William Espada (Cihznat). La ficha de Commons identifica el origen YouTube y la licencia CC BY 3.0 Unported elegida por el autor; la copia no tiene diálogo. Se registró permiso comercial con atribución a William Espada, enlace a la licencia e indicación de cambios.
+
+**KARINDING (2020)** se revisó sobre la URL WebM exacta del catálogo. La licencia visible de la ficha de Commons declara CC BY 4.0 y exige atribución a O Foundation, Subhashish Panigrahi (director/productor) e Ilham Nurwansah (intérprete). La copia MP4 distinta de Internet Archive declara CC BY-SA 4.0 y acredita los mismos autores/participantes. Se corrigió el campo `license` del catálogo para que refleje CC BY 4.0 en la URL WebM; la propiedad estructurada CC BY-SA 3.0 de Commons no se tomó como licencia, pues contradice la licencia visible. Ambas licencias permiten uso comercial; la copia MP4 requiere ShareAlike para adaptaciones.
+
+Fuentes: https://commons.wikimedia.org/wiki/File:Karinding_(2020)_(short_documentary).webm · https://archive.org/details/karinding · https://theofdn.org/film/karinding/ · https://creativecommons.org/licenses/by/4.0/ · https://creativecommons.org/licenses/by-sa/4.0/
 
 **WIKIMANIA 2015: EL DOCUMENTAL** se verificó en su archivo exacto de Commons. Wikimedia México A.C. / Isla Producciones declara CC BY-SA 3.0 para el contenido del video salvo indicación específica; la licencia permite uso comercial con atribución y ShareAlike. La misma ficha excluye expresamente las marcas y logos de Wikimedia Foundation, usados con permiso para el documental; no reutilizar esas marcas por separado ni sugerir respaldo de Wikimedia.
 
@@ -158,20 +162,20 @@ Las 68 copias PDM adicionales son: **1902–1905:** Le Voyage dans la Lune; The 
 
 La consulta de producción mantiene seis valores `commercial_reuse_permitted = true` sin `commercial_reuse_basis`: **LE ROI DES DOLLARS (1905)**, **A MIX-UP IN THE GALLERY (1906)**, **GOOD GLUE STICKS (1907)**, **FANTASMAGORIE (1908)**, **LES DÉS MAGIQUES (1908)** y **EL GABINETE DEL DOCTOR CALIGARI (1920)**. Los cinco primeros requieren confirmar que la copia concreta no contiene música añadida o una restauración con derechos independientes; Caligari usa una restauración de 2014 cuyos derechos específicos no se han despejado. Los valores `true` son heredados y no deben presentarse como autorizaciones comerciales finales hasta completar esa verificación.
 
-## Uso comercial: 5 registros todavía sin determinación explícita
+## Uso comercial: 4 registros todavía sin determinación explícita
 
-La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 5 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
+La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 4 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
 
 El inventario pendiente actual se agrupa así:
 
 1. **2 películas con Public Domain Mark en Commons:** **La Boîte à cigares (1907)**, cuya ficha no permite verificar suficientemente autor/productor y procedencia de la copia; y **La Peine du talion (1906)**, cuya copia disponible aparece coloreada en 2011 y requiere aclarar derechos de esa versión. PDM 1.0 es un indicador de estado, no una licencia ni una garantía universal. Antes de marcar uso comercial deben verificarse titular/productor, primera comunicación o publicación autorizada, restauraciones y derechos de otros componentes.
-2. **Otros 3 títulos con licencia abierta o condición particular:** Agent 327; Jan Haarhuis; Karinding. Agent 327 requiere aclaración escrita sobre la limitación de exhibición libre y la distribución por suscripción; Jan Haarhuis requiere revisión humana de posibles obras derivadas/material de terceros; Karinding mantiene discrepancia entre CC BY 4.0 y CC BY-SA 3.0 y debe aclarar derechos de intérpretes/música.
+2. **Otros 2 títulos con licencia abierta o condición particular:** Agent 327; Jan Haarhuis. Agent 327 requiere aclaración escrita sobre la limitación de exhibición libre y la distribución por suscripción; Jan Haarhuis requiere revisión humana de posibles obras derivadas/material de terceros; Karinding mantiene discrepancia entre CC BY 4.0 y CC BY-SA 3.0 y debe aclarar derechos de intérpretes/música.
 
 Para Colombia, la Ley 23 de 1982, artículo 26, establece 80 años para obras cinematográficas desde la terminación de la producción, entendida desde la primera comunicación pública; cuando el titular es persona jurídica, el plazo remite al artículo 27, modificado por la Ley 1915 de 2018, que prevé 70 años desde el final del año calendario de la primera publicación autorizada. Fuentes legales oficiales: https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm y https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419.
 
-**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 5 filas permanecen “sin determinar”.
+**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 4 filas permanecen “sin determinar”.
  
-La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 5 filas.
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 4 filas.
 
 ## Reutilización comercial preliminar por dominio público de una copia histórica
 
@@ -189,14 +193,14 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.rights_checked_on` | 0 |
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
-| `commercial_reuse_permitted = 'true'` | 179 |
-| `true` con `commercial_reuse_basis` explícito | 173 |
+| `commercial_reuse_permitted = 'true'` | 180 |
+| `true` con `commercial_reuse_basis` explícito | 174 |
 | `true` sin `commercial_reuse_basis` explícito (heredado, PDM/dominio público) | 6 |
 | `commercial_reuse_permitted = 'false'` | 0 |
-| Sin valor explícito para reutilización comercial | 5 |
+| Sin valor explícito para reutilización comercial | 4 |
 
-La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 26 determinaciones comerciales específicas, se añadieron notas a 81 copias CC BY/CC BY-SA/CC0, se revisaron 68 copias PDM adicionales y se documentó ENCHANTMENT (1921) como dominio público estadounidense. Además, nueve películas mudas PDM y tres copias CC BY/CC BY-SA pasaron de nulo a `true` con fundamento específico. Hay 173 filas con base comercial explícita; 6 valores `true` heredados siguen sin nota comercial específica y las otras 5 filas mantienen el valor nulo. No se modificaron URLs, créditos, licencias declaradas ni disponibilidad.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 27 determinaciones comerciales específicas, se añadieron notas a 82 copias CC BY/CC BY-SA/CC0, se revisaron 68 copias PDM adicionales y se documentó ENCHANTMENT (1921) como dominio público estadounidense. Además, nueve películas mudas PDM y cuatro copias CC BY/CC BY-SA pasaron de nulo a `true` con fundamento específico. Hay 174 filas con base comercial explícita; 6 valores `true` heredados siguen sin nota comercial específica y las otras 4 filas mantienen el valor nulo. Se corrigió un campo `license` para Karinding (CC BY 4.0 en el WebM de Commons; CC BY-SA 4.0 en la copia MP4 de IA); no se modificaron otras URLs, créditos, licencias ni disponibilidad.
 
 ## Siguiente lote de revisión
 
-Prioridad: resolver los seis valores `true` heredados sin base comercial (especialmente música/restauración) y los cinco valores nulos: La Boîte à cigares, La Peine du talion, Agent 327, Jan Haarhuis y Karinding. Agent 327 permanece nulo hasta resolver sus condiciones; Karinding mantiene la discrepancia entre CC BY 4.0 y CC BY-SA 3.0; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
+Prioridad: resolver los seis valores `true` heredados sin base comercial (especialmente música/restauración) y los cuatro valores nulos: La Boîte à cigares, La Peine du talion, Agent 327 y Jan Haarhuis. Agent 327 permanece nulo hasta resolver sus condiciones; Karinding mantiene la discrepancia entre CC BY 4.0 y CC BY-SA 3.0; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
