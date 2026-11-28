@@ -148,9 +148,9 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.rights_checked_on` | 0 |
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
-| `commercial_reuse_permitted = 'true'` | 155 |
+| `commercial_reuse_permitted = 'true'` | 158 |
 | `commercial_reuse_permitted = 'false'` | 0 |
-| Sin valor explícito para reutilización comercial | 29 |
+| Sin valor explícito para reutilización comercial | 26 |
 
 La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 14 determinaciones positivas adicionales (diez CC BY/CC BY-SA, una copia histórica de dominio público y tres copias CC BY 4.0); las otras 26 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
