@@ -17,6 +17,9 @@ export async function POST() {
   try {
     const secret = process.env.STRIPE_SECRET_KEY || process.env.stripe_secret_client;
     if (!secret) return NextResponse.json({error:"Stripe no está configurado."},{status:503});
+    if (!/^(?:sk|rk)_test_/.test(secret)) {
+      return NextResponse.json({error:"NOIR VAULT permanece en modo de prueba. No se aceptan claves de Stripe en modo real."},{status:503});
+    }
 
     const supabase = await createClient();
     const {data:{user}, error:authError} = await supabase.auth.getUser();

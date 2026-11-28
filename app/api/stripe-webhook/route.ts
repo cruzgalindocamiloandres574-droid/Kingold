@@ -72,8 +72,12 @@ async function saveSubscription(subscription:Stripe.Subscription, userId?:string
   if (error) throw error;
 }
 
+function checkoutSessionIsPaid(session:Stripe.Checkout.Session): boolean {
+  return session.payment_status === "paid" || session.payment_status === "no_payment_required";
+}
+
 async function syncCheckoutSession(stripe:Stripe, session:Stripe.Checkout.Session) {
-  if (session.mode !== "subscription" || !session.subscription) return;
+  if (!checkoutSessionIsPaid(session) || session.mode !== "subscription" || !session.subscription) return;
   const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   await saveSubscription(
@@ -96,6 +100,9 @@ export async function POST(request:Request) {
   if (!secret || !webhookSecret || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({error:"Webhook no configurado."},{status:503});
   }
+  if (!/^(?:sk|rk)_test_/.test(secret)) {
+    return NextResponse.json({error:"NOIR VAULT permanece en modo de prueba. El webhook real está deshabilitado."},{status:503});
+  }
 
   const stripe = new Stripe(secret);
   const signature = request.headers.get("stripe-signature");
@@ -107,16 +114,21 @@ export async function POST(request:Request) {
   } catch {
     return NextResponse.json({error:"Firma inválida."},{status:400});
   }
+  if (event.livemode) {
+    return NextResponse.json({error:"Los eventos de Stripe en modo real están deshabilitados."},{status:400});
+  }
 
   try {
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
       const session = event.data.object as Stripe.Checkout.Session;
-      await syncCheckoutSession(stripe,session);
-      await releaseCheckoutAttempt(
-        session.client_reference_id || session.metadata?.user_id,
-        session.metadata?.checkout_attempt_id
-      );
-    } else if (event.type === "checkout.session.expired") {
+      if (checkoutSessionIsPaid(session)) {
+        await syncCheckoutSession(stripe,session);
+        await releaseCheckoutAttempt(
+          session.client_reference_id || session.metadata?.user_id,
+          session.metadata?.checkout_attempt_id
+        );
+      }
+    } else if (event.type === "checkout.session.expired" || event.type === "checkout.session.async_payment_failed") {
       const session = event.data.object as Stripe.Checkout.Session;
       await releaseCheckoutAttempt(
         session.client_reference_id || session.metadata?.user_id,
