@@ -27,13 +27,29 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    name: Validate audit script on code changes
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: node --check scripts/audit-media-sources.mjs
+
   audit:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: Check direct media sources
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       NOIR_VAULT_BASE_URL: ${{ inputs.base_url || 'https://noir-vault-psi.vercel.app' }}
       MEDIA_AUDIT_CONCURRENCY: "2"
+      MEDIA_AUDIT_MIN_INTERVAL_MS: "1000"
       MEDIA_AUDIT_TIMEOUT_MS: "10000"
     steps:
       - name: Checkout
