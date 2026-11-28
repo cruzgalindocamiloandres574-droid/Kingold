@@ -102,7 +102,7 @@ async function syncLatestSubscription(stripe:Stripe, subscriptionId:string) {
 export async function POST(request:Request) {
   const secret = process.env.STRIPE_SECRET_KEY || process.env.stripe_secret_client;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret || !webhookSecret || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!secret || !webhookSecret || !(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     return NextResponse.json({error:"Webhook no configurado."},{status:503});
   }
   if (!/^(?:sk|rk)_test_/.test(secret)) {
