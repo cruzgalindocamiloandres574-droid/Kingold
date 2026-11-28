@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y una nota individual en `content_metadata.license_basis` a los 28 registros indicados. No se modificaron el campo `license`, los créditos, las URLs, el estado de publicación/reproducción ni `commercial_reuse_permitted`.
+El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior marcó 10 registros como permitidos, cada uno con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -41,7 +41,7 @@ El 27 de noviembre de 2026 se revisaron las fuentes siguientes y se añadieron `
 
 ## Fuentes complementarias documentadas en producción
 
-Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). Al volver a consultar sus fichas individuales el 27 de noviembre de 2026, se completó `content_metadata.license_basis` y se actualizó `content_metadata.rights_checked_on` para reflejar la consulta más reciente; no se modificaron licencias, créditos, URLs, estado de reproducción o `commercial_reuse_permitted`.
+Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). Al volver a consultar sus fichas individuales el 27 de noviembre de 2026, se completó `content_metadata.license_basis` y se actualizó `content_metadata.rights_checked_on` para reflejar la consulta más reciente. Tres de ellas (About Archives New Zealand, documentado más abajo, junto con Pasión Oriental y los dos registros de la primera tabla No Way to Say Goodbye y Panopticon) tienen ahora una determinación comercial positiva con nota separada; las demás conservan su valor nulo.
 
 | Título | ID de catálogo | Declaración y evidencia observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ Las siete filas con licencias dobles o información extra requieren cautela: ASE
 
 Para todas las obras CC BY o CC BY-SA se deben mantener la atribución, el enlace a la licencia y la indicación de cambios que sean aplicables. CC BY-SA impone además compartir adaptaciones bajo la misma licencia o una compatible. `rights_checked_on` representa la fecha de la consulta más reciente de la fuente. Cuando se vuelve a consultar una fuente, la fecha se actualiza aunque la declaración de licencia no haya cambiado. La fecha no equivale a una certificación de derechos de todos los componentes.
 
-## Casos no modificados por ambigüedad o condiciones especiales
+## Reutilización comercial confirmada por la licencia de la copia concreta (10 títulos)\n\nEl 27-11-2026 se añadieron diez valores `commercial_reuse_permitted = true`, junto con `commercial_reuse_basis` individual. La conclusión es limitada: la licencia declarada para la copia concreta permite uso comercial si se cumplen sus condiciones. No certifica derechos independientes no incluidos en la licencia, ni implica respaldo del autor.\n\n| Título | Licencia y condiciones que deben conservarse | Fuente de licencia |\n| --- | --- | --- |\n| ABOUT ARCHIVES NEW ZEALAND | CC BY 3.0; atribución a Archives New Zealand, enlace a licencia e indicación de cambios. | https://commons.wikimedia.org/wiki/File:About_Archives_New_Zealand.webm |\n| CAMINANDES 1: LLAMA DRAMA | CC BY 3.0; atribuir a Pablo Vazquez, Beorn Leonard, Francesco Siddi y Jan Morgenstern (música/sonido); enlace e indicación de cambios. | https://commons.wikimedia.org/wiki/File:Caminandes-_Llama_Drama_-_Short_Movie.ogv |\n| CAMINANDES 3: LLAMIGOS | CC BY 3.0; atribución a Blender; conservar crédito musical a Torin Borrowdale y sonido a Sander Houtman. | https://commons.wikimedia.org/wiki/File:Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm |\n| CAMINANDES: GRAN DILLAMA | CC BY-SA 3.0; atribución a los creadores y Jan Morgenstern; adaptaciones deben usar la misma licencia o compatible. | https://commons.wikimedia.org/wiki/File:Caminandes_-_Gran_Dillama_-_Blender_Foundation%27s_new_Open_Movie.webm |\n| PENDATANG (2023) | CC BY 3.0; atribución a Kuman Pictures, enlace a licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:PENDATANG_(2023)_full_movie.webm |\n| SINTEL | CC BY 3.0; Blender Foundation permite reutilización comercial, incluido screening/broadcast, con el rollo completo de créditos; logos, marcas y materiales ajenos al proyecto quedan excluidos. | https://durian.blender.org/sharing/ |\n| WING IT! — Blender Open Movie | CC BY 4.0; Blender Studio autoriza expresamente reutilización comercial con atribución; excluye logos, marcas y materiales ajenos al proyecto. | https://studio.blender.org/projects/wing-it/pages/licensing/ |\n| NO WAY TO SAY GOODBYE | CC BY 3.0; atribución a Jonas M. Jacobs, enlace e indicación de cambios; la fuente Vimeo fue revisada por Commons. | https://commons.wikimedia.org/wiki/File:NO_WAY_TO_SAY_GOODBYE_full_movie.webm |\n| PANOPTICON | CC BY 3.0; atribución a Peter Vlemmix, enlace e indicación de cambios; la fuente YouTube fue revisada por Commons. | https://commons.wikimedia.org/wiki/File:FULL_DOCUMENTARY_-_Panopticon_privacy_-_Peter_Vlemmix.webm |\n| Pasión Oriental | CC BY 3.0; atribución a Santi Korovsky, enlace e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Pasión_Oriental.webm |\n\nLas licencias CC BY y CC BY-SA permiten usos comerciales. CC BY-SA añade la obligación de compartir adaptaciones bajo la misma licencia o una compatible. La plataforma debe mostrar atribución y enlace a la licencia en cada ficha o pantalla de reproducción.\n\n## Casos no modificados por ambigüedad o condiciones especiales
 
 - **Agent 327: Operation Barbershop — Teaser:** Blender Studio publicó el archivo bajo CC BY-ND y una nota del responsable del proyecto dice que no se añadan anuncios, que no se remixe ni se reutilice la música y que se use tal como fue publicado. La revisión del 27-11-2026 quedó registrada en `rights_checked_on` y `license_basis`; no se declaró autorización comercial ni se cambió su disponibilidad. El uso dentro de un catálogo de suscripción debe aclararse con el titular, especialmente por la prohibición expresa de publicidad y la condición de usar la película tal como fue publicada. Fuente: https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/
 - **COSMOS LAUNDROMAT:** la ficha específica de Commons declara CC BY-SA 3.0 para este archivo, mientras que la página general del proyecto Gooseberry indica CC BY 3.0 para la obra del proyecto salvo contenidos marcados de otra forma. La condición general admite excepciones por contenido; se conserva la declaración más específica del archivo y el campo actual del catálogo, a falta de confirmación directa del titular sobre cómo se aplica esa excepción. Fuentes: https://gooseberry.blender.org/license/ y https://www.theindiefilmnetwork.com/movies/cosmos-laundromat
@@ -87,11 +87,11 @@ El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se
 | COSMOS LAUNDROMAT | La página específica de Commons declara CC BY-SA 3.0 para el archivo de First Cycle y registra revisión de la fuente original de YouTube el 11-02-2016. La página general de Gooseberry expresa CC BY 3.0 para la obra del proyecto, pero también indica que contenidos concretos pueden señalar licencias distintas. Se conserva el CC BY-SA 3.0 específico del archivo en el catálogo. | https://commons.wikimedia.org/wiki/File:Cosmos_Laundromat_-_First_Cycle_-_Official_Blender_Foundation_release.webm · https://gooseberry.blender.org/license/ |
 | SPRITE FRIGHT | La página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto, aunque el campo actual del catálogo dice CC BY 4.0. Se registró la evidencia y se mantuvo intacta la etiqueta hasta obtener confirmación sobre la versión aplicable a este archivo. | https://studio.blender.org/projects/sprite-fright/pages/about/ |
 
-## Uso comercial: 40 registros todavía sin determinación explícita
+## Uso comercial: 30 registros todavía sin determinación explícita
 
-La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 40 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
+La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 30 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
 
-El inventario actual se agrupa así:
+El inventario pendiente actual se agrupa así:
 
 1. **12 películas de 1904–1908 con Public Domain Mark en Commons:** L’Antre de la sorcière, La Boîte à cigares, La Fée aux pigeons, La Légende du fantôme, La Peine du talion, La Valise de Barnum, La Valise secrète (fragmento), Le Spectre rouge, Le Troubadour, Les Oeufs de Pâques, Les Papillons japonais y Liliputian Dance. Public Domain Mark 1.0 es un indicador de estado, no una licencia ni una garantía universal. Para Colombia, la Ley 23 de 1982, artículo 26, establece 80 años para obras cinematográficas desde la terminación de la producción, entendida desde la primera comunicación pública; cuando el titular es persona jurídica, el plazo remite al artículo 27, modificado por la Ley 1915 de 2018, que prevé 70 años desde el final del año calendario de la primera publicación autorizada. Antes de marcar uso comercial deben verificarse titular/productor, primera comunicación o publicación autorizada, posible audio añadido, restauraciones y derechos de otros componentes. Fuentes legales oficiales: https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm y https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419.
 2. **8 episodios de BBS: The Documentary:** las fichas individuales declaran CC BY-SA 3.0 Unported, pero el registro de Commons no constituye por sí solo una autorización separada de todos los materiales de terceros que pudieran aparecer en cada episodio. Se conserva el campo comercial sin determinar hasta completar ese examen.
@@ -99,9 +99,9 @@ El inventario actual se agrupa así:
 
 **Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 40 filas permanecen “sin determinar”.
  
-La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas filas.
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 30 filas.
 
-## Recuento reproducido después de completar 48 fundamentos de licencia y registrar 28 fechas de revisión
+## Recuento actualizado después de documentar licencias y condiciones comerciales
 
 Consulta ejecutada en producción el 27 de noviembre de 2026:
 
@@ -111,11 +111,11 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.rights_checked_on` | 0 |
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
-| `commercial_reuse_permitted = 'true'` | 144 |
+| `commercial_reuse_permitted = 'true'` | 154 |
 | `commercial_reuse_permitted = 'false'` | 0 |
-| Sin valor explícito para reutilización comercial | 40 |
+| Sin valor explícito para reutilización comercial | 30 |
 
-La revisión completó los 51 fundamentos documentales de licencia y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 fechas estaban vacías al inicio y se completaron; otras 20 tenían fecha 2026-11-26 y se actualizaron tras volver a consultar sus fuentes. Las 48 filas de la tabla principal y complementaria tienen fundamentos individuales; los tres registros especiales también recibieron fecha y nota con sus condiciones todavía abiertas. La medición no convierte una licencia declarada en autorización comercial universal. No se rellenó `commercial_reuse_permitted` en los registros revisados; esa conclusión requiere evaluar además música, archivos, intérpretes, imágenes y demás derechos incorporados. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se añadieron diez determinaciones positivas con sus respectivas condiciones; las otras 30 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
