@@ -21,7 +21,7 @@ El resultado aparece en los logs y en el resumen de la ejecución de GitHub Acti
 ## Límites importantes
 
 - La consulta se hace como visitante anónimo y respeta RLS. **No incluye títulos premium que requieren una sesión autenticada**.
-- Los reproductores externos y enlaces de lectura se contabilizan, pero no se prueban como archivos directos.
+- Los reproductores externos se contabilizan, pero no se prueban. Los registros que solo tienen enlaces de lectura quedan fuera de la consulta `playback=internal` y no se auditan con este script.
 - Una respuesta 200/206 solo confirma que el servidor respondió a una petición parcial; no garantiza que el navegador pueda decodificar el códec, que el reproductor funcione, que no haya restricciones del proveedor ni que la reproducción sea correcta en Android.
 - Un 403 puede indicar protección contra bots o hotlinking y requiere comprobación manual antes de declarar rota una fuente.
 - Esta auditoría no reemplaza las pruebas reales de reproducción, derechos de distribución ni revisión de DRM, subtítulos o pistas de audio.
