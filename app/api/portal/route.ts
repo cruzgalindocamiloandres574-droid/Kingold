@@ -10,6 +10,9 @@ export async function POST() {
     if (!secret) {
       return NextResponse.json({ error: "Stripe aún no está configurado." }, { status: 503 });
     }
+    if (!/^(?:sk|rk)_test_/.test(secret)) {
+      return NextResponse.json({ error: "NOIR VAULT permanece en modo de prueba. El portal real de facturación sigue deshabilitado." }, { status: 503 });
+    }
 
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
