@@ -6,6 +6,7 @@ import { appendFile } from "node:fs/promises";
 const baseUrl = (process.env.NOIR_VAULT_BASE_URL || "https://noir-vault-psi.vercel.app").replace(/\/$/, "");
 const timeoutMs = Number(process.env.MEDIA_AUDIT_TIMEOUT_MS || 10000);
 const concurrency = Math.max(1, Math.min(6, Number(process.env.MEDIA_AUDIT_CONCURRENCY || 2)));
+const minRequestIntervalMs = Math.max(0, Math.min(10000, Number(process.env.MEDIA_AUDIT_MIN_INTERVAL_MS || 1000)));
 const maxRedirects = 3;
 
 function isPrivateAddress(hostname) {
@@ -53,6 +54,19 @@ async function fetchWithTimeout(url, options = {}) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+let nextMediaRequestAt = 0;
+let mediaRequestQueue = Promise.resolve();
+
+async function waitForMediaRequestSlot() {
+  const queuedSlot = mediaRequestQueue.then(async () => {
+    const waitMs = Math.max(0, nextMediaRequestAt - Date.now());
+    if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+    nextMediaRequestAt = Date.now() + minRequestIntervalMs;
+  });
+  mediaRequestQueue = queuedSlot.catch(() => {});
+  await queuedSlot;
 }
 
 async function fetchCatalogPage(page) {
@@ -109,6 +123,7 @@ async function checkMedia(candidate) {
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
     try {
       validatePublicHttps(currentUrl);
+      await waitForMediaRequestSlot();
       const response = await fetchWithTimeout(currentUrl, {
         method: "GET",
         redirect: "manual",
