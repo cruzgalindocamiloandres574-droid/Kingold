@@ -44,7 +44,8 @@ No pegues contraseñas, claves API ni tokens en el SQL Editor o en el repositori
 
 ## Variables privadas de Vercel
 Configura las credenciales en Project Settings → Environment Variables y limita los secretos al servidor:
-- `SUPABASE_SERVICE_ROLE_KEY`: credencial privada para las operaciones de servidor del webhook y sincronización.
+- `SUPABASE_SECRET_KEY`: clave secreta moderna de Supabase, preferida para las operaciones privilegiadas del webhook.
+- `SUPABASE_SERVICE_ROLE_KEY`: variable heredada compatible durante la migración; el webhook la usa solo como alternativa si no existe `SUPABASE_SECRET_KEY`.
 - `STRIPE_SECRET_KEY`: clave secreta de Stripe en modo test. El código mantiene compatibilidad con el nombre heredado `stripe_secret_client`; para nuevas instalaciones usa `STRIPE_SECRET_KEY`.
 - `STRIPE_WEBHOOK_SECRET`: secreto de firma del endpoint Stripe.
 - `STRIPE_PRICE_ID`: identificador del precio recurrente de NOIR PREMIUM.
@@ -53,7 +54,7 @@ Configura las credenciales en Project Settings → Environment Variables y limit
 La URL y la clave publicable de Supabase se usan también en el cliente. Nunca publiques claves secretas en el repositorio, en variables con prefijo `NEXT_PUBLIC_` ni en capturas públicas.
 
 ## Stripe en el entorno conectado
-- El webhook de Stripe Test del proyecto apunta a `https://noir-vault-psi.vercel.app/api/stripe-webhook`.
+- El webhook de Stripe Test del proyecto apunta a `https://noir-vault-psi.vercel.app/api/stripe-webhook`. El handler exige una clave secreta de Supabase (`SUPABASE_SECRET_KEY` o, como alternativa temporal, `SUPABASE_SERVICE_ROLE_KEY`); nunca debe usar la clave publicable.
 - El precio de prueba configurado es mensual en COP por 20.000. Mantén Stripe en modo test hasta completar la validación del flujo y aprobar expresamente el lanzamiento.
 - Mantén habilitados los eventos `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `customer.subscription.paused`, `customer.subscription.resumed`, `invoice.paid` y `invoice.payment_failed`.
 - El handler solo sincroniza la suscripción cuando `payment_status` es `paid` o `no_payment_required`; sesiones `unpaid` no conceden acceso ni liberan prematuramente el bloqueo. Firma y modo de entorno se validan antes de procesar eventos.
