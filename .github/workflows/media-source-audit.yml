@@ -1,6 +1,12 @@
 name: NOIR VAULT media source audit
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/media-source-audit.yml"
+      - "scripts/audit-media-sources.mjs"
+      - "docs/MEDIA_SOURCE_AUDIT.md"
   pull_request:
     branches: [main]
     paths:
