@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Plans() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const autoCheckoutStarted = useRef(false);
+  const [returnedFromLogin, setReturnedFromLogin] = useState(false);
 
   const checkout = useCallback(async () => {
     setBusy(true);
@@ -36,11 +36,8 @@ export default function Plans() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "1" && !autoCheckoutStarted.current) {
-      autoCheckoutStarted.current = true;
-      void checkout();
-    }
-  }, [checkout]);
+    setReturnedFromLogin(params.get("checkout") === "1");
+  }, []);
 
   return (
     <main className="section">
@@ -52,6 +49,11 @@ export default function Plans() {
         <strong>$20.000</strong>
         <span>COP / MES</span>
       </div>
+      {returnedFromLogin && (
+        <p role="status" aria-live="polite" style={{ maxWidth: 520, marginTop: 18 }}>
+          Tu sesión está iniciada. No abriremos un pago automáticamente: pulsa “SUSCRIBIRME” solo cuando decidas continuar.
+        </p>
+      )}
       <button className="btn" onClick={checkout} disabled={busy}>
         {busy ? "CONECTANDO CON STRIPE…" : "SUSCRIBIRME"}
       </button>
