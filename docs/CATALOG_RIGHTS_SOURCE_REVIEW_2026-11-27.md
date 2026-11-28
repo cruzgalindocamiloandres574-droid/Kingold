@@ -118,7 +118,7 @@ El inventario pendiente actual se agrupa así:
 
 **Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 29 filas permanecen “sin determinar”.
  
-La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 30 filas.
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 29 filas.
 
 ## Reutilización comercial preliminar por dominio público de una copia histórica
 
