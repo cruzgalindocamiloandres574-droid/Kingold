@@ -12,8 +12,8 @@
 | Sin `content_metadata.rights_checked_on` | 0 | 31 |
 | Sin `content_metadata.license_basis` | 0 | 51 |
 | Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 | 0 |
-| Con `commercial_reuse_permitted = 'true'` | 166 | 144 |
-| Sin valor explícito para reutilización comercial | 18 | 40 |
+| Con `commercial_reuse_permitted = 'true'` | 167 | 144 |
+| Sin valor explícito para reutilización comercial | 17 | 40 |
 | Con valor explícito `commercial_reuse_permitted = 'false'` | 0 | 0 |
 
 El 27 de noviembre de 2026 se revisaron fuentes individuales: se completaron 51 fundamentos documentales y 31 fechas de revisión. La descripción por título, las URLs de evidencia, las restricciones y los casos ambiguos están en [CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md](./CATALOG_RIGHTS_SOURCE_REVIEW_2026-11-27.md).
@@ -24,9 +24,9 @@ Los 8 recursos con `audio_url` y los 158 con `reader_url` son campos que pueden 
 
 ## Uso comercial todavía sin determinar
 
-18 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 18 infracciones ni como 18 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
+17 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 17 infracciones ni como 17 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
 
-La revisión del inventario agrupa los 18 registros aún sin determinar en 11 películas de 1904–1908 marcadas con Public Domain Mark de Wikimedia Commons y 7 títulos con condiciones o evidencias adicionales pendientes: Agent 327, Cosmos Laundromat, Jan Haarhuis, Karinding, Luz y Libertad, Mage Porob y Wikimania 2015.
+La revisión del inventario agrupa los 17 registros aún sin determinar en 11 películas de 1904–1908 marcadas con Public Domain Mark de Wikimedia Commons y 6 títulos con condiciones o evidencias adicionales pendientes: Agent 327, Jan Haarhuis, Karinding, Luz y Libertad, Mage Porob y Wikimania 2015.
 
 Public Domain Mark 1.0 es un indicador, no una licencia. Para una determinación en Colombia deben verificarse los artículos 26 y 27 de la Ley 23 de 1982 (artículo 27 modificado por la Ley 1915 de 2018): plazo cinematográfico general de 80 años desde terminación/primera comunicación pública; si el titular es persona jurídica, 70 años desde el final del año de primera publicación autorizada. También deben verificarse titular/productor, fecha de primera comunicación/publicación, bandas sonoras añadidas, restauraciones y derechos complementarios. Fuentes: [Ley 23 de 1982, compilación oficial de Cancillería](https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm) y [Ley 1915 de 2018, Gestor Normativo](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419).
 
@@ -103,4 +103,4 @@ order by title;
 
 ## Estado de los cambios
 
-Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Además, 22 registros recibieron `commercial_reuse_permitted = true` y una nota `commercial_reuse_basis` específica: diez determinaciones CC BY/CC BY-SA, una determinación preliminar de dominio público para la copia histórica de Liliputian Dance, tres copias adicionales bajo CC BY 4.0 (Charge, Dominion y The Daily Dweebs) y los ocho episodios de BBS: The Documentary bajo CC BY-SA 3.0. No se modificaron licencias declaradas, créditos, URLs ni estados. Los 18 registros restantes siguen sin conclusión comercial. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Además, 23 registros recibieron `commercial_reuse_permitted = true` y una nota `commercial_reuse_basis` específica: diez determinaciones CC BY/CC BY-SA, una determinación preliminar de dominio público para la copia histórica de Liliputian Dance, tres copias CC BY 4.0 (Charge, Dominion y The Daily Dweebs), ocho episodios de BBS: The Documentary bajo CC BY-SA 3.0 y Cosmos Laundromat bajo CC BY-SA 3.0. No se modificaron licencias declaradas, créditos, URLs ni estados. Los 17 registros restantes siguen sin conclusión comercial. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
