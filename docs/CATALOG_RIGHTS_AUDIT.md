@@ -103,4 +103,4 @@ order by title;
 
 ## Estado de los cambios
 
-Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Además, 10 registros recibieron `commercial_reuse_permitted = true` y una nota `commercial_reuse_basis` específica. No se modificaron licencias declaradas, créditos, URLs ni estados. Los 29 registros restantes siguen sin conclusión comercial. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Además, 11 registros recibieron `commercial_reuse_permitted = true` y una nota `commercial_reuse_basis` específica (10 licencias CC BY/CC BY-SA y una determinación preliminar de dominio público para la copia histórica de Liliputian Dance). No se modificaron licencias declaradas, créditos, URLs ni estados. Los 29 registros restantes siguen sin conclusión comercial. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
