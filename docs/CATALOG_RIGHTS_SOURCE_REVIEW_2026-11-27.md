@@ -158,9 +158,9 @@ El inventario pendiente actual se agrupa así:
 
 Para Colombia, la Ley 23 de 1982, artículo 26, establece 80 años para obras cinematográficas desde la terminación de la producción, entendida desde la primera comunicación pública; cuando el titular es persona jurídica, el plazo remite al artículo 27, modificado por la Ley 1915 de 2018, que prevé 70 años desde el final del año calendario de la primera publicación autorizada. Fuentes legales oficiales: https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm y https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419.
 
-**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 17 filas permanecen “sin determinar”.
+**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 8 filas permanecen “sin determinar”.
  
-La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 17 filas.
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 8 filas.
 
 ## Reutilización comercial preliminar por dominio público de una copia histórica
 
