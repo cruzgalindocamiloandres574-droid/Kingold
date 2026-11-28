@@ -41,7 +41,7 @@ El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `co
 
 ## Fuentes complementarias documentadas en producción
 
-Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). Al volver a consultar sus fichas individuales el 27 de noviembre de 2026, se completó `content_metadata.license_basis` y se actualizó `content_metadata.rights_checked_on` para reflejar la consulta más reciente. Una de estas 20 filas (About Archives New Zealand) tiene ahora una determinación comercial positiva con nota separada; las otras 19 conservan su valor nulo. Tres títulos de la primera tabla (No Way to Say Goodbye, Panopticon y Pasión Oriental) también recibieron una determinación positiva.
+Estas 20 filas ya tenían una fecha de revisión previa (2026-11-26). Al volver a consultar sus fichas individuales el 27 de noviembre de 2026, se completó `content_metadata.license_basis` y se actualizó `content_metadata.rights_checked_on` para reflejar la consulta más reciente. La consulta directa de producción confirma que 17 de estas 20 filas tienen ahora `commercial_reuse_permitted = true`; las tres que siguen sin determinación son Jan Haarhuis, Karinding y Luz y Libertad. Las otras 17 incluyen About Archives New Zealand y las obras cuya autorización comercial se documentó por separado. Tres títulos de la primera tabla (No Way to Say Goodbye, Panopticon y Pasión Oriental) también recibieron una determinación positiva.
 
 | Título | ID de catálogo | Declaración y evidencia observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
