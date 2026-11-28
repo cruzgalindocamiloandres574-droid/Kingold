@@ -113,7 +113,7 @@ Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente 
 
 ## Protección de reproducción aplicada en producción (2026-11-28)
 
-La migración `supabase/migrations/20261128161156_require_explicit_commercial_rights_for_playback.sql` añade políticas RLS restrictivas de lectura para visitantes y usuarios autenticados. Una fila con fuente reproducible (vídeo principal o alternativo, audio, pistas de audio o reproductor embebido) solo se entrega a usuarios no administradores cuando `content_metadata.commercial_reuse_permitted = true`.
+La migración `supabase/migrations/20261128161225_require_explicit_commercial_rights_for_playback.sql` añade políticas RLS restrictivas de lectura para visitantes y usuarios autenticados. Una fila con fuente reproducible (vídeo principal o alternativo, audio, pistas de audio o reproductor embebido) solo se entrega a usuarios no administradores cuando `content_metadata.commercial_reuse_permitted = true`.
 
 Los administradores conservan la excepción de revisión mediante `private.is_admin()`. La política no elimina ni reescribe fichas, licencias, créditos o URLs; mantiene los recursos sin autorización explícita en la base para su revisión y evita que sus fuentes se entreguen al catálogo público o a cuentas de suscriptor mientras el permiso siga sin verificarse.
 
@@ -126,3 +126,11 @@ Medición al aplicar la protección:
 Verificación posterior: `/api/catalog?playback=internal` respondió HTTP 200 en sus 10 páginas, con 190 registros reproducibles y cero filas devueltas sin `commercial_reuse_permitted = true`. Las consultas RLS como `anon` y `authenticated` también devolvieron cero recursos reproducibles no verificados.
 
 La habilitación futura de cada recurso requiere revisar la copia y sus componentes, documentar evidencia concreta en `commercial_reuse_basis`, registrar `rights_checked_on` y establecer `commercial_reuse_permitted = true` solo después de confirmar el permiso. La auditoría sigue sin ser asesoría jurídica ni una certificación territorial.
+
+## Captura de derechos desde el panel de administración (2026-11-28)
+
+El formulario de alta de `/admin` permite registrar vídeos, audios, lectores y reproductores oficiales embebidos mediante URLs HTTPS. La URL de embed se guarda en `content_metadata.external_embed_url`; no se descarga ni se aloja el material del proveedor.
+
+La autorización comercial permanece sin establecer por defecto. Para activar `content_metadata.commercial_reuse_permitted = true`, el administrador debe marcar expresamente la confirmación de revisión, indicar la licencia y aportar una URL HTTPS de evidencia. El sistema registra `rights_checked_on`, `license_basis`, `license_url`, `source_page_url`, `rights_evidence_url` y `commercial_reuse_basis`, además de `catalog_source`. La interfaz exige que la evidencia y la licencia existan antes de guardar el permiso.
+
+Esta confirmación es una declaración de revisión manual del administrador, no una verificación jurídica automática. Debe comprobarse el derecho aplicable en Colombia y los elementos de terceros (música, subtítulos, imágenes, traducciones, intérpretes y grabaciones, entre otros). Cuando no se tenga evidencia suficiente, se deja la casilla desmarcada: la ficha puede guardarse para revisión, pero las políticas RLS mantienen bloqueadas sus fuentes para visitantes y miembros no administradores.
