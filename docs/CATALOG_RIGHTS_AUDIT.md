@@ -13,6 +13,8 @@
 | Sin `content_metadata.license_basis` | 0 | 51 |
 | Sin perfil de streaming (`streaming_profile` y `stream_profile`) | 0 | 0 |
 | Con `commercial_reuse_permitted = 'true'` | 167 | 144 |
+| Con `true` y `commercial_reuse_basis` explícito | 101 | — |
+| Con `true` sin `commercial_reuse_basis` explícito (heredado) | 66 | — |
 | Sin valor explícito para reutilización comercial | 17 | 40 |
 | Con valor explícito `commercial_reuse_permitted = 'false'` | 0 | 0 |
 
@@ -20,17 +22,21 @@ El 27 de noviembre de 2026 se revisaron fuentes individuales: se completaron 51 
 
 Estos indicadores miden la **completitud de los metadatos**, no una conclusión jurídica. Una licencia escrita en la ficha, un enlace a una licencia o una URL reproducible no bastan por sí solos para demostrar que NOIR VAULT puede ofrecer cada obra en streaming comercial. También pueden existir derechos independientes sobre música, imágenes, intérpretes, restauraciones, materiales incorporados y otros componentes.
 
+**Lectura correcta de los 167 valores `true`:** solo 101 tienen una nota `commercial_reuse_basis` explícita. Los otros 66 son valores heredados sin esa nota; su licencia declarada es PDM/dominio público y el fundamento existente advierte que deben verificarse titular, fecha de publicación/comunicación, restauraciones y bandas sonoras añadidas. No se deben contar como 66 autorizaciones comerciales plenamente comprobadas. Los 17 valores nulos siguen pendientes de determinación.
+
+Los 66 valores heredados sin nota comercial se distribuyen en 62 filas con Wikimedia Commons PDM 1.0, 3 con Public Domain Mark 1.0 y 1 con una etiqueta de dominio público de EE. UU. Aunque las 66 tienen `license_basis` y `source_page_url`, la evidencia existente no sustituye la comprobación por copia de titular, plazo, restauración y banda sonora. Deben revisarse antes de considerarlas autorizadas para monetización.
+
 Los 8 recursos con `audio_url` y los 158 con `reader_url` son campos que pueden coexistir con un vídeo en la misma fila; por eso no se suman como si fueran títulos únicos ni forman parte de las cifras de esta auditoría específica de vídeo.
 
 ## Uso comercial todavía sin determinar
 
-17 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. No se deben interpretar como 17 infracciones ni como 17 autorizaciones: son registros en los que falta una determinación documentada para la copia concreta y sus componentes.
+17 de los 184 videos no tienen valor explícito en `commercial_reuse_permitted`. Además, 66 filas tienen un valor `true` heredado pero carecen de `commercial_reuse_basis`; ambos grupos requieren revisión antes de afirmar que el catálogo completo está despejado para distribución comercial.
 
 La revisión del inventario agrupa los 17 registros aún sin determinar en 11 películas de 1904–1908 marcadas con Public Domain Mark de Wikimedia Commons y 6 títulos con condiciones o evidencias adicionales pendientes: Agent 327, Jan Haarhuis, Karinding, Luz y Libertad, Mage Porob y Wikimania 2015.
 
 Public Domain Mark 1.0 es un indicador, no una licencia. Para una determinación en Colombia deben verificarse los artículos 26 y 27 de la Ley 23 de 1982 (artículo 27 modificado por la Ley 1915 de 2018): plazo cinematográfico general de 80 años desde terminación/primera comunicación pública; si el titular es persona jurídica, 70 años desde el final del año de primera publicación autorizada. También deben verificarse titular/productor, fecha de primera comunicación/publicación, bandas sonoras añadidas, restauraciones y derechos complementarios. Fuentes: [Ley 23 de 1982, compilación oficial de Cancillería](https://www.cancilleria.gov.co/normograma/compilacion/docs/ley_0023_1982.htm) y [Ley 1915 de 2018, Gestor Normativo](https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=87419).
 
-Los campos se mantienen nulos hasta completar la revisión. No se han convertido en verdaderos por la sola presencia de una etiqueta CC o PDM.
+Los 17 campos nulos se mantienen así hasta completar la revisión. En una consulta posterior se detectaron 66 valores `true` heredados con PDM/dominio público y sin nota comercial específica; no se crearon en esta revisión, pero tampoco deben tratarse como autorizaciones finales por la sola presencia de PDM.
 
 ## Consulta de verificación
 
@@ -103,4 +109,4 @@ order by title;
 
 ## Estado de los cambios
 
-Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Además, 23 registros recibieron `commercial_reuse_permitted = true` y una nota `commercial_reuse_basis` específica: diez determinaciones CC BY/CC BY-SA, una determinación preliminar de dominio público para la copia histórica de Liliputian Dance, tres copias CC BY 4.0 (Charge, Dominion y The Daily Dweebs), ocho episodios de BBS: The Documentary bajo CC BY-SA 3.0 y Cosmos Laundromat bajo CC BY-SA 3.0. No se modificaron licencias declaradas, créditos, URLs ni estados. Los 17 registros restantes siguen sin conclusión comercial. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.
+Se completaron 51 fundamentos de licencia y 51 fechas de consulta más reciente (31 vacías y 20 actualizadas desde 2026-11-26). Se documentaron 23 determinaciones comerciales específicas y se añadieron notas comerciales a 78 filas CC BY/CC BY-SA/CC0 con fuente y fundamento de licencia ya existentes. Resultado: 101 filas con `commercial_reuse_basis`; 66 valores `true` heredados con PDM/dominio público aún sin base comercial específica; 17 valores nulos. No se modificaron licencias declaradas, créditos, URLs ni estados. Los 66 casos PDM deben revisarse por copia antes de tratarlos como autorizados. La auditoría no constituye asesoría jurídica ni certificación de derechos para todos los territorios.

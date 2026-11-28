@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior documentó 22 registros como permitidos, cada uno con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
+El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior documentó 23 determinaciones específicas con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -92,17 +92,17 @@ Las licencias CC BY y CC BY-SA permiten usos comerciales. CC BY-SA añade la obl
 ## Casos no modificados por ambigüedad o condiciones especiales
 
 - **Agent 327: Operation Barbershop — Teaser:** Blender Studio publicó el archivo bajo CC BY-ND y una nota del responsable del proyecto dice que no se añadan anuncios, que no se remixe ni se reutilice la música y que se use tal como fue publicado. La revisión del 27-11-2026 quedó registrada en `rights_checked_on` y `license_basis`; no se declaró autorización comercial ni se cambió su disponibilidad. El uso dentro de un catálogo de suscripción debe aclararse con el titular, especialmente por la prohibición expresa de publicidad y la condición de usar la película tal como fue publicada. Fuente: https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/
-- **SPRITE FRIGHT:** el catálogo dice CC BY 4.0, mientras que la página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto. La revisión del 27-11-2026 se registró en los metadatos, pero no se sustituyó la etiqueta de licencia ni se declaró una versión prevalente. Fuente: https://studio.blender.org/projects/sprite-fright/pages/about/
+- **SPRITE FRIGHT:** el catálogo dice CC BY 4.0, mientras que la página oficial de Blender Studio declara CC BY 1.0 para el proyecto. Ambas versiones permiten uso comercial con atribución, por lo que la copia tiene `commercial_reuse_permitted = true` y una nota comercial limitada a materiales producidos por el proyecto. La discrepancia de versión sigue pendiente para limpiar el campo `license`; no se incluyen logos, marcas ni materiales externos. Fuente: https://studio.blender.org/projects/sprite-fright/pages/about/
 Los demás títulos con campos incompletos continúan pendientes de revisión individual.
 
 ## Dos revisiones con condiciones o versiones de licencia pendientes
 
-El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se registraron `rights_checked_on` y `license_basis` como constancia de la revisión, sin cambiar el campo `license`, la publicación, la disponibilidad ni `commercial_reuse_permitted` en estos dos casos.
+El 27 de noviembre de 2026 se consultaron también los siguientes documentos. Se registraron `rights_checked_on` y `license_basis` como constancia de la revisión. Agent 327 conserva `commercial_reuse_permitted = null` por sus condiciones; Sprite Fright conserva `true` con una nota comercial que documenta que CC BY 1.0 y CC BY 4.0 permiten uso comercial, aunque la versión exacta de la licencia sigue pendiente de limpieza.
 
 | Título | Evidencia y condición pendiente | Fuentes |
 | --- | --- | --- |
 | Agent 327: Operation Barbershop — Teaser | Blender Studio declara CC BY-ND para el archivo original. En un comentario de seguimiento, Francesco Siddi indicó que el film debe mostrarse tal como fue realizado, sin añadir publicidad, sin remix y sin reutilizar la música. Esto no resuelve si el acceso dentro de una suscripción de pago queda cubierto; no se ha marcado como uso comercial autorizado. | https://studio.blender.org/blog/agent-327-film-file-released-as-cc-by-nd/ |
-| SPRITE FRIGHT | La página oficial de Blender Studio declara Creative Commons Attribution 1.0 para el proyecto, aunque el campo actual del catálogo dice CC BY 4.0. Se registró la evidencia y se mantuvo intacta la etiqueta hasta obtener confirmación sobre la versión aplicable a este archivo. | https://studio.blender.org/projects/sprite-fright/pages/about/ |
+| SPRITE FRIGHT | La página del titular declara CC BY 1.0 y la ficha de la copia de Commons CC BY 4.0. Ambas versiones permiten uso comercial con atribución; se registró `commercial_reuse_permitted = true` con una nota que limita el permiso al film y materiales producidos por el proyecto. La discrepancia de versión sigue abierta para limpiar el metadato `license`; logos, marcas y materiales externos quedan excluidos. | https://studio.blender.org/projects/sprite-fright/pages/about/ · https://commons.wikimedia.org/wiki/File:Sprite_Fright_-_Blender_Open_Movie-full_movie.webm |
 
 ## Tres determinaciones adicionales CC BY 4.0 confirmadas (27-11-2026)
 
@@ -114,7 +114,13 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 | THE DAILY DWEEBS | La URL de vídeo del catálogo está alojada en `video.blender.org`. IFN identifica la película como open movie de Blender Studio, enlaza el proyecto de Blender Foundation y declara CC BY 4.0. La página lista dirección, producción, voces, música y sonido; la copia de streaming conserva los créditos originales y solo se re-encodifica. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no incluye marcas ni materiales ajenos. | https://www.theindiefilmnetwork.com/movies/the-daily-dweebs · https://studio.blender.org/projects/dailydweebs/ |
 | DOMINION (2018) | La copia exacta del catálogo es una transcodificación de Wikimedia Commons. La ficha atribuye la obra a Farm Transparency Project, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; la revisión de licencia de Commons figura el 10-01-2026. La FAQ del titular también declara CC BY 4.0. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm · https://dominionmovement.com/faq |
 
-Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 permisos positivos y 17 registros sin determinación.
+Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 167 valores `true`: 101 con fundamento comercial explícito y 66 heredados con PDM/dominio público sin nota comercial específica; además, hay 17 registros nulos.
+
+## 78 registros CC BY, CC BY-SA y CC0 con fundamento comercial explícito
+
+Se añadieron notas `commercial_reuse_basis` a 78 filas que ya tenían `license_basis`, `source_page_url` y fecha de revisión. La distribución de las licencias declaradas es: **44 CC BY-SA**, **30 CC BY** y **4 CC0 1.0**. Las notas incluyen la página fuente, el fundamento individual que ya constaba en el registro y las condiciones aplicables: atribución/enlace/indicación de cambios para CC BY; además, ShareAlike para CC BY-SA; CC0 permite uso comercial sin obligación de atribución, aunque se recomienda conservar el crédito.
+
+Este paso documenta el permiso comercial derivado de la licencia declarada para la copia concreta; no constituye una nueva verificación de todos los componentes incorporados ni otorga derechos independientes sobre música, material de terceros, marcas o derechos de imagen/privacidad. Cuando el fundamento previo describe exclusiones, discrepancias o condiciones, estas se conservan en la nota y deben respetarse. No se cambiaron licencias, créditos, URLs ni estado de reproducción.
 
 ## COSMOS LAUNDROMAT — CC BY-SA 3.0 y uso comercial
 
@@ -129,6 +135,10 @@ La consulta individual de las ocho filas del catálogo y sus fuentes confirma la
 Se registró `commercial_reuse_permitted = true` y una nota individual `commercial_reuse_basis` en los ocho episodios. Se deben conservar la atribución a Jason Scott, el enlace a CC BY-SA 3.0 y la indicación de cambios; si se distribuye una adaptación, debe compartirse bajo la misma licencia o una compatible. La determinación se limita a la película licenciada por el autor y no concede derechos independientes sobre materiales de terceros que no estén cubiertos por su licencia.
 
 Fuentes primarias y de archivo: https://ascii.textfiles.com/archives/870 · https://archive.org/details/BBS.The.Documentary · https://commons.wikimedia.org/wiki/Category:BBS:The_Documentary
+
+## 66 valores `true` heredados sin fundamento comercial específico
+
+La consulta directa de producción identificó 66 filas con `commercial_reuse_permitted = true` pero sin `commercial_reuse_basis`. Se distribuyen en 62 fichas con Wikimedia Commons PDM 1.0, 3 con Public Domain Mark 1.0 y 1 con etiqueta de dominio público de EE. UU. Las 66 ya tienen `license_basis` y `source_page_url`, pero esos fundamentos advierten que PDM no es una licencia y que deben verificarse titular, primera comunicación/publicación, plazo aplicable, restauraciones y bandas sonoras añadidas. Los valores `true` son heredados y no se deben presentar como autorización comercial final hasta revisar cada copia. No se cambiaron en este lote para evitar una modificación masiva sin análisis individual.
 
 ## Uso comercial: 17 registros todavía sin determinación explícita
 
@@ -160,11 +170,13 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
 | `commercial_reuse_permitted = 'true'` | 167 |
+| `true` con `commercial_reuse_basis` explícito | 101 |
+| `true` sin `commercial_reuse_basis` explícito (heredado, PDM/dominio público) | 66 |
 | `commercial_reuse_permitted = 'false'` | 0 |
 | Sin valor explícito para reutilización comercial | 17 |
 
-La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones positivas adicionales (diez CC BY/CC BY-SA, una copia histórica de dominio público, tres copias CC BY 4.0, ocho episodios BBS CC BY-SA y Cosmos Laundromat CC BY-SA); las otras 17 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 23 determinaciones comerciales específicas y se añadieron notas a 78 copias CC BY/CC BY-SA/CC0 con fuente y fundamento de licencia ya existentes. Hay 101 filas con base comercial explícita; 66 valores `true` heredados con PDM/dominio público siguen sin nota comercial específica y requieren revisión por copia; las otras 17 filas mantienen el valor nulo. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
-Prioridad: obtener aclaración del titular para Agent 327 y Sprite Fright antes de decidir si procede marcar la reutilización comercial como permitida o modificar la etiqueta de licencia. Los dos registros ya tienen fecha y fundamento de revisión; lo que permanece pendiente es la resolución de sus condiciones de uso o discrepancias de versión.
+Prioridad: revisar individualmente los 66 valores `true` heredados con PDM/dominio público y sin nota comercial, empezando por copias con restauraciones o sonido añadido. En paralelo, Agent 327 permanece nulo hasta resolver sus condiciones; Sprite Fright ya tiene permiso comercial bajo ambas versiones CC BY, pero debe corregirse la discrepancia de versión en el metadato `license`.
