@@ -6,7 +6,7 @@
 
 ## Registros documentados en producción
 
-El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior marcó 10 registros como permitidos, cada uno con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
+El 27 de noviembre de 2026 se revisaron fuentes individuales y se añadieron `content_metadata.rights_checked_on = '2026-11-27'` y notas `content_metadata.license_basis` en 51 registros. La revisión comercial posterior documentó 22 registros como permitidos, cada uno con `commercial_reuse_basis`; no se modificaron `license`, créditos, URLs ni estados de publicación/reproducción.
 
 | Título | ID de catálogo | Declaración observada | Fuente primaria / ficha individual |
 | --- | --- | --- | --- |
@@ -116,11 +116,19 @@ La revisión individual de las copias exactas del catálogo y sus páginas de de
 | THE DAILY DWEEBS | La URL de vídeo del catálogo está alojada en `video.blender.org`. IFN identifica la película como open movie de Blender Studio, enlaza el proyecto de Blender Foundation y declara CC BY 4.0. La página lista dirección, producción, voces, música y sonido; la copia de streaming conserva los créditos originales y solo se re-encodifica. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no incluye marcas ni materiales ajenos. | https://www.theindiefilmnetwork.com/movies/the-daily-dweebs · https://studio.blender.org/projects/dailydweebs/ |
 | DOMINION (2018) | La copia exacta del catálogo es una transcodificación de Wikimedia Commons. La ficha atribuye la obra a Farm Transparency Project, declara CC BY 4.0 y registra confirmación de que la licencia CC BY es intencional; la revisión de licencia de Commons figura el 10-01-2026. La FAQ del titular también declara CC BY 4.0. Uso comercial permitido con atribución, enlace a la licencia e indicación de cambios; no sugerir respaldo. | https://commons.wikimedia.org/wiki/File:Dominion_(2018)_–_full_documentary.webm · https://dominionmovement.com/faq |
 
-Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 158 permisos positivos y 26 registros sin determinación.
+Estas determinaciones se limitan a las copias identificadas y a los materiales cubiertos por CC BY 4.0; no conceden derechos sobre marcas, materiales externos o elementos independientes que no estén incluidos en la licencia. La consulta de producción resultante es 166 permisos positivos y 18 registros sin determinación.
 
-## Uso comercial: 26 registros todavía sin determinación explícita
+## BBS: The Documentary — ocho episodios con reutilización comercial confirmada
 
-La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 26 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
+La consulta individual de las ocho filas del catálogo y sus fuentes confirma la misma cadena de derechos. Cada página de Wikimedia Commons identifica a Jason Scott como autor y declara CC BY-SA 3.0 Unported para el episodio; las fichas señalan el elemento de Internet Archive como fuente y registran revisión de licencia. El elemento de Internet Archive identifica a Jason Scott, el año 2005 y la licencia Attribution-Share Alike 3.0. En una declaración pública del 12-06-2005, el propio Jason Scott explica que liberó el documental completo (ocho episodios) bajo Creative Commons Attribution-ShareAlike y que se puede cobrar por los usos realizados con él.
+
+Se registró `commercial_reuse_permitted = true` y una nota individual `commercial_reuse_basis` en los ocho episodios. Se deben conservar la atribución a Jason Scott, el enlace a CC BY-SA 3.0 y la indicación de cambios; si se distribuye una adaptación, debe compartirse bajo la misma licencia o una compatible. La determinación se limita a la película licenciada por el autor y no concede derechos independientes sobre materiales de terceros que no estén cubiertos por su licencia.
+
+Fuentes primarias y de archivo: https://ascii.textfiles.com/archives/870 · https://archive.org/details/BBS.The.Documentary · https://commons.wikimedia.org/wiki/Category:BBS:The_Documentary
+
+## Uso comercial: 18 registros todavía sin determinación explícita
+
+La revisión de licencia fuente por fuente completó el fundamento documental, pero **no cambió** `content_metadata.commercial_reuse_permitted` en estas 18 filas. El campo nulo significa que NOIR VAULT aún no ha documentado una conclusión de reutilización comercial para toda la cadena de derechos; no es una conclusión de que esté prohibida.
 
 El inventario pendiente actual se agrupa así:
 
@@ -128,9 +136,9 @@ El inventario pendiente actual se agrupa así:
 2. **8 episodios de BBS: The Documentary:** las fichas individuales declaran CC BY-SA 3.0 Unported, pero el registro de Commons no constituye por sí solo una autorización separada de todos los materiales de terceros que pudieran aparecer en cada episodio. Se conserva el campo comercial sin determinar hasta completar ese examen.
 3. **Otros 7 títulos con licencia abierta o condición particular:** Agent 327; Cosmos Laundromat; Jan Haarhuis; Karinding; Luz y Libertad; Mage Porob; Wikimania 2015. Se requieren comprobaciones complementarias de música, intérpretes, material de archivo, condiciones por copia (Mage Porob), restricciones ND, marcas y declaraciones de licencia discrepantes.
 
-**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 26 filas permanecen “sin determinar”.
+**Regla de control:** no cambiar un valor nulo a verdadero solo porque se mencione CC BY, CC BY-SA o PDM. La licencia debe cubrir la copia concreta que se entrega y sus componentes relevantes, el modelo de distribución por suscripción debe respetar todas las condiciones y la atribución debe mostrarse al usuario. No se asignó `false` por falta de evidencia; las 18 filas permanecen “sin determinar”.
  
-La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 26 filas.
+La existencia de una fecha y una nota de evidencia significa que la fuente fue revisada; no significa que todos los derechos complementarios estén resueltos ni que el uso en un servicio de suscripción se encuentre autorizado. No se completó `commercial_reuse_permitted` en estas 18 filas.
 
 ## Reutilización comercial preliminar por dominio público de una copia histórica
 
@@ -148,11 +156,11 @@ Consulta ejecutada en producción el 27 de noviembre de 2026:
 | Sin `content_metadata.rights_checked_on` | 0 |
 | Sin `content_metadata.license_basis` | 0 |
 | Sin perfil de streaming | 0 |
-| `commercial_reuse_permitted = 'true'` | 158 |
+| `commercial_reuse_permitted = 'true'` | 166 |
 | `commercial_reuse_permitted = 'false'` | 0 |
-| Sin valor explícito para reutilización comercial | 26 |
+| Sin valor explícito para reutilización comercial | 18 |
 
-La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 14 determinaciones positivas adicionales (diez CC BY/CC BY-SA, una copia histórica de dominio público y tres copias CC BY 4.0); las otras 26 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
+La revisión completó 51 fundamentos documentales y dejó las 51 fechas de consulta más reciente en 2026-11-27. De ellas, 31 estaban vacías y 20 se actualizaron desde 2026-11-26. Se documentaron 22 determinaciones positivas adicionales (diez CC BY/CC BY-SA, una copia histórica de dominio público, tres copias CC BY 4.0 y ocho episodios BBS CC BY-SA); las otras 18 filas siguen sin conclusión comercial. No se modificaron URLs, créditos, licencias declaradas ni estados del catálogo.
 
 ## Siguiente lote de revisión
 
