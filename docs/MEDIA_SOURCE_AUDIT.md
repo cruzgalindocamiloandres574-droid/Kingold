@@ -12,7 +12,7 @@ NOIR VAULT incluye una comprobación periódica de accesibilidad HTTP para las f
 
 1. Lee las páginas de `/api/catalog?playback=internal` del despliegue elegido, respetando la paginación de 20 registros.
 2. Reúne y deduplica `video_url`, `fallback_video_url`, `audio_url` y las URL de `audio_tracks`.
-3. Envía una petición HTTP con `Range: bytes=0-0`; no descarga el archivo completo. Por defecto serializa las comprobaciones y deja un segundo entre solicitudes para reducir límites de frecuencia del proveedor.
+3. Envía una petición HTTP con `Range: bytes=0-0`; no descarga el archivo completo. Por defecto usa concurrencia limitada (2 solicitudes simultáneas). Los proveedores pueden devolver HTTP 429; esas respuestas se informan como inconclusas y no como enlaces rotos.
 4. Acepta respuestas HTTP 200/206 con un tipo de contenido de medio o playlist, y registra fallos, códigos, tipo de contenido y títulos afectados.
 5. Sigue como máximo tres redirecciones HTTPS y bloquea hosts locales o direcciones IP privadas. Los informes muestran la ruta de la URL, no sus parámetros de consulta.
 
