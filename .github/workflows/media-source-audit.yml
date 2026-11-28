@@ -1,6 +1,12 @@
 name: NOIR VAULT media source audit
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/media-source-audit.yml"
+      - "scripts/audit-media-sources.mjs"
+      - "docs/MEDIA_SOURCE_AUDIT.md"
   workflow_dispatch:
     inputs:
       base_url:
