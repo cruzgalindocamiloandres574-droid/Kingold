@@ -48,12 +48,18 @@ export default function Register() {
         ? requestedNext
         : "/cuenta";
 
+      // Always send confirmation emails back to the configured canonical site.
+      // Using window.location.origin here can produce localhost links during local testing.
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || window.location.origin;
+      const callbackUrl = new URL("/auth/callback", siteUrl);
+      callbackUrl.searchParams.set("next", safeNext);
+
       const supabase = createBrowserClient(url, key);
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(safeNext),
+          emailRedirectTo: callbackUrl.toString(),
         },
       });
 
@@ -101,7 +107,7 @@ export default function Register() {
             CONTRASEÑA
             <input type="password" autoComplete="new-password" required minLength={8} value={password} onChange={event => setPassword(event.target.value)} placeholder="Mínimo 8 caracteres" style={{ width: "100%", padding: 14, border: "1px solid #4b463b", borderRadius: 8, background: "#080909", color: "#f3efe7" }} />
           </label>
-          <small style={{ color: "#8f8d85", lineHeight: 1.5 }}>Te enviaremos un correo de confirmación cuando el proyecto tenga habilitada la verificación por email.</small>
+          <small style={{ color: "#8f8d85", lineHeight: 1.5 }}>Te enviaremos un correo de confirmación. Abre el enlace para activar tu cuenta y volver a NOIR VAULT.</small>
           {message && <p role={message.kind === "error" ? "alert" : "status"} style={{ margin: "4px 0", color: message.kind === "error" ? "#ffb0a8" : "#c7d9b2", lineHeight: 1.6 }}>{message.text}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ width: "100%", minHeight: 48, opacity: busy ? .65 : 1 }}>{busy ? "CREANDO CUENTA…" : "CREAR MI CUENTA"}</button>
         </form>
